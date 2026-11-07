@@ -15,11 +15,7 @@
 :root[data-theme="dark"][data-kind="base"] { --mo-base-accent: color-mix(in oklab, var(--mo-kind) 52%, white); --mo-base-sel: rgba(255, 140, 140, .16); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"])[data-kind="base"] { --mo-base-accent: color-mix(in oklab, var(--mo-kind) 52%, white); --mo-base-sel: rgba(255, 140, 140, .16); }
-  /* the frame paints these in the dark app colour, too dark on a dark ribbon */
-  :root:not([data-theme="light"]):not([data-theme="dark"])[data-kind="base"] .mo-ribbon__tab.is-active { color: var(--mat-text); }
-  :root:not([data-theme="light"]):not([data-theme="dark"])[data-kind="base"] .mo-rbtn--lg .mo-rbtn__icon--lg.mat-icon { color: var(--mo-base-accent); }
 }
-:root[data-theme="dark"][data-kind="base"] .mo-rbtn--lg .mo-rbtn__icon--lg.mat-icon { color: var(--mo-base-accent); }
 
 /* ---- the frame of the work area: navigation pane | tabs + views ---- */
 .mo-base { --mo-base-nav-w: 240px; position: relative; display: grid; grid-template-columns: var(--mo-base-nav-w) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100%; min-height: 0; font-size: var(--mat-fs-sm); }
