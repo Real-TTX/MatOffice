@@ -54,7 +54,7 @@ namespace MatOffice.Services.Formats.Slides;
 /// Color: "#rrggbb", or a colour of the design "dk1|lt1|dk2|lt2|accent1..6|hlink" with an optional ":+40" (40 % lighter) / ":-25" (25 % darker)
 /// </code>
 /// The layouts (where the placeholders sit) and the designs are data: <c>Resources/Templates/slides/layouts.json</c> and <c>themes.json</c> (the editor has
-/// the same in <c>layouts.js</c> / <c>themes.js</c>). The check is <see cref="SlidesNormalizer"/>; the templates are <see cref="SlidesTemplates"/>.
+/// the same in <c>wwwroot/js/slides/layouts-data.js</c> / <c>themes-data.js</c>). The check is <see cref="SlidesNormalizer"/>; the templates are <see cref="SlidesTemplates"/>.
 /// </para>
 /// </summary>
 public sealed class SlidesHandler : IKindHandler

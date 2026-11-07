@@ -3,11 +3,11 @@
    canvas.js (the slide), thumbs.js (the slide pane and the sorter), text.js (editing text), pane.js (the format pane), show.js (the show and the
    presenter view), output.js (PNG, print), ribbon.js (the tabs). The content format: Services/Formats/Slides/SlidesHandler.cs. */
 import { startEditor } from '../editor/frame.js';
-import { t, el, icon, mod, debounce, shrinkImage, readAsDataUrl, pickFile, download } from '../editor/util.js';
+import { t, el, icon, debounce, shrinkImage, readAsDataUrl, pickFile, download } from '../editor/util.js';
 import {
   newSlide, nextLayout, applyLayout, resetSlide, newId, clone, round, withGroups, bounds, rotatedBounds, newShape, defaultShapeSize,
-  newTable, emptyBody, bodyFromText, textDefaults, isEmptyBody, slotOf, fitInto, makeTheme, themeById, layoutOf, tableLook, isNumbering,
-  backgroundOf, bodyText, sanitizeElements, roleOf,
+  newTable, emptyBody, bodyFromText, textDefaults, isEmptyBody, slotOf, fitInto, makeTheme, themeById, layoutOf, isNumbering,
+  backgroundOf, bodyText, sanitizeElements,
 } from './model.js';
 import { ensureStyles } from './render.js';
 import { Canvas } from './canvas.js';
@@ -599,7 +599,6 @@ class SlidesApp {
     if (!this.slide || !this.selection.length) return;
     const ids = new Set(this.selection);
     this.edit(() => {
-      const layout = layoutOf(this.slide.layout);
       const out = [];
       for (const e of this.slide.elements) {
         if (!ids.has(e.id)) { out.push(e); continue; }
@@ -609,7 +608,6 @@ class SlidesApp {
           out.push({ id: newId(), type: slot.role === 'picture' ? 'shape' : 'text', ...(slot.role === 'picture' ? { shape: 'rect' } : {}), ph: slot.ph, x: round(slot.x * this.content.size.w), y: round(slot.y * this.content.size.h), w: round(slot.w * this.content.size.w), h: round(slot.h * this.content.size.h), text: emptyBody({ autofit: 'shrink' }) });
         }
       }
-      void layout;
       this.slide.elements = out;
       if (this.slide.animations) { this.slide.animations = this.slide.animations.filter(a => out.some(e => e.id === a.el)); if (!this.slide.animations.length) delete this.slide.animations; }
       this.selection = [];
@@ -1489,7 +1487,7 @@ class SlidesApp {
       [t('Slides.Info.Size'), this.content.size.w / this.content.size.h > 1.5 ? '16:9' : '4:3'],
       [t('Slides.Info.Design'), themeById(this.content.theme.id) ? t('Slides.Theme.' + this.content.theme.id) : this.content.theme.name || ''],
     ];
-    return el('dl', { class: 'mat-kv' }, ...rows.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })]));
+    return el('dl', { class: 'mat-kv mo-slides-info' }, ...rows.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })]));
   }
 }
 
@@ -1505,4 +1503,5 @@ startEditor({
   downloads: () => app.downloads(),
 });
 
-export { app, mod, roleOf, tableLook };
+/** The editor of the page (for tests and the console). */
+export { app };

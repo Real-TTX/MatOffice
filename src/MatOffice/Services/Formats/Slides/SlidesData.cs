@@ -19,7 +19,7 @@ public sealed record FooterSlot(double X, double Y, double W, double H, string A
 
 /// <summary>
 /// The layouts and designs (themes) of Slides, read from <c>Resources/Templates/slides/layouts.json</c> and <c>themes.json</c> (embedded).
-/// The editor has the same data in <c>wwwroot/js/slides/layouts.js</c> and <c>themes.js</c>; <c>SlidesFormatTests</c> checks that both agree.
+/// The editor has the same data in <c>wwwroot/js/slides/layouts-data.js</c> and <c>themes-data.js</c>; <c>SlidesFormatTests</c> checks that both agree.
 /// </summary>
 public static class SlidesData
 {

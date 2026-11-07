@@ -219,6 +219,8 @@
 .mo-slides-find__replace-row { display: none; }
 .mo-slides-find.has-replace .mo-slides-find__replace-row { display: flex; }
 .mo-slides-find__info { flex: 1 1 auto; color: var(--mat-text-muted); font-size: .75rem; text-align: right; }
+/* File → Info: the lines of Slides continue the list of the frame */
+.mo-slides-info.mat-kv { margin-top: var(--mat-space-3); }
 .mo-slides-form { display: flex; flex-direction: column; gap: 10px; }
 .mo-slides-printchoice { display: flex; flex-direction: column; gap: 8px; }
 

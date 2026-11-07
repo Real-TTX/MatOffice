@@ -4,10 +4,10 @@
    The few rules that cannot be inline (bullets) are RENDER_CSS, put into the page once and into every SVG picture. */
 import { t, lang } from '../editor/util.js';
 import {
-  PT, INSET, resolveColor, alpha, backgroundOf, decorOf, textDefaults, indentOf, numberText, isNumbering, isEmptyBody, slotOf,
+  PT, INSET, resolveColor, backgroundOf, decorOf, textDefaults, indentOf, numberText, isNumbering, isEmptyBody, slotOf,
   textColor, tableLook, FOOTER,
 } from './model.js';
-import { shapePath, textRect, arrowHead, arrowInset, dashArray, adjOf } from './geometry.js';
+import { shapePath, textRect, arrowHead, arrowInset, dashArray } from './geometry.js';
 
 export const RENDER_CSS = `
 .mo-sr{position:relative;overflow:hidden;box-sizing:border-box;color:#000;text-align:left;line-height:normal;font-kerning:normal;-webkit-font-smoothing:antialiased;letter-spacing:normal;word-spacing:normal;text-transform:none;font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;font-size:16px;}
@@ -456,6 +456,3 @@ export function fitBox(box) {
   body.style.setProperty('--fs', String(Math.round(lo * 1000) / 1000));
 }
 
-/** The resolved colour (for swatches of the palette). */
-export const colorOf = (c, theme) => resolveColor(c, theme);
-export { alpha, adjOf };

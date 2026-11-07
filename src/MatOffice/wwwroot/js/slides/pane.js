@@ -1,8 +1,8 @@
 /* MatOffice Slides – the pane on the right of the normal view, like the task panes of the office suites:
    "Format Shape" / "Format Picture" (fill, line, shadow, transparency, size and position, text box, crop, alt text), "Format Background"
    when nothing is selected (solid, gradient, picture; apply to all), and the "Animation Pane" (the order of the effects, trigger, duration). */
-import { t, el, icon, pickFile, shrinkImage } from '../editor/util.js';
-import { resolveColor, round, PT } from './model.js';
+import { t, el, icon, pickFile } from '../editor/util.js';
+import { resolveColor, round } from './model.js';
 import { colorPicker, colorName } from './ui.js';
 
 export class Pane {
@@ -173,7 +173,6 @@ export class Pane {
         this.row(t('Slides.Inset.Bottom'), this.number(round(inset[3]), v => setInset(3, v), { min: 0, max: 500, unit: 'px' })),
         this.check(t('Slides.Wrap'), tb.wrap !== false, v => app.editElements(texts.map(x => x.id), x => { if (v) delete x.text.wrap; else x.text.wrap = false; }))));
     }
-    void PT;
   }
 
   async pickPicture() {

@@ -8,7 +8,6 @@ export const FOOTER = LAYOUT_DATA.footer;
 export const BODY = LAYOUT_DATA.body;
 export const THEMES = THEME_DATA.themes;
 export const VARIANTS = THEME_DATA.variants;
-export const SCHEME = ['dk1', 'lt1', 'dk2', 'lt2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6', 'hlink'];
 export const PT = 4 / 3; // px per pt at 96 dpi
 export const INSET = [9.6, 4.8, 9.6, 4.8];
 
@@ -63,23 +62,8 @@ export function resolveColor(c, theme) {
   return mod ? lum(base, Number(mod)) : base;
 }
 
-export function alpha(hex, a) {
-  if (a === undefined || a >= 1) return hex;
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${n >> 16 & 255}, ${n >> 8 & 255}, ${n & 255}, ${Math.max(0, a)})`;
-}
-
-/** Whether white text reads better than black on a colour. */
-export function isDark(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
-  const L = 0.2126 * lin(n >> 16 & 255) + 0.7152 * lin(n >> 8 & 255) + 0.0722 * lin(n & 255);
-  return L < 0.4;
-}
-
 /** The theme colours of the palette: the ten slots and their shades, like the office suites. */
 export const PALETTE_SLOTS = ['lt1', 'dk1', 'lt2', 'dk2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6'];
-export const PALETTE_SHADES = [[0], [80, 50, 35, 25, 15], [-5, -15, -25, -35, -50]];
 export function paletteColumn(slot) {
   // light slots get darker shades, the others lighter and darker ones
   if (slot === 'lt1') return ['lt1', 'lt1:-5', 'lt1:-15', 'lt1:-25', 'lt1:-35', 'lt1:-50'];

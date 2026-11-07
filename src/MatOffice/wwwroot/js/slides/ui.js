@@ -1,10 +1,10 @@
 /* MatOffice Slides – small pieces of UI: context menus, the colour picker with the colours of the design, the outline menu, the galleries of
    shapes, layouts, designs and quick styles, the table grid, symbols. All built with el() (never HTML) in the popovers of the frame. */
-import { openPopover, closePopover } from '../editor/frame.js';
+import { openPopover } from '../editor/frame.js';
 import { t, el, icon } from '../editor/util.js';
 import {
   PALETTE_SLOTS, paletteColumn, STANDARD_COLORS, resolveColor, SHAPE_GROUPS, LAYOUTS, QUICK_STYLES, makeTheme, newSlide, decorOf,
-  backgroundOf, layoutOf, THEMES, VARIANTS,
+  backgroundOf, layoutOf, THEMES,
 } from './model.js';
 import { shapePath } from './geometry.js';
 import { renderSlide, cssBackground, fontStack } from './render.js';
@@ -221,7 +221,6 @@ export function variantPreview(content, variant, width = 64) {
   return box;
 }
 
-export const variantCount = () => VARIANTS.length + 1;
 
 /** The quick styles of shapes as a grid. */
 export function quickStyles(anchor, theme, pick) {
@@ -275,4 +274,3 @@ export function symbolPicker(anchor, pick) {
   });
 }
 
-export { closePopover, THEMES };
