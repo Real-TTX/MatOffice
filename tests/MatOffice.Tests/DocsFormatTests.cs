@@ -464,8 +464,25 @@ public sealed class DocsFormatTests
             + "<p><a href=\"https://example.com\">https://example.com</a> and <a href=\"http://www.example.org\">www.example.org</a> and <a href=\"mailto:a@example.com\">a@example.com</a></p>"
             + "<p><a href=\"https://example.com/ref\">ref link</a> and <img src=\"data:image/gif;base64,R0lGODlhAQABAAAAACw=\" alt=\"\"> and</p>"
             + "<p>Hard<br>break<br>and &amp; © entities, <span style=\"background-color: #ffff00\">marked</span>, ~one tilde~ and <s>two</s></p>"
-            + "<blockquote>quoted lazy line</blockquote><p data-list=\"bullet\"><a href=\"#x\">link <em>in</em> list</a></p><hr>",
+            + "<blockquote>quoted lazy line</blockquote><p data-list=\"bullet\">link <em>in</em> list</p><hr>",
             Body(Import(markdown, ".md")));
+    }
+
+    [Fact]
+    public void Markdown_links_inside_the_document_point_to_the_anchors_of_the_headings()
+    {
+        var content = Handler.Normalize(new JsonObject
+        {
+            ["html"] = "<h1 id=\"h-intro\">Introduction</h1><p><a href=\"#h-intro\">back</a> and <a href=\"#h-x\">to the other</a></p><h2 id=\"h-x\">Ünïcode Tëxt!</h2>"
+                + "<h2>Introduction</h2><p><a href=\"#h-nowhere\">nowhere</a></p>",
+        }.ToJsonString()).Json!;
+        var markdown = Encoding.UTF8.GetString(Handler.Export(content, ".md", "x"));
+        Assert.Contains("[back](#introduction) and [to the other](#ünïcode-tëxt)", markdown, StringComparison.Ordinal);
+        Assert.Equal(
+            "<h1 id=\"introduction\">Introduction</h1><p><a href=\"#introduction\">back</a> and <a href=\"#x_n_code-t_xt\">to the other</a></p>"
+            + "<h2 id=\"x_n_code-t_xt\">Ünïcode Tëxt!</h2><h2>Introduction</h2><p>nowhere</p>",
+            Body(RoundTrip(content, ".md")));
+        Assert.Equal("<h2>A</h2><h2 id=\"a-1\">A</h2><p><a href=\"#a-1\">second</a></p>", Body(Import("## A\n\n## A\n\n[second](#a-1)", ".md")));
     }
 
     // ------------------------------------------------------------------ text

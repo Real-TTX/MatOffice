@@ -34,8 +34,93 @@ internal static partial class MarkdownFormat
             document.Body.Add(new DocParagraph());
         }
 
+        LinksToHeadings(document);
         document.DropUnreferencedNotes();
         return document;
+    }
+
+    // ------------------------------------------------------------------ links inside the document
+
+    /// <summary>The headings of Markdown: the headings of Docs and the title (written as <c>#</c>), in the order of the document.</summary>
+    private static IEnumerable<DocParagraph> Headings(IEnumerable<DocBlock> blocks)
+        => blocks.OfType<DocParagraph>().Where(p => p.HeadingLevel > 0 || p.Style == "Title");
+
+    /// <summary>
+    /// The anchors GitHub (and most Markdown viewers) give headings, which the links inside a Markdown file point to: the text in lower case
+    /// without punctuation, spaces as hyphens, a number after a repeated one (<c>intro</c>, <c>intro-1</c>).
+    /// </summary>
+    private static Dictionary<DocParagraph, string> Anchors(IEnumerable<DocParagraph> headings)
+    {
+        var anchors = new Dictionary<DocParagraph, string>(ReferenceEqualityComparer.Instance);
+        var used = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var heading in headings)
+        {
+            var sb = new StringBuilder();
+            foreach (var c in heading.PlainText().Trim().ToLowerInvariant())
+            {
+                if (char.IsLetterOrDigit(c) || c is '-' or '_')
+                {
+                    sb.Append(c);
+                }
+                else if (c == ' ')
+                {
+                    sb.Append('-');
+                }
+            }
+
+            var anchor = sb.ToString();
+            for (var n = 1; !used.Add(anchor); n++)
+            {
+                anchor = sb + "-" + n.ToString(CultureInfo.InvariantCulture);
+            }
+
+            anchors[heading] = anchor;
+        }
+
+        return anchors;
+    }
+
+    /// <summary>Links to the anchor of a heading point to the heading (it gets an id); links to anything else inside the file are plain text.</summary>
+    private static void LinksToHeadings(DocsDocument document)
+    {
+        var byAnchor = new Dictionary<string, DocParagraph>(StringComparer.Ordinal);
+        foreach (var (heading, anchor) in Anchors(Headings(document.Body)))
+        {
+            byAnchor.TryAdd(anchor, heading);
+        }
+
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var p in DocsHtml.Paragraphs(document.Body.Concat(document.Notes.SelectMany(n => n.Blocks))))
+        {
+            foreach (var inline in p.Inlines)
+            {
+                if (inline.Format.Href is not ['#', ..] href)
+                {
+                    continue;
+                }
+
+                string? target = null;
+                var anchor = Uri.UnescapeDataString(href[1..]).ToLowerInvariant();
+                if (byAnchor.TryGetValue(anchor, out var heading))
+                {
+                    if (heading.Id is null)
+                    {
+                        var name = DocsHtml.IsId(anchor) ? anchor : DocsHtml.ToId(anchor);
+                        var id = name;
+                        for (var n = 2; !ids.Add(id); n++)
+                        {
+                            id = name[..Math.Min(name.Length, 58)] + "-" + n.ToString(CultureInfo.InvariantCulture);
+                        }
+
+                        heading.Id = id;
+                    }
+
+                    target = "#" + heading.Id;
+                }
+
+                inline.Format = inline.Format with { Href = target };
+            }
+        }
     }
 
     // ------------------------------------------------------------------ writer
@@ -45,6 +130,10 @@ internal static partial class MarkdownFormat
         private readonly StringBuilder _sb = new();
 
         private readonly Dictionary<string, int> _notes = DocsConvert.NoteNumbers(document);
+
+        /// <summary>The anchor of every heading with an id: the links to it point there.</summary>
+        private readonly Dictionary<string, string> _anchors = Anchors(Headings(document.Body))
+            .Where(a => a.Key.Id is not null).ToDictionary(a => a.Key.Id!, a => a.Value, StringComparer.Ordinal);
 
         public override string ToString() => _sb.ToString().TrimEnd() + "\n";
 
@@ -213,12 +302,13 @@ internal static partial class MarkdownFormat
             Sup,
         }
 
-        private static List<(Mark Mark, string? Href)> Chain(RunFormat f)
+        private List<(Mark Mark, string? Href)> Chain(RunFormat f)
         {
             var chain = new List<(Mark, string?)>();
             if (f.Href is not null)
             {
-                chain.Add((Mark.Link, f.Href));
+                // A link inside the document points to the anchor of its heading.
+                chain.Add((Mark.Link, f.Href.StartsWith('#') && _anchors.TryGetValue(f.Href[1..], out var anchor) ? "#" + anchor : f.Href));
             }
 
             if (f.Bold)
@@ -1364,7 +1454,8 @@ internal static partial class MarkdownFormat
                             Kind.Strong => format with { Bold = true },
                             Kind.Em => format with { Italic = true },
                             Kind.Strike => format with { Strike = true },
-                            _ => format with { Href = DocsHtml.SafeHref(span.Href) ?? format.Href },
+                            // Links inside the file stay as they are until the headings are known (FromMarkdown resolves them).
+                            _ => format with { Href = span.Href is ['#', ..] ? span.Href : DocsHtml.SafeHref(span.Href) ?? format.Href },
                         };
                         Flatten(span.Children, inner, p, state);
                         break;
