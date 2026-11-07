@@ -1,6 +1,6 @@
 /* MatOffice Sheets – text functions (pure, no DOM). TEXT and DOLLAR live with the number formats. Texts are UTF-16 like in Excel
    (LEN counts code units); a result longer than 32767 characters is #VALUE!. */
-import { define, scalar, deref, each, flat, Errors } from '../lib.js';
+import { define, scalar, deref, flat, Errors } from '../lib.js';
 import { FormulaError, toText, toBool, wildcard, parseNumber, decimalSep, groupSep } from '../values.js';
 import { optNumber } from './stat.js';
 import { roundTo } from './math.js';

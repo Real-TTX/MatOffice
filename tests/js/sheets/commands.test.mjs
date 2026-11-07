@@ -10,7 +10,7 @@ import { Look } from '../../../src/MatOffice/wwwroot/js/sheets/look.js';
 import { Commands } from '../../../src/MatOffice/wwwroot/js/sheets/commands.js';
 import { key } from '../../../src/MatOffice/wwwroot/js/sheets/engine/address.js';
 import { FormulaError, setLocale } from '../../../src/MatOffice/wwwroot/js/sheets/engine/values.js';
-import { splitText } from '../../../src/MatOffice/wwwroot/js/sheets/clipboard.js';
+import { splitText, Clipboard } from '../../../src/MatOffice/wwwroot/js/sheets/clipboard.js';
 
 function makeApp(cells = {}) {
   setLocale('en');
@@ -50,6 +50,7 @@ function makeApp(cells = {}) {
   app.sel.mergeAt = (r, c) => app.sheet.mergeAt(r, c);
   app.look = new Look(app);
   app.commands = new Commands(app);
+  app.clipboard = new Clipboard(app);
   app.value = (r, c) => { const v = app.calc.valueAt('s1', r, c); return v instanceof FormulaError ? v.code : v; };
   return app;
 }
@@ -179,6 +180,43 @@ test('conditional formats colour the cells that match', () => {
   assert.equal(look(0, 0).text, '5');
   assert.equal(look(0, 0).ha, 'right');
   assert.equal(look(0, 1).ha, 'left');
+});
+
+test('copy and paste inside the editor: formulas follow, cut moves, texts from outside are read like typed', () => {
+  const app = makeApp({ A1: 2, A2: 3, B1: '=A1*10', B2: 'x\ty' });
+  app.grid.setMarquee = () => {};
+  const clip = app.clipboard;
+  app.sel.setArea({ r1: 0, c1: 0, r2: 1, c2: 1 });
+  const data = clip.capture(false);
+  assert.equal(data.text, '2\t20\r\n3\t"x\ty"\r\n');
+  assert.match(data.html, /^<table/);
+  assert.match(data.html, /<td[^>]*>20<\/td>/);
+  // paste at D5: the formula moves
+  app.sel.set(4, 3);
+  clip.pasteInternal(data);
+  assert.equal(app.sheet.cell(4, 4).f, 'D5*10');
+  assert.equal(app.value(4, 4), 20);
+  // values only
+  app.sel.set(9, 0);
+  clip.pasteInternal(data, 'values');
+  assert.equal(app.sheet.cell(9, 1).f, undefined);
+  assert.equal(app.value(9, 1), 20);
+  // cut and paste moves the cells and the references to them
+  app.sel.setArea({ r1: 0, c1: 0, r2: 1, c2: 0 });
+  const cut = clip.capture(true);
+  app.sel.set(0, 6);
+  clip.pasteInternal(cut);
+  assert.equal(app.sheet.cell(0, 0), undefined);
+  assert.equal(app.value(0, 6), 2);
+  assert.equal(app.sheet.cell(0, 1).f, 'G1*10');
+  // text from another program
+  app.sel.set(20, 0);
+  clip.paste({ text: 'Name\tAmount\r\nTea\t1,234.5\r\nDate\t1/31/2026\r\n', html: '' });
+  assert.equal(app.value(21, 1), 1234.5);
+  assert.equal(app.value(22, 1), 46053);
+  assert.equal(app.wb.style(app.sheet.styleAt(22, 1)).nf, 'm/d/yyyy');
+  clip.paste({ text: '=SUM(B22:B23)', html: '' });
+  assert.equal(app.sheet.cell(20, 0).f, 'SUM(B22:B23)');
 });
 
 test('pasted text with tabs, lines and quotes', () => {

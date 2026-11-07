@@ -1,7 +1,7 @@
 /* MatOffice Sheets – statistical functions (pure, no DOM). Also what the other categories share: arguments as grids, lifting over arrays,
    the criteria of the *IF/*IFS functions (SUMIF/SUMIFS live in math.js) and the statistics of a list of numbers (SUBTOTAL/AGGREGATE in math.js). */
 import { define, scalar, numbers, deref, matrix, each, makeMatrix, pick, Errors, Ref } from '../lib.js';
-import { FormulaError, criteria, toNumber, toBool, parseNumber } from '../values.js';
+import { FormulaError, criteria, toNumber, parseNumber } from '../values.js';
 import { MAX_ROWS, MAX_COLS } from '../address.js';
 
 const isErr = v => v instanceof FormulaError;
@@ -657,4 +657,3 @@ dist(['GAMMALN', 'GAMMALN.PRECISE'], 'x', ['number'], x => (x <= 0 ? NUM : gamma
 dist('FISHER', 'x', ['number'], x => (x <= -1 || x >= 1 ? NUM : 0.5 * Math.log((1 + x) / (1 - x))));
 dist('FISHERINV', 'y', ['number'], Math.tanh);
 
-export { toBool };
