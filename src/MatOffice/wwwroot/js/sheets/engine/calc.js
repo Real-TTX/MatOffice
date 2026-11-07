@@ -66,6 +66,7 @@ export class Calc {
       parseRef(text) { return calc.parseRef(text, this); },
       formulaAt(sheet, row, col) { return calc.host.cell(sheet, row, col)?.f ?? null; },
       rowHidden(sheet, row) { return !!calc.host.rowHidden?.(sheet, row); },
+      rowFiltered(sheet, row) { return !!calc.host.rowFiltered?.(sheet, row); },
     };
   }
 

@@ -289,7 +289,7 @@ function subtotalValues(args, ctx, hidden, nested) {
     const m = ctx.values(a);
     for (let r = 0; r < m.length; r++) {
       const row = a.r1 + r;
-      if (hidden && ctx.rowHidden(a.sheet, row)) continue;
+      if (hidden === true ? ctx.rowHidden(a.sheet, row) : hidden === 'filtered' && ctx.rowFiltered?.(a.sheet, row)) continue;
       for (let c = 0; c < m[r].length; c++) {
         if (nested && m[r][c] !== null && NESTED.test(ctx.formulaAt(a.sheet, row, a.c1 + c) || '')) continue;
         out.push(m[r][c]);
@@ -319,14 +319,15 @@ function statistic(f, values, ignoreErrors) {
 
 /** SUBTOTAL(function_num, ref1, …): 1 … 11 (101 … 111 also skip hidden rows); cells with SUBTOTAL/AGGREGATE formulas are left out. */
 define('SUBTOTAL', {
-  min: 2, max: 255, category: 'math', args: 'function_num, ref1, [ref2], …',
+  min: 2, max: 255, category: 'math', volatile: true, args: 'function_num, ref1, [ref2], …',
   fn: ([num, ...refs], ctx) => lift([num], ctx, ([v]) => {
     const n = toNumber(v);
     if (isErr(n)) return n;
     const f = Math.trunc(n);
     const kind = f > 100 ? f - 100 : f;
     if (kind < 1 || kind > 11 || (f > 11 && f < 101)) return VALUE;
-    return statistic(kind, subtotalValues(refs, ctx, f > 100, true), false);
+    // 1 … 11 leave out the rows the AutoFilter hides, 101 … 111 every hidden row (like Excel)
+    return statistic(kind, subtotalValues(refs, ctx, f > 100 ? true : 'filtered', true), false);
   }),
 });
 
@@ -335,7 +336,7 @@ define('SUBTOTAL', {
  * QUARTILE.INC, PERCENTILE.EXC, QUARTILE.EXC). Options 0 … 7 leave out nested SUBTOTAL/AGGREGATE (0–3), hidden rows (odd) and errors (2, 3, 6, 7).
  */
 define('AGGREGATE', {
-  min: 3, max: 255, category: 'math', args: 'function_num, options, ref1, [ref2], …',
+  min: 3, max: 255, category: 'math', volatile: true, args: 'function_num, options, ref1, [ref2], …',
   fn: ([num, opt, ...rest], ctx) => {
     const f = optNumber(num, ctx, NaN);
     if (isErr(f)) return f;

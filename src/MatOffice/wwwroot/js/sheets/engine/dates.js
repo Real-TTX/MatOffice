@@ -114,7 +114,7 @@ export function parseDate(text, locale = 'en', currentYear = new Date().getFullY
 }
 
 function parseDay(t, locale, currentYear) {
-  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t);
+  let m = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(t);
   if (m) return make(+m[1], +m[2], +m[3], 'iso');
   m = /^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})?$/.exec(t);
   if (m && locale === 'de') return make(m[3] ? fullYear(+m[3]) : currentYear, +m[2], +m[1], 'dmy');
@@ -125,8 +125,8 @@ function parseDay(t, locale, currentYear) {
   }
   m = /^(\d{1,2})\.?\s*([A-Za-zÄÖÜäöü]{3,}\.?)\s*(\d{2}|\d{4})?$/.exec(t);
   if (m && monthOf(m[2])) return make(m[3] ? fullYear(+m[3]) : currentYear, monthOf(m[2]), +m[1], 'dmy');
-  m = /^(\d{1,2})[-\s]([A-Za-zÄÖÜäöü]{3,})[-\s](\d{2}|\d{4})$/.exec(t);
-  if (m && monthOf(m[2])) return make(fullYear(+m[3]), monthOf(m[2]), +m[1], 'dmy');
+  m = /^(\d{1,2})[-\s]([A-Za-zÄÖÜäöü]{3,})(?:[-\s](\d{2}|\d{4}))?$/.exec(t);
+  if (m && monthOf(m[2])) return make(m[3] ? fullYear(+m[3]) : currentYear, monthOf(m[2]), +m[1], 'dmy');
   m = /^([A-Za-zÄÖÜäöü]{3,}\.?)\s+(\d{1,2}),?\s*(\d{4})?$/.exec(t);
   if (m && monthOf(m[1])) return make(m[3] ? +m[3] : currentYear, monthOf(m[1]), +m[2], 'mdy');
   return null;

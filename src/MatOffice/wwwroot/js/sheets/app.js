@@ -114,6 +114,7 @@ class SheetsApp {
       formulas: visit => this.wb.eachFormula((s, r, c, cell) => visit(s.id, r, c, cell.f)),
       names: () => this.wb.names,
       rowHidden: (id, row) => !!byId().get(id)?.rows.isHidden(row),
+      rowFiltered: (id, row) => !!byId().get(id)?.rows.filtered.has(row),
       setResult: (id, row, col, value) => { const s = byId().get(id); if (s) this.wb.setResult(s, row, col, value); },
     };
   }
@@ -163,7 +164,7 @@ class SheetsApp {
   changed({ structural = false, layout = false } = {}) {
     const changes = this.wb.takeChanges();
     if (structural) this.calc.rebuild();
-    else if (changes.length) this.calc.update(changes);
+    else this.calc.update(changes); // also without changed cells: volatile formulas (NOW, SUBTOTAL after a filter …)
     this.ctx.changed();
     this.afterCalc();
     if (layout) this.grid.updateExtent();

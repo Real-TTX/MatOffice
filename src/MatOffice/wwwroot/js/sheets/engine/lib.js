@@ -6,7 +6,7 @@
 
    ctx (the evaluation context): sheet/row/col (the formula's cell), values(ref) → 2-D array (huge whole-column references are cut at the used range),
    value(sheet, row, col), sheetId(name), sheetName(id), sheetIndex(id), sheetCount(), now() → Date, random(), parseRef(text) → Ref | error,
-   formulaAt(sheet, row, col) → text | null, rowHidden(sheet, row). */
+   formulaAt(sheet, row, col) → text | null, rowHidden(sheet, row) (hidden by hand or by the AutoFilter), rowFiltered(sheet, row) (by the AutoFilter). */
 import { Errors, FormulaError, Ref, isError, toNumber, toText, toBool } from './values.js';
 
 /** name → { name, min, max, category, args, fn, lazy, volatile, refs } */
