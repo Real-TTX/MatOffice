@@ -830,6 +830,7 @@ export class Dialogs {
 
   async altText(image) {
     const app = this.app;
+    if (!image) return;
     const text = el('textarea', { class: 'mat-input', rows: 3, id: uid('f') });
     text.value = image.alt || '';
     const r = await this.open({ title: t('Sheets.Picture.Alt'), icon: 'image', body: field(t('Sheets.Picture.AltText'), text), buttons: [OK(), CANCEL()], onOpen: () => text.focus() });

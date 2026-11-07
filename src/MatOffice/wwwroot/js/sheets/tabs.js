@@ -38,11 +38,11 @@ export class Tabs {
         if (e.key === 'F2' && !app.readOnly) { e.preventDefault(); this.rename(sheet, tab); }
         if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); app.commands.nextSheet(e.key === 'ArrowRight' ? 1 : -1); this.list.querySelector('.is-active')?.focus(); }
       });
+      if (active) this.activeTab = tab;
       tabs.push(tab);
     });
     this.list.replaceChildren(...tabs);
-    const active = this.list.querySelector('.is-active');
-    active?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    this.activeTab?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 
   activate(sheet) {
@@ -53,8 +53,9 @@ export class Tabs {
     app.showSheet(sheet, { keepEditor: app.editor.active });
   }
 
-  rename(sheet, tab) {
+  rename(sheet, tab = this.activeTab) {
     const app = this.app;
+    if (!tab || app.readOnly) return;
     const input = el('input', { class: 'mo-sheets-tab__input', value: sheet.name, maxlength: 31, 'aria-label': t('Sheets.Sheet.Rename') });
     tab.replaceChildren(input);
     input.focus();
@@ -124,7 +125,7 @@ export class Tabs {
     return [
       { label: t('Sheets.Sheet.Insert'), icon: 'plus', run: () => cmd.addSheet() },
       { label: t('Sheets.Sheet.Delete'), icon: 'trash', run: () => cmd.deleteSheet(sheet) },
-      { label: t('Sheets.Sheet.Rename'), icon: 'edit', run: () => { const tab = this.list.querySelector('.is-active'); if (tab) this.rename(sheet, tab); } },
+      { label: t('Sheets.Sheet.Rename'), icon: 'edit', run: () => this.rename(sheet) },
       { label: t('Sheets.Sheet.Duplicate'), icon: 'copy', run: () => cmd.duplicateSheet(sheet) },
       { label: t('Sheets.Sheet.MoveLeft'), icon: 'chevron-left', disabled: () => index === 0, run: () => cmd.moveSheet(sheet, index - 1) },
       { label: t('Sheets.Sheet.MoveRight'), icon: 'chevron-right', disabled: () => index === app.wb.sheets.length - 1, run: () => cmd.moveSheet(sheet, index + 1) },
@@ -138,7 +139,7 @@ export class Tabs {
   }
 
   colorMenu(sheet) {
-    const tab = this.list.querySelector('.is-active') || this.root;
+    const tab = this.activeTab || this.root;
     openPopover(tab, colourPalette(t('Sheets.NoColor'), c => this.app.commands.tabColor(sheet, c)));
   }
 }

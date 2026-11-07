@@ -225,7 +225,7 @@ export function ribbonTabs(app) {
           { label: t('Sheets.Sheet.Hide'), icon: 'eye-off', run: () => cmd.hideSheet() },
           { label: t('Sheets.Sheet.Unhide'), icon: 'eye', disabled: () => !app.wb.sheets.some(s => s.hidden), run: () => dlg.unhideSheet() },
           { heading: t('Sheets.OrganizeSheets') },
-          { label: t('Sheets.Sheet.Rename'), icon: 'edit', run: () => app.tabs.rename(app.sheet, app.tabs.list.querySelector('.is-active')) },
+          { label: t('Sheets.Sheet.Rename'), icon: 'edit', run: () => app.tabs.rename(app.sheet) },
           { label: t('Sheets.Sheet.Duplicate'), icon: 'copy', run: () => cmd.duplicateSheet() },
           { label: t('Sheets.Sheet.Color'), icon: 'palette', run: () => app.tabs.colorMenu(app.sheet) },
           { heading: t('Sheets.Protection') },

@@ -277,6 +277,7 @@ export class Objects {
   }
 
   order(o, d) {
+    if (!o) return;
     const prop = this.kindOf(o) === 'chart' ? 'charts' : 'images';
     this.app.commands.change('order', () => {
       const list = this.sheet[prop].filter(x => x.id !== o.id);
