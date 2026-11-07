@@ -323,17 +323,16 @@ export class Grid {
 
   /** Draws a sheet from A1 into another canvas context (the picture of the gallery), without selection. */
   renderTo(g, width, height, sheet, zoom = 1) {
-    const saved = { g: this.g, width: this.width, height: this.height, dpr: this.dpr, theme: this.themeCache };
+    const saved = { g: this.g, width: this.width, height: this.height, dpr: this.dpr };
+    const themeCache = this.themeCache;
     this.override = { sheet, zoom };
-    this.themeCache = null;
     Object.assign(this, { g, width, height, dpr: 1 });
-    const dark = this.theme;
-    this.theme = () => ({ ...LIGHT });
+    // the picture is always light, whatever the screen shows
+    this.themeCache = { ...LIGHT };
     try { this.render(); } finally {
-      this.theme = dark;
       this.override = null;
       Object.assign(this, saved);
-      this.themeCache = saved.theme;
+      this.themeCache = themeCache;
     }
   }
 
