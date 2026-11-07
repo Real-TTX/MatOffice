@@ -168,6 +168,127 @@ test('every dialog can be opened (and cancelled), and the main ones applied', as
   await ok.app.dialogs.sort();
 });
 
+/** Every item of the ribbon: its state callbacks, then its command (menus and split buttons included). Returns the errors. */
+function runRibbon(app, { run = true } = {}) {
+  const errors = [];
+  const items = [];
+  const collect = list => {
+    for (const item of (typeof list === 'function' ? list() : list) || []) {
+      if (!item || item === '-' || item.heading) continue;
+      items.push(item);
+      if (item.type === 'stack') item.rows.forEach(collect);
+      if (item.items) collect(item.items);
+    }
+  };
+  for (const tab of app.ctx.ribbon.tabs) for (const group of tab.groups) collect(group.items);
+  for (const item of items) {
+    for (const f of ['value', 'active', 'disabled', 'hidden', 'checked', 'options']) {
+      try { if (typeof item[f] === 'function') item[f](); } catch (e) { errors.push(`${item.label} ${f}: ${e.message}`); }
+    }
+    if (item.render) { try { item.render(); } catch (e) { errors.push(`${item.label} render: ${e.message}`); } }
+  }
+  if (run) {
+    for (const item of items) {
+      if (typeof item.run !== 'function') continue;
+      if (/Print/.test(item.label || '')) continue;
+      try {
+        const r = item.run();
+        if (r && typeof r.catch === 'function') r.catch(e => errors.push(`${item.label} run (async): ${e.message}`));
+      } catch (e) { errors.push(`${item.label} run: ${e.message}\n${(e.stack || '').split('\n').slice(1, 3).join('\n')}`); }
+      if (app.editor.active) app.editor.cancel();
+    }
+    for (const item of items) if (item.change) {
+      try { item.change(item.type === 'select' && item.options ? (typeof item.options === 'function' ? item.options() : item.options)[1]?.value : item.type === 'color' ? '#ff0000' : '12'); } catch (e) { errors.push(`${item.label} change: ${e.message}`); }
+    }
+  }
+  return { errors, count: items.length };
+}
+
+test('every command of the ribbon runs on a real workbook', async () => {
+  const { app } = mount(template('sales'));
+  app.sel.setArea({ r1: 3, c1: 1, r2: 6, c2: 2 });
+  const first = runRibbon(app, { run: false });
+  assert.deepEqual(first.errors, []);
+  assert.ok(first.count > 150, 'ribbon items: ' + first.count);
+  const second = runRibbon(app);
+  await new Promise(r => setTimeout(r, 20));
+  assert.deepEqual(second.errors, []);
+  // the chart tab (a chart selected) and the picture tab
+  app.objects.select(app.sheet.charts[0].id);
+  app.ctx.ribbon.tabs = app.ribbonTabs();
+  const chart = runRibbon(app);
+  assert.deepEqual(chart.errors, []);
+  for (let i = 0; i < 30 && app.wb.canUndo; i++) app.undo();
+  assert.ok(app.getContent().sheets.length >= 1);
+});
+
+test('sheets: add, rename, duplicate, move, colour, hide, show, delete – references follow', async () => {
+  const { app } = mount(blank());
+  const cmd = app.commands;
+  typeCell(app, '5');
+  keydown(app.editor.input, 'Enter');
+  cmd.addSheet();
+  assert.equal(app.wb.sheets.length, 2);
+  assert.equal(app.sheet, app.wb.sheets[1]);
+  typeCell(app, '=Sheet1!A1*2');
+  keydown(app.editor.input, 'Enter');
+  assert.equal(app.sheet.cell(0, 0).v, 10);
+  assert.ok(cmd.renameSheet(app.wb.sheets[0], 'Data 2026'));
+  assert.equal(app.wb.sheets[1].cell(0, 0).f, "'Data 2026'!A1*2");
+  cmd.duplicateSheet(app.wb.sheets[0]);
+  assert.equal(app.wb.sheets[1].name, 'Data 2026 (2)');
+  cmd.moveSheet(app.wb.sheets[1], 2);
+  assert.equal(app.wb.sheets[2].name, 'Data 2026 (2)');
+  cmd.tabColor(app.wb.sheets[0], '#ff0000');
+  assert.equal(app.wb.sheets[0].color, '#ff0000');
+  cmd.hideSheet(app.wb.sheets[2]);
+  assert.ok(app.wb.sheets[2].hidden);
+  cmd.unhideSheet(app.wb.sheets[2]);
+  globalThis.MatUi.confirm = async () => true;
+  await cmd.deleteSheet(app.wb.sheets[0]);
+  globalThis.MatUi.confirm = async () => false;
+  assert.equal(app.wb.sheets.length, 2);
+  assert.equal(app.wb.sheets[0].cell(0, 0).f, "'Data 2026'!#REF!*2");
+  app.undo();
+  assert.equal(app.wb.sheets.length, 3);
+  assert.equal(app.wb.sheets[1].cell(0, 0).v, 10);
+});
+
+test('charts, the AutoFilter, freezing and merging through the app', () => {
+  const { app } = mount(template('sales'));
+  app.sel.set(4, 1);
+  app.objects.insertChart('line');
+  assert.equal(app.sheet.charts.length, 2);
+  const chart = app.sheet.charts[1];
+  app.objects.updateChart({ title: 'Trend', legend: 'bottom' }, chart);
+  assert.equal(app.sheet.charts[1].title, 'Trend');
+  app.objects.select(chart.id);
+  app.objects.removeSelected();
+  assert.equal(app.sheet.charts.length, 1);
+  app.sel.set(4, 0);
+  app.filters.toggle();
+  assert.ok(app.sheet.filter);
+  const a = app.sheet.filterArea();
+  app.filters.setColumn(a.c1, { values: [app.look.cell(app.sheet, a.r1 + 1, a.c1).text] });
+  assert.ok(app.sheet.rows.filtered.size > 0);
+  app.filters.open(a.c1);
+  app.filters.toggle();
+  assert.equal(app.sheet.rows.filtered.size, 0);
+  app.commands.freeze('none');
+  app.sel.set(5, 2);
+  app.commands.freeze('panes');
+  assert.deepEqual(app.sheet.freeze, { rows: 5, cols: 2 });
+  app.commands.freeze('none');
+  app.sel.setArea({ r1: 20, c1: 0, r2: 21, c2: 2 });
+  app.merge('center');
+  assert.ok(app.sheet.merges.some(m => m.r1 === 20 && m.c2 === 2));
+  app.merge('unmerge');
+  assert.ok(!app.sheet.merges.some(m => m.r1 === 20 && m.c2 === 2));
+  app.notes.toggleAll();
+  app.notes.toggleAll();
+  app.print();
+});
+
 test('read-only: typing is refused, selection and copy still work', () => {
   const { app, log } = mount(template('budget'), { readOnly: true });
   app.sel.set(0, 0);

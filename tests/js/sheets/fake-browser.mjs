@@ -42,6 +42,7 @@ class FakeNode {
   querySelectorAll() { return []; }
   get firstChild() { return this.children[0] || null; }
   get offsetHeight() { return 20; }
+  get offsetWidth() { return 100; }
   getBoundingClientRect() { return { left: 0, top: 0, right: 100, bottom: 20, width: 100, height: 20 }; }
   focus() { globalThis.document.activeElement = this; }
   blur() {}
@@ -72,9 +73,15 @@ Object.assign(FakeNode.prototype, {
   get isContentEditable() { return false; },
 });
 
+// timers of the page (the marching ants of a copy) must not keep node running after the tests
+const realSetInterval = globalThis.setInterval;
+globalThis.setInterval = (fn, ms, ...args) => { const timer = realSetInterval(fn, ms, ...args); timer.unref?.(); return timer; };
+
 globalThis.Node = FakeNode;
 globalThis.window = globalThis;
 globalThis.addEventListener = () => {};
+globalThis.print = () => {};
+globalThis.open = () => null;
 globalThis.removeEventListener = () => {};
 Object.defineProperty(globalThis, 'localStorage', { value: { getItem: () => null, setItem() {}, removeItem() {} }, configurable: true });
 globalThis.MatUi = { dialog: { open() {}, close() {} }, confirm: async () => false, toast() {} };
@@ -92,6 +99,7 @@ globalThis.document = {
   createTextNode: text => { const n = new FakeNode('#text'); n.textContent = text; return n; },
   getElementById: () => null,
   addEventListener: () => {},
+  removeEventListener: () => {},
   documentElement: new FakeNode('html'),
 };
 globalThis.document.body = new FakeNode('body');
