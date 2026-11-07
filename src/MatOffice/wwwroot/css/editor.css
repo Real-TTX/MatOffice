@@ -21,6 +21,9 @@ body.mo-ed { background: var(--mat-bg); }
   background: var(--mo-kind);
 }
 .mo-app > * { min-width: 0; }
+/* the work area and the status bar keep their rows while the banner is hidden (display: none takes it out of the grid) */
+.mo-app > .mo-work { grid-row: 4; }
+.mo-app > .mo-statusbar { grid-row: 5; }
 
 /* ---- title bar ---- */
 .mo-titlebar {
