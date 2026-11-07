@@ -1,0 +1,5 @@
+@page "/{kind:regex(^(docs|sheets|slides|base)$)}/{id:long}"
+@model MatOffice.Pages.EditorModel
+@{
+    Layout = "_LayoutEditor";
+}

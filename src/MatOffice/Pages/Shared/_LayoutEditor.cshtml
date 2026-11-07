@@ -1,0 +1,75 @@
+@inject Assets Toolkit
+@inject CurrentUser Me
+@{
+    // The frame of the four editors (the special UI of the app, like the office suites): title bar, ribbon, the work area of the app, status bar, the backstage of
+    // "File". The scripts fill it (wwwroot/js/editor/frame.js and wwwroot/js/<app>/app.js); the server only says what is open and where it lives.
+    var user = Me.Snapshot;
+    var theme = user?.Theme is "light" or "dark" ? user.Theme : null;
+    var e = (MatOffice.Pages.EditorPage)ViewData["Editor"]!;
+}
+<!DOCTYPE html>
+<html @ClientTexts.RootAttributes() data-app="@Ui.AppId" data-kind="@e.Slug" data-scheme="@(user?.Scheme ?? "standard")" data-theme="@theme">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="@e.Colour" />
+    <meta name="robots" content="noindex" />
+    <title>@e.Title · @Ui.AppName</title>
+    <link rel="icon" type="image/svg+xml" href="~/img/logo/@(e.Slug)-favicon.svg" />
+    <link rel="manifest" href="~/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="~/img/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <script src="~/matui/matui.boot.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/matui/matui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/editor.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/@(e.Slug).css" asp-append-version="true" />
+</head>
+<body class="mo-ed mo-ed--@e.Slug">
+    @Html.Raw(Toolkit.Sprite)
+    @Html.Raw(Toolkit.SpriteOf(e.Slug))
+
+    <div class="mo-app" id="mo-editor" data-api="@e.Api" data-mode="@e.Mode" data-kind="@e.Slug" data-back="@e.BackUrl">
+        <header class="mo-titlebar">
+            <a class="mo-titlebar__back" id="mo-back" href="@e.BackUrl" aria-label="@L["Editor.Back"]" data-tip="@L["Editor.Back"]">@Ui.Icon("back")</a>
+            <span class="mo-titlebar__app" aria-hidden="true">@Ui.Icon("kind-" + e.Slug)</span>
+            <span class="mo-titlebar__kind">@L["Kinds." + e.KindName]</span>
+            <label class="mat-sr-only" for="mo-name">@L["Common.Name"]</label>
+            <input class="mo-titlebar__name" id="mo-name" value="@e.Title" autocomplete="off" spellcheck="false" />
+            <button type="button" class="mo-titlebar__btn" id="mo-star" hidden></button>
+            <span class="mo-state" id="mo-state" role="status"></span>
+            <span class="mo-titlebar__badge" id="mo-badge" hidden></span>
+            <span class="mo-titlebar__spacer"></span>
+            @if (e.ShareUrl is not null)
+            {
+                <a class="mat-btn mat-btn--sm mo-titlebar__share" href="@e.ShareUrl">@Ui.Icon("users")<span>@L["Editor.Share"]</span></a>
+            }
+            @if (user is not null)
+            {
+                <a class="mo-titlebar__user" href="/home" title="@user.DisplayName"><span class="mat-avatar mat-avatar--sm" aria-hidden="true">@Ui.Initials(user.DisplayName)</span><span class="mat-sr-only">@user.DisplayName</span></a>
+            }
+            else if (e.GuestName is not null)
+            {
+                <span class="mo-titlebar__user" title="@e.GuestName"><span class="mat-avatar mat-avatar--sm" aria-hidden="true">@Ui.Initials(e.GuestName)</span><span class="mat-sr-only">@e.GuestName</span></span>
+            }
+        </header>
+        <div class="mo-ribbon" id="mo-ribbon"></div>
+        <div class="mo-banner" id="mo-banner" role="status" hidden></div>
+        <main class="mo-work" id="mo-work" tabindex="-1">
+            <div class="mo-loading" role="status"><span class="mo-loading__spinner" aria-hidden="true"></span><span>@L["Editor.Loading"]</span></div>
+        </main>
+        <footer class="mo-statusbar" id="mo-statusbar"></footer>
+        <div class="mo-backstage" id="mo-backstage" hidden></div>
+    </div>
+
+    @* markup a page adds for its editor (rarely needed: the editors build their dialogs in script) *@
+    @RenderBody()
+
+    @* the anti-forgery token of the page: the scripts send it with their requests *@
+    <form hidden data-page-token>@Html.AntiForgeryToken()</form>
+    @ClientTexts.Script()
+    <script src="~/matui/matui.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/@(e.Slug)/app.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+@page "/Documents/New"
+@model MatOffice.Pages.Documents.NewModel
+@using MatOffice.Services.Formats
+@{
+    ViewData["Title"] = L["Documents.New"].Value;
+    ViewData["Crumbs"] = new List<(string, string?)> { (L["Documents.Title"].Value, "/home"), (L["Documents.New"].Value, null) };
+    ViewData["Width"] = "narrow";
+}
+
+<form class="mat-form" method="post" novalidate>
+    <partial name="_FormSummary" model="ViewData.ModelState" />
+    <div class="mat-card">
+        <div class="mat-card__head"><h2 class="mat-card__title">@Ui.Icon("file")@L["Documents.New.FromTemplate"]</h2></div>
+        <div class="mat-card__body mat-form">
+            <mo-field name="Kind" kind="radios" label="@L["Documents.Col.Kind"]" value="@Model.Kind" options="Model.KindChoices" />
+            @foreach (var h in Kinds.All)
+            {
+                @* only the templates of the chosen app are shown (FORM-04) *@
+                <mo-field name="@($"Template[{h.Slug}]")" id="@($"template-{h.Slug}")" kind="radios" label="@L["Documents.Template"]" value="@("blank")" options="Model.TemplatesOf(h)"
+                          show-if="Kind" show-value="@h.Slug" />
+            }
+            <mo-field name="Name" label="@L["Common.Name"]" value="@Model.Name" maxlength="200" optional placeholder="@L["Documents.Name.Placeholder"]" />
+        </div>
+    </div>
+    <div class="mat-btn-row">
+        <button type="submit" class="mat-btn mat-btn--primary">@Ui.Icon("plus")<span>@L["Documents.Create"]</span></button>
+        <a class="mat-btn mat-btn--secondary" href="/home">@Ui.Icon("back")<span>@L["Common.Back"]</span></a>
+    </div>
+</form>
+
+<form class="mat-form mo-mt" method="post" asp-page-handler="Upload" enctype="multipart/form-data" novalidate>
+    <div class="mat-card">
+        <div class="mat-card__head"><h2 class="mat-card__title">@Ui.Icon("upload")@L["Documents.Import"]</h2></div>
+        <div class="mat-card__body mat-form">
+            <div class="mat-field">
+                <label class="mat-label" for="Upload">@L["Documents.Import.File"]</label>
+                <div class="mat-upload" data-upload data-max-files="1" data-max-size="100MB">
+                    <input class="mat-upload__input" type="file" id="Upload" name="Upload" accept="@Model.Accept" required />
+                </div>
+                <p class="mat-hint">@L["Documents.Import.Hint"]</p>
+                <span class="mat-error" aria-live="polite">@ViewData.ModelState["Upload"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
+            </div>
+        </div>
+    </div>
+    <div class="mat-btn-row">
+        <button type="submit" class="mat-btn mat-btn--primary">@Ui.Icon("upload")<span>@L["Documents.Import.Button"]</span></button>
+    </div>
+</form>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MatOffice">
+  <rect width="64" height="64" fill="#D83B01"/>
+  <rect x="14" y="14" width="36" height="36" rx="7" fill="#fff"/>
+  <g transform="translate(17.6 17.6) scale(0.8)"><rect x="0" y="0" width="16" height="16" rx="4" fill="#185ABD"/><path d="M4 5h8M4 8h8M4 11h5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><rect x="18" y="0" width="16" height="16" rx="4" fill="#107C41"/><path d="M21.5 6.5h9M21.5 9.5h9M24.5 3.5v9M27.5 3.5v9" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><rect x="0" y="18" width="16" height="16" rx="4" fill="#C43E1C"/><rect x="3.5" y="22" width="9" height="6.5" rx="1" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M8 28.5v2.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><rect x="18" y="18" width="16" height="16" rx="4" fill="#A4373A"/><ellipse cx="26" cy="23.2" rx="4.2" ry="1.7" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M21.8 23.2v5.6c0 .95 1.9 1.7 4.2 1.7s4.2-.75 4.2-1.7V23.2" fill="none" stroke="#fff" stroke-width="1.4"/></g>
+</svg>

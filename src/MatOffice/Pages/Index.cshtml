@@ -1,0 +1,31 @@
+@page "/"
+@model MatOffice.Pages.IndexModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = Ui.AppName;
+    ViewData["Index"] = true;
+    ViewData["AuthClass"] = "mo-landing";
+}
+
+<section class="mo-hero">
+    @Ui.Logo("lg")
+    <h1>MatOffice</h1>
+    <p class="mo-hero__lead">@Html.Raw(L["Landing.Lead"].Value)</p>
+    <div class="mat-btn-row mat-btn-row--plain mo-hero__actions">
+        @if (Model.RegistrationOpen)
+        {
+            <a class="mat-btn mat-btn--primary mat-btn--lg" href="/Account/Register">@Ui.Icon("rocket")<span>@L["Landing.Register"]</span></a>
+        }
+        <a class="mat-btn mat-btn--secondary mat-btn--lg" href="/Account/Login">@Ui.Icon("login")<span>@L["Account.Login.Title"]</span></a>
+    </div>
+</section>
+
+<section class="mo-features" aria-label="@L["Landing.Features"]">
+    @foreach (var h in MatOffice.Services.Formats.Kinds.All)
+    {
+        <div class="mat-card mo-kind--@h.Slug"><div class="mat-card__body">
+            <h2>@Ui.Icon("kind-" + h.Slug, "mo-kind-icon")@L["Landing." + h.Kind + ".Title"]</h2>
+            <p>@L["Landing." + h.Kind + ".Text"]</p>
+        </div></div>
+    }
+</section>

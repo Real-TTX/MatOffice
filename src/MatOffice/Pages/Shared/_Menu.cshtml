@@ -1,0 +1,86 @@
+@model (MenuModel Menu, string Area)
+@inject CurrentUser Me
+@using MatOffice.Services.Formats
+@*
+    The menus (SHELL-01 .. SHELL-19): one panel per menu of the switcher at the foot (SHELL-15), the one of the page shown.
+    - documents: the main action first, home, the four apps, the lists (starred, shared with me, recent, trash) and the documents opened last
+    - settings:  profile, password, my data
+    - admin:     users, connected apps, system (administrators only)
+*@
+@{
+    var m = Model.Menu;
+    var path = Context.Request.Path.Value ?? "/";
+    var scope = Context.Request.Query["scope"].ToString();
+    var kindQuery = Context.Request.Query["kind"].ToString();
+
+    bool Under(string prefix) => path.Equals(prefix, StringComparison.OrdinalIgnoreCase) || path.StartsWith(prefix + "/", StringComparison.OrdinalIgnoreCase);
+    string Cls(bool active) => "mat-nav__item" + (active ? " is-active" : string.Empty);
+    string Cur(bool active) => active ? "page" : null!;
+    string Badge(int n) => n > 99 ? "99+" : n.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    var onHome = path.Equals("/home", StringComparison.OrdinalIgnoreCase);
+}
+<nav class="mat-nav__scroll" aria-label="@L["Shell.Area.Documents"]" data-nav-panel="documents" hidden="@(Model.Area != "documents")">
+    <ul class="mat-nav__list">
+        <li>
+            <a class="mat-nav__item mat-nav__item--primary" href="/Documents/New">@Ui.Icon("plus")<span>@L["Documents.New"]</span></a>
+        </li>
+        <li>
+            @{ var home = onHome && scope.Length == 0 && kindQuery.Length == 0; }
+            <a class="@Cls(home)" href="/home" aria-current="@Cur(home)">@Ui.Icon("home")<span>@L["Menu.Home"]</span></a>
+        </li>
+
+        <li class="mat-nav__group" role="presentation">@L["Menu.Apps"]</li>
+        @foreach (var h in Kinds.All)
+        {
+            var on = path.Equals("/" + h.Slug, StringComparison.OrdinalIgnoreCase);
+            <li><a class="@Cls(on) mo-kind--@h.Slug" href="/@h.Slug" aria-current="@Cur(on)">@Ui.Icon("kind-" + h.Slug, "mo-kind-icon")<span>@L["Kinds." + h.Kind]</span></a></li>
+        }
+
+        <li class="mat-nav__group" role="presentation">@L["Menu.Lists"]</li>
+        <li>
+            @{ var starred = onHome && scope == "starred"; }
+            <a class="@Cls(starred)" href="/home?scope=starred" aria-current="@Cur(starred)">@Ui.Icon("star")<span>@L["Documents.Scope.starred"]</span>@if (m.Starred > 0) { <span class="mat-nav__badge mat-nav__badge--plain">@Badge(m.Starred)</span> }</a>
+        </li>
+        <li>
+            @{ var shared = onHome && scope == "shared"; }
+            <a class="@Cls(shared)" href="/home?scope=shared" aria-current="@Cur(shared)">@Ui.Icon("users")<span>@L["Documents.Scope.shared"]</span>@if (m.Shared > 0) { <span class="mat-nav__badge mat-nav__badge--plain">@Badge(m.Shared)</span> }</a>
+        </li>
+        <li>
+            @{ var recent = onHome && scope == "recent"; }
+            <a class="@Cls(recent)" href="/home?scope=recent" aria-current="@Cur(recent)">@Ui.Icon("clock")<span>@L["Documents.Scope.recent"]</span></a>
+        </li>
+        <li>
+            @{ var trash = onHome && scope == "trash"; }
+            <a class="@Cls(trash)" href="/home?scope=trash" aria-current="@Cur(trash)">@Ui.Icon("trash")<span>@L["Documents.Scope.trash"]</span>@if (m.Trash > 0) { <span class="mat-nav__badge mat-nav__badge--plain">@Badge(m.Trash)</span> }</a>
+        </li>
+
+        @if (m.Recent.Count > 0)
+        {
+            <li class="mat-nav__group" role="presentation">@L["Menu.Recent"]</li>
+            @foreach (var d in m.Recent)
+            {
+                var slug = Kinds.SlugOf(d.Kind);
+                <li><a class="mat-nav__item mo-kind--@slug" href="/@slug/@d.Id">@Ui.Icon("kind-" + slug, "mo-kind-icon")<span>@d.Name</span></a></li>
+            }
+        }
+    </ul>
+</nav>
+
+<nav class="mat-nav__scroll" aria-label="@L["Settings.Title"]" data-nav-panel="settings" hidden="@(Model.Area != "settings")">
+    <ul class="mat-nav__list">
+        <li><a class="@Cls(path.Equals("/Account", StringComparison.OrdinalIgnoreCase))" href="/Account" aria-current="@Cur(path.Equals("/Account", StringComparison.OrdinalIgnoreCase))">@Ui.Icon("user")<span>@L["Settings.Profile"]</span></a></li>
+        <li><a class="@Cls(Under("/Account/Password"))" href="/Account/Password" aria-current="@Cur(Under("/Account/Password"))">@Ui.Icon("lock")<span>@L["Password.Title"]</span></a></li>
+        <li><a class="@Cls(Under("/Account/Data"))" href="/Account/Data" aria-current="@Cur(Under("/Account/Data"))">@Ui.Icon("database")<span>@L["Data.Title"]</span></a></li>
+    </ul>
+</nav>
+
+@if (Me.IsAdmin)
+{
+    <nav class="mat-nav__scroll" aria-label="@L["Admin.Title"]" data-nav-panel="admin" hidden="@(Model.Area != "admin")">
+        <ul class="mat-nav__list">
+            <li><a class="@Cls(Under("/Admin/Users"))" href="/Admin/Users" aria-current="@Cur(Under("/Admin/Users"))">@Ui.Icon("user-circle")<span>@L["Users.Title"]</span></a></li>
+            <li><a class="@Cls(Under("/Admin/Hosts"))" href="/Admin/Hosts" aria-current="@Cur(Under("/Admin/Hosts"))">@Ui.Icon("plug")<span>@L["Hosts.Title"]</span></a></li>
+            <li><a class="@Cls(Under("/Admin/System"))" href="/Admin/System" aria-current="@Cur(Under("/Admin/System"))">@Ui.Icon("server")<span>@L["System.Title"]</span></a></li>
+        </ul>
+    </nav>
+}

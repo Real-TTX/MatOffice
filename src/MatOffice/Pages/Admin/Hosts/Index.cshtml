@@ -1,0 +1,60 @@
+@page "/Admin/Hosts"
+@model MatOffice.Pages.Admin.Hosts.IndexModel
+@{
+    ViewData["Title"] = L["Hosts.Title"].Value;
+    ViewData["PageSub"] = L["Hosts.Sub"].Value;
+    ViewData["Crumbs"] = new List<(string, string?)> { (L["Admin.Title"].Value, null), (L["Hosts.Title"].Value, null) };
+}
+
+<div class="mat-list">
+    <partial name="_Toolbar" model="Model.Toolbar" />
+
+    @if (Model.Items.Count == 0)
+    {
+        <partial name="_Empty" model="@(new EmptyStateModel("plug", L[Model.Toolbar.Total == 0 ? "Hosts.Empty.Title" : "Lists.NoMatch"].Value, L[Model.Toolbar.Total == 0 ? "Hosts.Empty.Text" : "Lists.ChangeTools"].Value, Model.Toolbar.Total == 0, "/Admin/Hosts/Edit", L["Hosts.New"].Value, Model.Toolbar.UrlReset()))" />
+    }
+    else
+    {
+        <mo-table caption="@L["Hosts.Title"]">
+            <thead>
+                <tr>
+                    <th scope="col">@L["Common.Name"]</th>
+                    <th scope="col">@L["Hosts.Col.Key"]</th>
+                    <th scope="col">@L["Common.Status"]</th>
+                    <th scope="col" class="mat-hide-md">@L["Hosts.Col.LastUsed"]</th>
+                    <th scope="col" class="mat-num mat-hide-sm">@L["Hosts.Col.Open"]</th>
+                    <th scope="col"><span class="mat-sr-only">@L["Common.Actions"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var h in Model.Items)
+                {
+                    <tr>
+                        <td data-label="@L["Common.Name"]" class="mat-table__primary"><a class="mo-name" href="/Admin/Hosts/Edit?id=@h.Id">@Ui.Icon("plug")<span>@h.Name</span></a>@if (h.AllowedUrlPrefix is not null) { <small class="mo-muted mo-block-line mat-mono">@h.AllowedUrlPrefix</small> }</td>
+                        <td data-label="@L["Hosts.Col.Key"]" class="mat-mono">@(h.KeyPrefix)…</td>
+                        <td data-label="@L["Common.Status"]">@if (h.IsActive) { <span class="mat-pill mat-pill--ok">@L["Common.Active"]</span> } else { <span class="mat-pill mat-pill--plain">@L["Hosts.Off"]</span> }</td>
+                        <td data-label="@L["Hosts.Col.LastUsed"]" class="mat-mono mat-hide-md">@(h.LastUsedDate is null ? L["Common.Never"].Value : Dates.Stamp(h.LastUsedDate, Model.Zone))</td>
+                        <td data-label="@L["Hosts.Col.Open"]" class="mat-num mat-mono mat-hide-sm">@h.OpenSessions</td>
+                        <td class="mat-table__cell-actions"><div class="mat-table__actions"><a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="/Admin/Hosts/Edit?id=@h.Id" aria-label="@L["Common.EditNamed", h.Name]" data-tip="@L["Common.Edit"]">@Ui.Icon("edit")</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </mo-table>
+    }
+
+    <partial name="_Pager" model="Model.Pager" />
+
+    <div class="mat-actions">
+        <a class="mat-btn mat-btn--primary" href="/Admin/Hosts/Edit">@Ui.Icon("plus")<span>@L["Hosts.New"]</span></a>
+    </div>
+
+    <div class="mat-card mo-mt">
+        <div class="mat-card__head"><h2 class="mat-card__title">@Ui.Icon("info")@L["Hosts.How.Title"]</h2></div>
+        <div class="mat-card__body">
+            <p>@L["Hosts.How.Text"]</p>
+            <dl class="mat-kv">
+                <dt>@L["Hosts.How.Address"]</dt><dd class="mat-mono">@Model.ApiAddress</dd>
+            </dl>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,196 @@
+@page "/home"
+@model MatOffice.Pages.Documents.IndexModel
+@using MatOffice.Services.Formats
+@{
+    var h = Model.Handler;
+    var trash = Model.Scope == MatOffice.Services.Documents.DocumentScope.Trash;
+    ViewData["Title"] = trash ? L["Documents.Scope.trash"].Value : h is null ? L["Documents.Title"].Value : L["Kinds." + h.Kind].Value;
+    ViewData["PageSub"] = trash ? L["Documents.Trash.Sub"].Value : h is null ? L["Documents.Sub"].Value : L["Kinds." + h.Kind + ".Sub"].Value;
+    if (h is not null)
+    {
+        ViewData["Crumbs"] = new List<(string, string?)> { (L["Documents.Title"].Value, "/home"), (L["Kinds." + h.Kind].Value, null) };
+        ViewData["Kind"] = h.Slug;
+    }
+
+    var here = Model.Here;
+}
+
+@if (!trash)
+{
+    @* start something new (like the start pages of the office suites): a click makes the document and opens it *@
+    <section class="mo-starters" aria-label="@L["Documents.StartNew"]">
+        <h2 class="mo-starters__title">@L["Documents.StartNew"]</h2>
+        <div class="mo-starters__row">
+            @foreach (var (kind, template) in Model.Starters())
+            {
+                <form method="post" asp-page-handler="Create" class="mo-starter">
+                    <input type="hidden" name="kind" value="@kind.Slug" />
+                    <input type="hidden" name="template" value="@template.Id" />
+                    <button type="submit" class="mo-starter__button mo-kind--@kind.Slug">
+                        <span class="mo-starter__paper mo-starter__paper--@kind.Slug mo-starter__paper--@template.Id">@Ui.Icon(template.Id == "blank" ? "plus" : template.Icon, "mo-starter__icon")</span>
+                        <span class="mo-starter__name">@(template.Id == "blank" && h is null ? L["Documents.Blank." + kind.Kind].Value : L[template.Name].Value)</span>
+                        <span class="mo-starter__meta">@(template.Id == "blank" && h is null ? L["Kinds." + kind.Kind].Value : L[template.Description].Value)</span>
+                    </button>
+                </form>
+            }
+            <a class="mo-starter mo-starter__button mo-starter--upload" href="/Documents/New@(h is null ? "" : "?kind=" + h.Slug)">
+                <span class="mo-starter__paper mo-starter__paper--upload">@Ui.Icon("upload", "mo-starter__icon")</span>
+                <span class="mo-starter__name">@L["Documents.Import"]</span>
+                <span class="mo-starter__meta">@L["Documents.Import.Short"]</span>
+            </a>
+        </div>
+    </section>
+}
+
+<div class="mat-list" data-view-scope>
+    <partial name="_Toolbar" model="Model.Toolbar" />
+
+    @if (Model.Listing.Items.Count == 0)
+    {
+        var first = Model.Toolbar.Total == 0 && !trash;
+        <partial name="_Empty" model="@(new EmptyStateModel(trash ? "trash" : "file", L[trash ? "Documents.Trash.Empty" : first ? "Documents.Empty.Title" : "Lists.NoMatch"].Value, L[trash ? "Documents.Trash.EmptyText" : first ? "Documents.Empty.Text" : "Lists.ChangeTools"].Value, first, first ? "/Documents/New" + (h is null ? "" : "?kind=" + h.Slug) : null, L["Documents.New"].Value, Model.Toolbar.UrlReset()))" />
+    }
+    else
+    {
+        <div class="mat-gallery mo-gallery" data-view="gallery">
+            @foreach (var d in Model.Listing.Items)
+            {
+                var slug = Kinds.SlugOf(d.Kind);
+                var url = trash ? null : $"/{slug}/{d.Id}";
+                <div class="mat-tile mo-doc-tile mo-kind--@slug">
+                    <a class="mo-doc-tile__link" href="@(url ?? "#")" aria-disabled="@(trash ? "true" : null)">
+                        <span class="mat-tile__media mo-doc-tile__media">
+                            @if (d.HasThumbnail && !trash)
+                            {
+                                <img src="/live/documents/@d.Id/thumbnail" alt="" loading="lazy" width="320" height="240" draggable="false" />
+                            }
+                            else
+                            {
+                                @Ui.Icon("kind-" + slug, "mo-doc-tile__icon")
+                            }
+                        </span>
+                        <span class="mat-tile__body">
+                            <span class="mat-tile__title"><span class="mo-kind-dot" aria-hidden="true">@Ui.Icon("kind-" + slug)</span>@d.Name</span>
+                            <span class="mat-tile__meta">
+                                @if (trash)
+                                {
+                                    @L["Documents.DeletedOn", Dates.Stamp(d.DeletedDate ?? d.ContentDate, Model.Zone)]
+                                }
+                                else
+                                {
+                                    @(d.IsOwner ? L["Documents.You"].Value : d.OwnerName)<text> · </text>@Dates.Stamp(Model.Scope == MatOffice.Services.Documents.DocumentScope.Recent && d.VisitDate is { } seen ? seen : d.ContentDate, Model.Zone)
+                                }
+                            </span>
+                        </span>
+                    </a>
+                    @if (!trash)
+                    {
+                        <form method="post" asp-page-handler="Star" class="mo-doc-tile__star">
+                            <input type="hidden" name="id" value="@d.Id" />
+                            <input type="hidden" name="starred" value="@(!d.IsStarred ? "true" : "false")" />
+                            <input type="hidden" name="back" value="@here" />
+                            <button type="submit" class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm @(d.IsStarred ? "is-on" : "")" aria-pressed="@(d.IsStarred ? "true" : "false")"
+                                    aria-label="@L[d.IsStarred ? "Documents.Unstar" : "Documents.Star"]: @d.Name" data-tip="@L[d.IsStarred ? "Documents.Unstar" : "Documents.Star"]">@Ui.Icon(d.IsStarred ? "star-filled" : "star")</button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+
+        <div data-view="list" hidden>
+            <mo-table caption="@L["Documents.Title"]">
+                <thead>
+                    <tr>
+                        <th scope="col">@L["Common.Name"]</th>
+                        <th scope="col" class="mat-hide-sm">@L["Documents.Col.Owner"]</th>
+                        <th scope="col" class="mat-hide-md">@L["Documents.Col.Access"]</th>
+                        <th scope="col">@L[trash ? "Documents.Col.Deleted" : "Documents.Col.Changed"]</th>
+                        <th scope="col" class="mat-num mat-hide-md">@L["Documents.Size"]</th>
+                        <th scope="col"><span class="mat-sr-only">@L["Common.Actions"]</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.Listing.Items)
+                    {
+                        var slug = Kinds.SlugOf(d.Kind);
+                        <tr>
+                            <td data-label="@L["Common.Name"]" class="@(trash ? "" : "mat-table__primary")">
+                                @if (trash)
+                                {
+                                    <span class="mo-name mo-kind--@slug">@Ui.Icon("kind-" + slug)<span>@d.Name</span></span>
+                                }
+                                else
+                                {
+                                    <a class="mo-name mo-kind--@slug" href="/@slug/@d.Id">@Ui.Icon("kind-" + slug)<span>@d.Name</span></a>
+                                    @if (d.IsStarred) { @Ui.Icon("star-filled", "mo-star-mark") }
+                                }
+                            </td>
+                            <td data-label="@L["Documents.Col.Owner"]" class="mat-hide-sm">@(d.IsOwner ? L["Documents.You"].Value : d.OwnerName)</td>
+                            <td data-label="@L["Documents.Col.Access"]" class="mat-hide-md">
+                                <span class="mat-pill @(d.IsOwner ? "mat-pill--accent" : "mat-pill--plain")">@L["Documents.Role." + d.Role]</span>
+                                @if (d.IsShared && d.IsOwner) { <span class="mat-pill mat-pill--plain">@Ui.Icon("users")@L["Documents.Shared"]</span> }
+                            </td>
+                            <td data-label="@L[trash ? "Documents.Col.Deleted" : "Documents.Col.Changed"]" class="mat-mono mat-table__keep-label">@Dates.Stamp(trash ? d.DeletedDate ?? d.ContentDate : d.ContentDate, Model.Zone)</td>
+                            <td data-label="@L["Documents.Size"]" class="mat-num mat-mono mat-hide-md">@Ui.Bytes(d.ContentLength)</td>
+                            <td class="mat-table__cell-actions">
+                                <div class="mat-table__actions">
+                                    @if (trash)
+                                    {
+                                        <form method="post" asp-page-handler="Restore" asp-route-id="@d.Id" asp-route-back="@here">
+                                            <button type="submit" class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" aria-label="@L["Documents.RestoreNamed", d.Name]" data-tip="@L["Documents.Restore"]">@Ui.Icon("history")</button>
+                                        </form>
+                                        <form method="post" asp-page-handler="DeleteForever" asp-route-id="@d.Id" asp-route-back="@here" class="mo-sep">
+                                            <button type="submit" class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm mo-danger" aria-label="@L["Documents.DeleteForeverNamed", d.Name]" data-tip="@L["Documents.DeleteForever"]"
+                                                    data-confirm="@L["Documents.DeleteForeverConfirm", d.Name]" data-confirm-ok="@L["Documents.DeleteForever"]">@Ui.Icon("trash")</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="/@slug/@d.Id" aria-label="@L["Documents.OpenNamed", d.Name]" data-tip="@L["Documents.Open"]">@Ui.Icon("external")</a>
+                                        <form method="post" asp-page-handler="Duplicate" asp-route-id="@d.Id">
+                                            <button type="submit" class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" aria-label="@L["Documents.DuplicateNamed", d.Name]" data-tip="@L["Documents.Duplicate"]">@Ui.Icon("copy")</button>
+                                        </form>
+                                        @if (d.IsOwner)
+                                        {
+                                            <a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="/Documents/Members?id=@d.Id" aria-label="@L["Documents.ShareNamed", d.Name]" data-tip="@L["Documents.Share"]">@Ui.Icon("users")</a>
+                                            <a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="/Documents/Edit?id=@d.Id" aria-label="@L["Common.EditNamed", d.Name]" data-tip="@L["Common.Edit"]">@Ui.Icon("edit")</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="/Documents/Versions?id=@d.Id" aria-label="@L["Versions.Title"]: @d.Name" data-tip="@L["Versions.Title"]">@Ui.Icon("version")</a>
+                                            <form method="post" asp-page-handler="Leave" asp-route-id="@d.Id" class="mo-sep">
+                                                <button type="submit" class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm mo-danger" aria-label="@L["Documents.LeaveNamed", d.Name]" data-tip="@L["Documents.Leave"]"
+                                                        data-confirm="@L["Documents.LeaveConfirm", d.Name]" data-confirm-ok="@L["Documents.Leave"]">@Ui.Icon("logout")</button>
+                                            </form>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </mo-table>
+        </div>
+    }
+
+    <partial name="_Pager" model="Model.Pager" />
+
+    <div class="mat-actions">
+        @if (trash)
+        {
+            <a class="mat-btn mat-btn--secondary" href="/home">@Ui.Icon("back")<span>@L["Common.Back"]</span></a>
+            @if (Model.Listing.Total > 0)
+            {
+                <span class="mat-btn-row__spacer"></span>
+                <form method="post" asp-page-handler="EmptyTrash">
+                    <button type="submit" class="mat-btn mat-btn--danger" data-confirm="@L["Documents.EmptyTrashConfirm"]" data-confirm-ok="@L["Documents.EmptyTrash"]">@Ui.Icon("trash")<span>@L["Documents.EmptyTrash"]</span></button>
+                </form>
+            }
+        }
+        else
+        {
+            <a class="mat-btn mat-btn--primary" href="/Documents/New@(h is null ? "" : "?kind=" + h.Slug)">@Ui.Icon("plus")<span>@L["Documents.New"]</span></a>
+            <a class="mat-btn mat-btn--secondary" href="/home?scope=trash">@Ui.Icon("trash")<span>@L["Documents.Scope.trash"]</span></a>
+        }
+    </div>
+</div>

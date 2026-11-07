@@ -1,0 +1,43 @@
+@page "/About"
+@model MatOffice.Pages.AboutModel
+@{
+    ViewData["Title"] = L["About.Title"].Value;
+    ViewData["Crumbs"] = new List<(string, string?)> { (L["About.Title"].Value, null) };
+    ViewData["Width"] = "narrow";
+}
+
+<div class="mat-card">
+    <div class="mat-card__body mo-about">
+        <div class="mo-about__head">
+            @Ui.Logo("lg")
+            <div>
+                <h2>@Ui.AppName</h2>
+                <p>@L["About.Tagline"]</p>
+            </div>
+        </div>
+        <dl class="mo-dl">
+            <dt>@L["About.Version"]</dt><dd class="mat-mono">@AppInfo.Version</dd>
+            <dt>@L["About.Channel"]</dt><dd>@L["About.Channel." + Model.Channel]</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mat-card">
+    <div class="mat-card__head"><h2 class="mat-card__title">@Ui.Icon("apps")@L["About.Apps"]</h2></div>
+    <div class="mat-card__body">
+        <dl class="mo-dl">
+            @foreach (var h in MatOffice.Services.Formats.Kinds.All)
+            {
+                <dt><span class="mo-kind mo-kind--@h.Slug">@Ui.Icon("kind-" + h.Slug)<span>@L["Kinds." + h.Kind]</span></span></dt><dd>@L["Kinds." + h.Kind + ".Sub"]</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+<div class="mat-card">
+    <div class="mat-card__body">
+        <p>@L["About.Family"]</p>
+        <p class="mo-muted">@L["About.Libraries"]</p>
+        <p class="mo-muted">@L["About.Author"]</p>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+@page "/Documents/Versions"
+@model MatOffice.Pages.Documents.VersionsModel
+@{
+    ViewData["Title"] = Model.DocumentName;
+    ViewData["PageSub"] = L["Versions.Sub"].Value;
+    ViewData["Crumbs"] = new List<(string, string?)> { (L["Documents.Title"].Value, "/home"), (Model.DocumentName, null) };
+}
+
+@section TopActions {
+    <a class="mat-btn mat-btn--secondary mat-btn--icon" href="@Model.EditorUrl" aria-label="@L["Documents.Open"]" data-tip="@L["Documents.Open"]">@Ui.Icon("external")</a>
+}
+
+<partial name="_DocumentTabs" model='(Model.Id, "versions", Model.IsOwner)' />
+
+<div class="mat-list">
+    <partial name="_Toolbar" model="Model.Toolbar" />
+
+    @if (Model.Items.Count == 0)
+    {
+        <partial name="_Empty" model="@(new EmptyStateModel("version", L[Model.Toolbar.Total == 0 ? "Versions.Empty.Title" : "Lists.NoMatch"].Value, L[Model.Toolbar.Total == 0 ? "Versions.Empty.Text" : "Lists.ChangeTools"].Value, Model.Toolbar.Total == 0 && Model.CanEdit, Model.CanEdit ? $"/Documents/Version?documentId={Model.Id}" : null, L["Versions.New"].Value, Model.Toolbar.UrlReset()))" />
+    }
+    else
+    {
+        <mo-table caption="@L["Versions.Title"]">
+            <thead>
+                <tr>
+                    <th scope="col">@L["Versions.Col.Version"]</th>
+                    <th scope="col" class="mat-hide-sm">@L["Versions.Col.By"]</th>
+                    <th scope="col">@L["Versions.Col.Date"]</th>
+                    <th scope="col" class="mat-num mat-hide-md">@L["Documents.Size"]</th>
+                    <th scope="col"><span class="mat-sr-only">@L["Common.Actions"]</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model.Items)
+                {
+                    var label = v.Name.Length > 0 ? v.Name : L["Versions.Auto"].Value;
+                    <tr>
+                        <td data-label="@L["Versions.Col.Version"]" class="mat-table__primary">
+                            <a class="mo-name" href="@Model.EditorUrl?v=@v.Id">@Ui.Icon(v.IsAuto ? "clock" : "version")<span>@label</span></a>
+                            @if (!string.IsNullOrEmpty(v.Description)) { <small class="mo-muted mo-block-line">@v.Description</small> }
+                        </td>
+                        <td data-label="@L["Versions.Col.By"]" class="mat-hide-sm">@v.CreatedBy</td>
+                        <td data-label="@L["Versions.Col.Date"]" class="mat-mono mat-table__keep-label">@Dates.Stamp(v.CreateDate, Model.Zone)</td>
+                        <td data-label="@L["Documents.Size"]" class="mat-num mat-mono mat-hide-md">@Ui.Bytes(v.ContentLength)</td>
+                        <td class="mat-table__cell-actions">
+                            <div class="mat-table__actions">
+                                <a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="@Model.EditorUrl?v=@v.Id" aria-label="@L["Versions.OpenNamed", label]" data-tip="@L["Versions.Open"]">@Ui.Icon("eye")</a>
+                                @if (Model.CanEdit)
+                                {
+                                    <a class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" href="/Documents/Version?documentId=@Model.Id&id=@v.Id" aria-label="@L["Common.EditNamed", label]" data-tip="@L["Versions.Name"]">@Ui.Icon("edit")</a>
+                                    <form method="post" asp-page-handler="Restore" asp-route-id="@Model.Id" asp-route-versionId="@v.Id">
+                                        <button type="submit" class="mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm" aria-label="@L["Versions.RestoreNamed", label]" data-tip="@L["Versions.Restore"]"
+                                                data-confirm="@L["Versions.RestoreConfirm", label]" data-confirm-ok="@L["Versions.Restore"]">@Ui.Icon("history")</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </mo-table>
+    }
+
+    <partial name="_Pager" model="Model.Pager" />
+
+    @if (Model.CanEdit)
+    {
+        <div class="mat-actions">
+            <a class="mat-btn mat-btn--primary" href="/Documents/Version?documentId=@Model.Id">@Ui.Icon("plus")<span>@L["Versions.New"]</span></a>
+        </div>
+    }
+</div>

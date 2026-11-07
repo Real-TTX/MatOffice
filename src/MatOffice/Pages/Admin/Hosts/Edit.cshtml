@@ -1,0 +1,52 @@
+@page "/Admin/Hosts/Edit"
+@model MatOffice.Pages.Admin.Hosts.EditModel
+@{
+    ViewData["Title"] = Model.IsNew ? L["Hosts.New"].Value : Model.Name;
+    ViewData["Crumbs"] = new List<(string, string?)> { (L["Admin.Title"].Value, null), (L["Hosts.Title"].Value, "/Admin/Hosts"), (Model.IsNew ? L["Common.New"].Value : Model.Name, null) };
+    ViewData["Width"] = "narrow";
+}
+
+@if (Model.NewKey is not null)
+{
+    <div class="mat-alert mat-alert--success mo-mb" role="status">
+        @Ui.Icon("key")
+        <div>
+            <strong>@L["Hosts.Key.Once"]</strong>
+            <div class="mo-copyrow">
+                <input class="mat-input mat-mono" id="host-key" type="text" readonly value="@Model.NewKey" aria-label="@L["Hosts.Col.Key"]" />
+                <button type="button" class="mat-btn mat-btn--secondary" data-copy="#host-key">@Ui.Icon("copy")<span>@L["Common.Copy"]</span></button>
+            </div>
+            <p class="mat-hint">@L["Hosts.Key.Hint"]</p>
+        </div>
+    </div>
+}
+
+<form class="mat-form" method="post" novalidate>
+    <partial name="_FormSummary" model="ViewData.ModelState" />
+    <div class="mat-card">
+        <div class="mat-card__body mat-form">
+            <mo-field name="Name" label="@L["Common.Name"]" required value="@Model.Name" maxlength="120" autofocus msg-required="@L["Hosts.Name.Required"]" hint="@L["Hosts.Name.Hint"]" />
+            <mo-field name="IsActive" kind="switch" label="@L["Hosts.Active"]" value="@Model.IsActive.ToString()" hint="@L["Hosts.Active.Hint"]" />
+            <mo-field name="AllowedUrlPrefix" kind="url" label="@L["Hosts.Prefix"]" value="@Model.AllowedUrlPrefix" maxlength="300" optional placeholder="https://drive.example.com" hint="@L["Hosts.Prefix.Hint"]" />
+            <mo-field name="Note" kind="textarea" label="@L["Hosts.Note"]" value="@Model.Note" maxlength="1000" rows="2" optional />
+        </div>
+    </div>
+    @if (!Model.IsNew)
+    {
+        <div class="mat-card">
+            <div class="mat-card__head"><h2 class="mat-card__title">@Ui.Icon("key")@L["Hosts.Col.Key"]</h2></div>
+            <div class="mat-card__body">
+                <dl class="mat-kv">
+                    <dt>@L["Hosts.Key.Starts"]</dt><dd class="mat-mono">@(Model.KeyPrefix)…</dd>
+                    <dt>@L["Hosts.How.Address"]</dt><dd class="mat-mono">@Model.Address</dd>
+                </dl>
+                <div class="mat-btn-row mat-btn-row--plain">
+                    <button type="submit" class="mat-btn mat-btn--secondary" formaction="@Url.Page("Edit", "Renew", new { id = Model.Id })" formnovalidate
+                            data-confirm="@L["Hosts.Renew.Confirm"]" data-confirm-ok="@L["Hosts.Renew"]">@Ui.Icon("refresh")<span>@L["Hosts.Renew"]</span></button>
+                </div>
+            </div>
+        </div>
+    }
+    <mo-buttons save="@L[Model.IsNew ? "Hosts.Create" : "Common.Save"]" back="/Admin/Hosts" delete-handler="@(Model.IsNew ? null : "Delete")" delete-label="@L["Common.Delete"]"
+                delete-confirm="@L["Hosts.DeleteConfirm", Model.Name]" />
+</form>

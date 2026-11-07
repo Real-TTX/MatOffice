@@ -1,0 +1,20 @@
+@page "/Documents/Version"
+@model MatOffice.Pages.Documents.VersionModel
+@{
+    ViewData["Title"] = Model.IsNew ? L["Versions.New"].Value : (Model.Name.Length > 0 ? Model.Name : L["Versions.Auto"].Value);
+    ViewData["Crumbs"] = new List<(string, string?)> { (L["Documents.Title"].Value, "/home"), (Model.DocumentName, $"/Documents/Versions?id={Model.DocumentId}"), (ViewData["Title"] as string ?? string.Empty, null) };
+    ViewData["Width"] = "narrow";
+}
+
+<form class="mat-form" method="post" novalidate>
+    <partial name="_FormSummary" model="ViewData.ModelState" />
+    <div class="mat-card">
+        <div class="mat-card__body mat-form">
+            <mo-field name="Name" label="@L["Common.Name"]" required value="@Model.Name" maxlength="120" autofocus msg-required="@L["Versions.Name.Required"]"
+                      hint="@L[Model.IsNew ? "Versions.Name.HintNew" : "Versions.Name.Hint"]" />
+            <mo-field name="Description" kind="textarea" label="@L["Versions.Description"]" value="@Model.Description" maxlength="1000" rows="3" optional />
+        </div>
+    </div>
+    <mo-buttons save="@L[Model.IsNew ? "Versions.Create" : "Common.Save"]" back="@($"/Documents/Versions?id={Model.DocumentId}")" delete-handler="@(Model.IsNew ? null : "Delete")"
+                delete-label="@L["Common.Delete"]" delete-confirm="@L["Versions.DeleteConfirm"]" />
+</form>

@@ -1,0 +1,2 @@
+/* MatOffice – the work area of this editor (prefix mo-slides-). */
+.mo-placeholder { margin: 0; padding: 16px; height: 100%; overflow: auto; box-sizing: border-box; font-family: var(--mat-mono); font-size: 12px; }
