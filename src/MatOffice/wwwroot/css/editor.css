@@ -69,7 +69,14 @@ body.mo-ed { background: var(--mat-bg); }
 }
 .mo-ribbon__tab:hover { background: var(--mat-surface-2); }
 .mo-ribbon__tab.is-active { font-weight: 600; color: var(--mo-kind); }
+/* dark: the app colour is too dark on the dark ribbon – the active tab takes the text colour, the large icons a lighter app colour
+   (written twice like every dark set: the chosen theme and the system's) */
 :root[data-theme="dark"] .mo-ribbon__tab.is-active { color: var(--mat-text); }
+:root[data-theme="dark"] .mo-rbtn--lg .mo-rbtn__icon--lg.mat-icon { color: color-mix(in oklab, var(--mo-kind) 52%, white); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .mo-ribbon__tab.is-active { color: var(--mat-text); }
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .mo-rbtn--lg .mo-rbtn__icon--lg.mat-icon { color: color-mix(in oklab, var(--mo-kind) 52%, white); }
+}
 .mo-ribbon__tab.is-active::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--mo-kind); }
 .mo-ribbon__tab--file { margin-right: 4px; background: var(--mo-kind); color: #fff; font-weight: 600; border-radius: var(--mat-radius-sm) var(--mat-radius-sm) 0 0; }
 .mo-ribbon__tab--file:hover { background: var(--mo-kind-dark); }
@@ -80,7 +87,7 @@ body.mo-ed { background: var(--mat-bg); }
   border-top: 1px solid var(--mat-border); background: var(--mat-surface);
 }
 .mo-ribbon.is-collapsed .mo-ribbon__panel { display: none; }
-.mo-ribbon.is-collapsed.is-peek .mo-ribbon__panel { display: flex; position: absolute; left: 0; right: 0; z-index: 30; box-shadow: var(--mat-shadow-md); }
+.mo-ribbon.is-collapsed.is-peek .mo-ribbon__panel { display: flex; position: absolute; left: 0; right: 0; z-index: 30; box-shadow: var(--mat-shadow-2); }
 .mo-rgroup { display: flex; flex-direction: column; flex: none; padding: 0 8px; border-right: 1px solid var(--mat-border); }
 .mo-rgroup:last-child { border-right: 0; }
 .mo-rgroup__items { display: flex; align-items: flex-start; gap: 2px; flex: 1 1 auto; }
@@ -135,7 +142,7 @@ body.mo-ed { background: var(--mat-bg); }
 /* ---- popovers, menus, palette ---- */
 .mo-pop {
   position: fixed; z-index: 1000; min-width: 180px; max-width: min(360px, calc(100vw - 16px)); max-height: min(70vh, 520px); overflow: auto;
-  padding: 4px; border: 1px solid var(--mat-border); border-radius: var(--mat-radius); background: var(--mat-surface); color: var(--mat-text); box-shadow: var(--mat-shadow-lg);
+  padding: 4px; border: 1px solid var(--mat-border); border-radius: var(--mat-radius); background: var(--mat-surface); color: var(--mat-text); box-shadow: var(--mat-shadow-3);
 }
 .mo-menu { display: flex; flex-direction: column; }
 .mo-menu__item {
