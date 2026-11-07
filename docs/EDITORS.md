@@ -246,3 +246,11 @@ The server (`Normalize`) keeps only these fields, drops what does not fit (colou
 of text, 8,192 of a formula. Formulas are text for the server: it never runs them, the editor calculates (`wwwroot/js/sheets/engine/`).
 Files: `.xlsx` (ClosedXML: values, formulas with their cached values, formats, sizes, merges, frozen panes, hidden rows/columns, tab colours, notes, links;
 charts are not written), `.csv` and `.tsv` (UTF-8 with BOM; the import detects `,` `;` or tab and a decimal comma).
+
+The editor (`wwwroot/js/sheets/`): the pure modules have no DOM and are tested with `node --test "tests/js/sheets/*.test.mjs"` – `engine/` (addresses,
+dates, values, lexer, parser, evaluator, `calc.js` = dependency index, incremental recalculation, circles, spills; `numfmt.js` = number formats and typed
+input; `transform.js` = references after inserted/deleted rows, copies, moves, renamed sheets; `functions/` = the function library, its descriptions in
+`Resources/Texts/JsSheetsFunctions.json`), `model.js` + `axis.js` (the workbook in memory, undo/redo by transactions), `selection.js`, `look.js` (how a
+cell looks: formats, conditional formats, validation), `commands.js` (what the ribbon and the keys do). The screen: `grid.js` (a canvas under a native
+scroll area), `editor.js` (cell editor, formula bar, point mode), `pointer.js`, `keys.js`, `clipboard.js`, `dialogs.js`, `ribbon.js`, `charts.js` (SVG),
+`objects.js`, `tabs.js`, `filter.js`, `notes.js`, `print.js`; `app.js` ties them together. The browser tests reach the editor of a page as `window.__sheets`.
