@@ -690,7 +690,7 @@ export class Designer extends BaseView {
         sec.controls.push(label);
         const type = f.lookup ? 'combobox' : 'textbox';
         const ctl = newControl(type, newId(all(), 'c'), { x: x + 160, y, w: Math.min(controlWidth(f), 360), h }, {
-          source: f.name, name: f.name, align: ['number', 'currency', 'autonumber'].includes(f.type) ? 'right' : 'left', locked: f.type === 'autonumber', border: this.isReport ? false : true,
+          source: f.name, name: f.name, align: ['number', 'currency', 'autonumber'].includes(f.type) && !f.lookup ? 'right' : 'left', locked: f.type === 'autonumber', border: this.isReport ? false : true,
         });
         sec.controls.push(ctl);
         ids.push(label.id, ctl.id);

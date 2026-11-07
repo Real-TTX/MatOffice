@@ -98,7 +98,7 @@ export class TableRecordset extends Recordset {
     const t = this.table;
     if (!t) { this.columns = []; this.rows = []; return; }
     this.columns = t.fields.map(f => ({
-      key: f.id, skey: f.id, name: f.name, caption: f.caption || f.name, type: f.type, field: f, editable: f.type !== 'autonumber', align: alignOf(f.type),
+      key: f.id, skey: f.id, name: f.name, caption: f.caption || f.name, type: f.type, field: f, editable: f.type !== 'autonumber', align: f.lookup ? 'left' : alignOf(f.type),
     }));
     const fixed = this.fixed ? Object.entries(this.fixed) : null;
     const rows = fixed ? t.rows.filter(r => fixed.every(([k, v]) => keyOf(r.v[k]) === keyOf(v) && keyOf(v) !== null)) : t.rows;
@@ -174,7 +174,7 @@ export class QueryRecordset extends Recordset {
     const res = this.result;
     this.columns = res.columns.map((c, i) => ({
       key: i, skey: c.name, name: c.name, caption: c.field && lower(c.field.name) === lower(c.name) && c.field.caption ? c.field.caption : c.name,
-      type: c.type, field: c.field, editable: c.editable, source: c.source, align: alignOf(c.type),
+      type: c.type, field: c.field, editable: c.editable, source: c.source, align: c.field?.lookup ? 'left' : alignOf(c.type),
     }));
     let rows = res.rows.map((r, i) => ({ id: i, values: { ...r.v }, refs: r.refs }));
     if (this.fixed) {

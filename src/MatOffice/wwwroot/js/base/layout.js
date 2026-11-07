@@ -70,7 +70,7 @@ export function columnarForm({ id, name, sourceId, title, fields, subform = null
   for (const f of fields) {
     const h = f.type === 'memo' ? 72 : 24;
     detail.push(control('label', 24, y, 150, 24, { caption: caption(f) }));
-    detail.push(control(controlType(f), 184, y, Math.min(controlWidth(f), width - 208), h, { source: f.name, name: f.name, align: numeric(f) ? 'right' : 'left', locked: f.type === 'autonumber' }));
+    detail.push(control(controlType(f), 184, y, Math.min(controlWidth(f), width - 208), h, { source: f.name, name: f.name, align: numeric(f) && !f.lookup ? 'right' : 'left', locked: f.type === 'autonumber' }));
     y += h + 10;
   }
   if (subform) {
@@ -99,7 +99,7 @@ export function tabularForm({ id, name, sourceId, title, fields }) {
   for (const f of fields) {
     const w = f.lookup ? 160 : f.type === 'memo' ? 220 : numeric(f) ? (f.type === 'currency' ? 110 : 90) : f.type === 'datetime' ? 110 : f.type === 'yesno' ? 70 : 160;
     labels.push(control('label', x, 80, w, 24, { caption: caption(f), bold: true }));
-    detail.push(control(controlType(f), f.type === 'yesno' ? x + w / 2 - 12 : x, 4, f.type === 'yesno' ? 24 : w, 24, { source: f.name, name: f.name, align: numeric(f) ? 'right' : 'left' }));
+    detail.push(control(controlType(f), f.type === 'yesno' ? x + w / 2 - 12 : x, 4, f.type === 'yesno' ? 24 : w, 24, { source: f.name, name: f.name, align: numeric(f) && !f.lookup ? 'right' : 'left' }));
     x += w + 8;
   }
   const width = Math.max(640, x + 16);
@@ -147,7 +147,7 @@ export function wizardReport({ id, name, sourceId, title, fields, groups = [], s
   const cols = new Map();
   let x = 0;
   for (const f of columnsOf) { const w = Math.floor(usable * weight(f) / total); cols.set(f.name, { x, w }); x += w + gap; }
-  const align = f => (numeric(f) ? 'right' : 'left');
+  const align = f => (numeric(f) && !f.lookup ? 'right' : 'left');
   const fns = Object.entries(summary).flatMap(([field, list]) => list.map(fn => ({ field, fn })));
   const fnRows = [...new Set(fns.map(x => x.fn))];
 

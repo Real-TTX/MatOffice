@@ -54,7 +54,7 @@ public static class BaseLayout
             {
                 c["source"] = f.Name;
                 c["name"] = f.Name;
-                if (f.Type is "number" or "currency" or "autonumber")
+                if (f.Type is "number" or "currency" or "autonumber" && !f.Lookup)
                 {
                     c["align"] = "right";
                 }
@@ -129,7 +129,7 @@ public static class BaseLayout
             {
                 c["source"] = f.Name;
                 c["name"] = f.Name;
-                if (f.Type is "number" or "currency" or "autonumber")
+                if (f.Type is "number" or "currency" or "autonumber" && !f.Lookup)
                 {
                     c["align"] = "right";
                 }
@@ -204,7 +204,7 @@ public static class BaseLayout
         string Caption(SourceField f) => string.IsNullOrEmpty(f.Caption) ? f.Name : f.Caption;
         void Align(JsonObject c, SourceField f)
         {
-            if (f.Type is "number" or "currency" or "autonumber")
+            if (f.Type is "number" or "currency" or "autonumber" && !f.Lookup)
             {
                 c["align"] = "right";
             }
