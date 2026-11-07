@@ -2,7 +2,8 @@
    one, so =SUM(A1:INDEX(A:A, 3)) and =ROW(INDEX(A1:A9, 3)) work. Exact matches compare text without case and know the wildcards * ? ~
    (MATCH 0, VLOOKUP FALSE, XLOOKUP 2); approximate matches search sorted data like Excel's binary search. */
 import { define, scalar, deref, matrix, makeMatrix, pick, Errors, Ref } from '../lib.js';
-import { FormulaError, toNumber, toText, toBool, compare, compareText, wildcard } from '../values.js';
+import { FormulaError, toNumber, toText, toBool, compare, compareText, wildcard, getLocale } from '../values.js';
+import { toLocal } from '../lexer.js';
 import { MAX_ROWS, MAX_COLS, colName, sheetPrefix } from '../address.js';
 import { lift, optNumber } from './stat.js';
 
@@ -444,6 +445,6 @@ define('FORMULATEXT', {
     if (isErr(ref)) return ref;
     if (!(ref instanceof Ref)) return NA;
     const f = ctx.formulaAt(ref.sheet, ref.r1, ref.c1);
-    return f ? '=' + f : NA;
+    return f ? '=' + toLocal(f, getLocale()) : NA; // as the person reads it (German: ; and the decimal comma)
   },
 });
