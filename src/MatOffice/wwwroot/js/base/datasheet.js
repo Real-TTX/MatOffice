@@ -264,7 +264,8 @@ export class Datasheet {
       const isCurrent = current && ci === this.cur.c && !this.sel;
       const cell = el('div', { class: 'mo-base-ds__cell' + (c.align === 'right' ? ' is-right' : c.align === 'center' ? ' is-center' : '') + (isCurrent ? ' is-current' : '') + (this.colSel === ci ? ' is-colsel' : ''), role: 'gridcell' });
       this.stickyCell(cell, ci);
-      if (isCurrent && this.editor && !this.readOnlyCell(c, isNew) && c.type !== 'yesno') {
+      if (isCurrent && this.editor && c.type !== 'yesno') {
+        // a read-only cell gets its read-only editor too: it keeps the focus for the keys (copy, find, moving on)
         cell.append(this.editor);
         if (this.pickerButton) cell.append(this.pickerButton);
       } else this.fillCell(cell, c, v, isNew);
@@ -274,6 +275,12 @@ export class Datasheet {
     });
     if (this.o.addField && !this.app.readOnly) rowEl.append(el('div', { class: 'mo-base-ds__cell mo-base-ds__cell--add' }));
     return rowEl;
+  }
+
+  /** The first column a new record can take a value in (an AutoNumber is skipped). */
+  firstEditable() {
+    const i = this.cols.findIndex(c => !this.readOnlyCell(c, true));
+    return i >= 0 ? i : 0;
   }
 
   readOnlyCell(c, isNew) {
@@ -637,6 +644,12 @@ export class Datasheet {
       case 'ArrowDown':
         if (e.altKey && ed?.tagName === 'SELECT') { try { ed.showPicker(); } catch { /* old browsers */ } e.preventDefault(); return; }
         if (mod) return go(this.rowCount - 1, this.cur.c);
+        if (this.cur.r >= this.rowCount - 1 && this.dirty) {
+          // the last record with changes: saved, then the next new record (like Access)
+          e.preventDefault();
+          this.commit().then(ok => { if (ok && this.canAdd) this.moveTo(this.newIndex, this.cur.c, { focus: true }); });
+          return;
+        }
         return go(this.cur.r + 1, this.cur.c);
       case 'ArrowUp': if (mod) return go(0, this.cur.c); return go(this.cur.r - 1, this.cur.c);
       case 'PageDown': return go(this.cur.r + Math.max(1, Math.floor(this.grid.clientHeight / RH) - 2), this.cur.c);
@@ -662,7 +675,7 @@ export class Datasheet {
           // past the last field of the last record: the record is saved and the new record follows, like Access
           if (e.key === 'Tab' && this.o.compact && !this.dirty) return;
           e.preventDefault();
-          this.commit().then(ok => { if (ok && this.canAdd) this.moveTo(this.newIndex, 0, { focus: true }); else if (ok) this.focusEditor(false); });
+          this.commit().then(ok => { if (ok && this.canAdd) this.moveTo(this.newIndex, this.firstEditable(), { focus: true }); else if (ok) this.focusEditor(false); });
           return;
         }
         if (r < 0 || r >= this.rowCount) { if (e.key === 'Tab' && this.o.compact) return; e.preventDefault(); return; }

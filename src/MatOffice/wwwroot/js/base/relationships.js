@@ -258,6 +258,7 @@ export class RelationshipsView extends BaseView {
     if (result && !result.ok) { await showProblem(result.error); return; }
     this.selected = next.id;
     this.render();
+    this.app.setStatus();
   }
 
   async joinType(parent, child, current) {
@@ -276,6 +277,7 @@ export class RelationshipsView extends BaseView {
     this.app.design(() => { this.db.relationships = this.db.relationships.filter(r => r.id !== id); });
     this.selected = null;
     this.render();
+    this.app.setStatus();
   }
 
   hideTable(id) {
