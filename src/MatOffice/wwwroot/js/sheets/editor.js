@@ -241,7 +241,7 @@ export class CellEditor {
   commit(dr = 1, dc = 0, options = {}) {
     if (!this.active) return true;
     const text = this.cellInput.value;
-    const ok = this.app.commitInput(this.sheet, this.row, this.col, text, options);
+    const ok = this.app.commitInput(this.sheet, this.row, this.col, text, { ...options, dr, dc });
     if (ok === false) { this.input.focus(); return false; }
     this.close();
     this.app.afterCommit(dr, dc);
