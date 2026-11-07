@@ -613,6 +613,10 @@ class SheetsApp {
 
   placeCatcher() {
     if (!this.keys) return;
+    // screen readers hear the active cell (the grid itself is a picture)
+    const { row, col } = this.sel.active;
+    const shown = this.look.cell(this.sheet, row, col, 11).text;
+    this.keys.setAttribute('aria-label', `${t('Sheets.Grid')}: ${cellName(row, col)}${shown ? ' ' + shown : ''}`);
     const r = this.grid.cellRect(this.sel.active.row, this.sel.active.col);
     this.keys.style.left = Math.max(0, Math.min(this.grid.width - 2, Math.round(r.x))) + 'px';
     this.keys.style.top = Math.max(0, Math.min(this.grid.height - 2, Math.round(r.y))) + 'px';
