@@ -335,7 +335,7 @@ export class Commands {
   }
 
   /** The fill handle was dragged from src to dst: series of numbers, dates, weekdays, months, numbered texts; formulas follow. */
-  fill(src, dst) {
+  fill(src, dst, { series = false } = {}) {
     if (dst.r2 < src.r2 && dst.r1 === src.r1 && dst.c1 === src.c1 && dst.c2 === src.c2 || dst.c2 < src.c2 && dst.c1 === src.c1 && dst.r1 === src.r1 && dst.r2 === src.r2) {
       // dragged back into the selection: clear what is left out
       this.change('clear', () => {
@@ -356,7 +356,7 @@ export class Commands {
           const targets = [];
           if (down) for (let r = src.r2 + 1; r <= dst.r2; r++) targets.push({ r, c });
           else for (let r = src.r1 - 1; r >= dst.r1; r--) targets.push({ r, c });
-          this.series(cells, targets, down ? 1 : -1);
+          this.series(cells, targets, down ? 1 : -1, series);
         }
       } else {
         const right = dst.c2 > src.c2;
@@ -366,7 +366,7 @@ export class Commands {
           const targets = [];
           if (right) for (let c = src.c2 + 1; c <= dst.c2; c++) targets.push({ r, c });
           else for (let c = src.c1 - 1; c >= dst.c1; c--) targets.push({ r, c });
-          this.series(cells, targets, right ? 1 : -1);
+          this.series(cells, targets, right ? 1 : -1, series);
         }
       }
     });
@@ -375,7 +375,7 @@ export class Commands {
   }
 
   /** One line of a fill: the source cells (in order) continue into the targets (direction +1/-1). */
-  series(cells, targets, dir) {
+  series(cells, targets, dir, forceSeries = false) {
     const wb = this.wb;
     const sheet = this.sheet;
     const src = dir > 0 ? cells : [...cells].reverse();
@@ -398,7 +398,7 @@ export class Commands {
       const values = src.map(x => x.cell.v);
       const date = isDateFormat(nfOf(src[0]));
       if (n === 1) {
-        targets.forEach((tg, i) => write(tg, src[0], date ? values[0] + (i + 1) * dir : undefined));
+        targets.forEach((tg, i) => write(tg, src[0], date || forceSeries ? values[0] + (i + 1) * dir : undefined));
         return;
       }
       if (date) {

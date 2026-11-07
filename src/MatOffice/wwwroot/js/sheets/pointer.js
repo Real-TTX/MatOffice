@@ -104,7 +104,7 @@ export function attachPointer(app) {
       return;
     }
     if (d.kind === 'resize') endResize(d);
-    else if (d.kind === 'fill') { grid.fillPreview = null; if (!sameArea(d.target, d.source)) app.commands.fill(d.source, d.target); grid.requestRender(); }
+    else if (d.kind === 'fill') { grid.fillPreview = null; if (!sameArea(d.target, d.source)) app.commands.fill(d.source, d.target, { series: e.ctrlKey || e.metaKey }); grid.requestRender(); }
     else if (d.kind === 'move') {
       grid.movePreview = null;
       if (d.dr || d.dc) app.commands.moveSelection(d.dr, d.dc, e.ctrlKey || e.metaKey);

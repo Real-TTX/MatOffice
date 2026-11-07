@@ -70,6 +70,9 @@ test('the fill handle continues numbers, dates, numbered texts, weekdays and for
   assert.equal(app.value(2, 3), 50);
   cmd.fill({ r1: 0, c1: 4, r2: 0, c2: 4 }, { r1: 0, c1: 4, r2: 0, c2: 6 });
   assert.deepEqual([4, 5, 6].map(c => app.value(0, c)), [5, 5, 5]); // one number is copied
+  cmd.fill({ r1: 0, c1: 4, r2: 0, c2: 4 }, { r1: 0, c1: 4, r2: 0, c2: 6 }, { series: true });
+  assert.deepEqual([4, 5, 6].map(c => app.value(0, c)), [5, 6, 7]); // Ctrl: a series
+  app.wb.undo();
   app.wb.undo();
   assert.equal(app.sheet.cell(0, 5), undefined);
 });
