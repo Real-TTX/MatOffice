@@ -289,6 +289,112 @@ test('charts, the AutoFilter, freezing and merging through the app', () => {
   app.print();
 });
 
+/** A point in the middle of a cell (or at an offset from its top left) in coordinates of the grid. */
+const at = (app, row, col, dx, dy) => { const r = app.grid.cellRect(row, col); return { clientX: r.x + (dx ?? r.w / 2), clientY: r.y + (dy ?? r.h / 2) }; };
+const pointer = (app, type, p, extra = {}) => app.grid.scroller.dispatch(type, { pointerId: 1, pointerType: 'mouse', button: 0, isPrimary: true, ctrlKey: false, metaKey: false, shiftKey: false, ...p, ...extra });
+
+test('the mouse: click, drag a range, Shift+click, headers, the fill handle, moving by the border, resizing', () => {
+  const { app } = mount(blank());
+  for (const [r, v] of [[0, '1'], [1, '2']]) { app.sel.set(r, 0); typeCell(app, v); keydown(app.editor.input, 'Enter'); }
+  pointer(app, 'pointerdown', at(app, 0, 0));
+  pointer(app, 'pointermove', at(app, 3, 2));
+  pointer(app, 'pointerup', at(app, 3, 2));
+  assert.deepEqual(app.sel.range, { r1: 0, c1: 0, r2: 3, c2: 2 });
+  pointer(app, 'pointerdown', at(app, 5, 1));
+  pointer(app, 'pointerup', at(app, 5, 1));
+  pointer(app, 'pointerdown', at(app, 7, 3), { shiftKey: true });
+  pointer(app, 'pointerup', at(app, 7, 3));
+  assert.deepEqual(app.sel.range, { r1: 5, c1: 1, r2: 7, c2: 3 });
+  // a column header selects the column, a row header the row
+  const col = app.grid.cellRect(0, 2);
+  pointer(app, 'pointerdown', { clientX: col.x + col.w / 2, clientY: 5 });
+  pointer(app, 'pointerup', { clientX: col.x + col.w / 2, clientY: 5 });
+  assert.ok(app.sel.isWholeCol());
+  assert.equal(app.sel.range.c1, 2);
+  // the fill handle: A1:A2 (1, 2) dragged to A5 makes 1 … 5
+  app.sel.setArea({ r1: 0, c1: 0, r2: 1, c2: 0 });
+  app.selectionChanged();
+  const a2 = app.grid.cellRect(1, 0);
+  pointer(app, 'pointerdown', { clientX: a2.x + a2.w - 1, clientY: a2.y + a2.h - 1 });
+  pointer(app, 'pointermove', at(app, 4, 0));
+  pointer(app, 'pointerup', at(app, 4, 0));
+  assert.deepEqual([0, 1, 2, 3, 4].map(r => app.sheet.cell(r, 0)?.v), [1, 2, 3, 4, 5]);
+  // dragging the border of the selection moves the cells
+  app.sel.setArea({ r1: 0, c1: 0, r2: 4, c2: 0 });
+  app.selectionChanged();
+  const top = app.grid.cellRect(0, 0);
+  pointer(app, 'pointerdown', { clientX: top.x + top.w / 2, clientY: top.y + 1 });
+  pointer(app, 'pointermove', at(app, 0, 3, top.w / 2, 1));
+  pointer(app, 'pointerup', at(app, 0, 3, top.w / 2, 1));
+  assert.equal(app.sheet.cell(0, 3)?.v, 1);
+  assert.equal(app.sheet.cell(0, 0), undefined);
+  // the border of a column header resizes it
+  const d = app.grid.cellRect(0, 3);
+  const before = app.sheet.cols.rawSize(3);
+  pointer(app, 'pointerdown', { clientX: d.x + d.w - 1, clientY: 5 });
+  pointer(app, 'pointermove', { clientX: d.x + d.w + 39, clientY: 5 });
+  pointer(app, 'pointerup', { clientX: d.x + d.w + 39, clientY: 5 });
+  assert.equal(app.sheet.cols.rawSize(3), before + 40);
+  app.undo();
+  assert.equal(app.sheet.cols.rawSize(3), before);
+  // a double click edits the cell
+  app.grid.scroller.dispatch('dblclick', at(app, 0, 3));
+  assert.ok(app.editor.active);
+  app.editor.cancel();
+  // the context menu of a cell
+  app.grid.scroller.dispatch('contextmenu', at(app, 2, 2));
+  assert.deepEqual(app.sel.active, { row: 2, col: 2 });
+});
+
+test('the keys: Ctrl+arrows, PageDown, Tab inside a selection, F2, Backspace, Ctrl+A, Ctrl+D, Ctrl+;, sheets, hiding', () => {
+  const { app } = mount(blank());
+  for (let r = 0; r < 5; r++) { app.sel.set(r, 0); typeCell(app, String(r + 1)); keydown(app.editor.input, 'Enter'); }
+  app.sel.set(0, 0);
+  keydown(app.keys, 'ArrowDown', { ctrlKey: true });
+  assert.deepEqual(app.sel.active, { row: 4, col: 0 });
+  keydown(app.keys, 'ArrowUp', { ctrlKey: true, shiftKey: true });
+  assert.deepEqual(app.sel.range, { r1: 0, c1: 0, r2: 4, c2: 0 });
+  app.sel.set(2, 0);
+  keydown(app.keys, 'a', { ctrlKey: true });
+  assert.deepEqual(app.sel.range, { r1: 0, c1: 0, r2: 4, c2: 0 });
+  keydown(app.keys, 'a', { ctrlKey: true });
+  assert.ok(app.sel.isWholeRow() && app.sel.isWholeCol());
+  app.sel.setArea({ r1: 0, c1: 1, r2: 1, c2: 2 });
+  keydown(app.keys, 'Tab');
+  assert.deepEqual(app.sel.active, { row: 0, col: 2 });
+  keydown(app.keys, 'Tab');
+  assert.deepEqual(app.sel.active, { row: 1, col: 1 });
+  app.sel.set(0, 0);
+  keydown(app.keys, 'PageDown');
+  assert.ok(app.sel.active.row > 5);
+  keydown(app.keys, 'Home', { ctrlKey: true });
+  keydown(app.keys, 'F2');
+  assert.ok(app.editor.active);
+  assert.equal(app.editor.input.value, '1');
+  keydown(app.editor.input, 'Escape');
+  keydown(app.keys, 'Backspace');
+  assert.ok(app.editor.active);
+  assert.equal(app.editor.input.value, '');
+  keydown(app.editor.input, 'Escape');
+  app.sel.setArea({ r1: 0, c1: 0, r2: 2, c2: 0 });
+  keydown(app.keys, 'd', { ctrlKey: true });
+  assert.deepEqual([0, 1, 2].map(r => app.sheet.cell(r, 0).v), [1, 1, 1]);
+  app.undo();
+  app.sel.set(7, 0);
+  keydown(app.keys, ';', { ctrlKey: true });
+  assert.equal(typeof app.sheet.cell(7, 0).v, 'number');
+  app.commands.addSheet();
+  keydown(app.keys, 'PageUp', { ctrlKey: true });
+  assert.equal(app.sheet, app.wb.sheets[0]);
+  app.sel.set(2, 0);
+  keydown(app.keys, '9', { ctrlKey: true });
+  assert.ok(app.sheet.rows.isHidden(2));
+  keydown(app.keys, '9', { ctrlKey: true, shiftKey: true });
+  app.sel.setArea({ r1: 1, c1: 0, r2: 3, c2: 0 });
+  keydown(app.keys, '(', { ctrlKey: true, shiftKey: true });
+  assert.ok(!app.sheet.rows.isHidden(2));
+});
+
 test('read-only: typing is refused, selection and copy still work', () => {
   const { app, log } = mount(template('budget'), { readOnly: true });
   app.sel.set(0, 0);
