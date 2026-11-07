@@ -181,7 +181,7 @@ public static class SlidesTemplates
             .Ph("right", L("After:", "Nachher:"), "\t" + L("“Could you send the signed contract by Friday? Then we can start on 1 March.”", "„Könnten Sie den unterschriebenen Vertrag bis Freitag schicken? Dann können wir am 1. März starten.“"));
         var exercise = d.Slide("titleOnly").Ph("title", L("Exercise", "Übung"));
         var bubble = exercise.Shape("wedgeRectCallout", 140, 220, 700, 260, "accent2", L("Rewrite the email on your handout. Put the request into the first two lines. You have 10 minutes – then swap with your neighbour.", "Schreib die E-Mail auf deinem Arbeitsblatt neu. Die Bitte gehört in die ersten zwei Zeilen. Du hast 10 Minuten – dann tauscht ihr mit dem Nachbarn."), size: 24, textColor: "lt1");
-        var timer = exercise.Shape("ellipse", 920, 250, 220, 220, "accent1", L("10\nminutes", "10\nMinuten"), size: 32, textColor: "lt1", bold: true);
+        var timer = exercise.Shape("ellipse", 905, 240, 240, 240, "accent1", L("10\nminutes", "10\nMinuten"), size: 26, textColor: "lt1", bold: true);
         exercise.Animate(bubble, "fly", "click", "bottom").Animate(timer, "zoom", "after");
         d.Slide("titleContent").Ph("title", L("Key takeaways", "Das Wichtigste")).Ph("body",
             L("Main point first", "Das Wichtigste zuerst"),
