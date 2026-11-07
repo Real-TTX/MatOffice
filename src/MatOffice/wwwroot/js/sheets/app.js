@@ -229,7 +229,6 @@ class SheetsApp {
     }
     this.grid.updateExtent();
     this.grid.requestRender();
-    if (this.painter && !quick) { this.commands.applyPainter(); }
     if (!this.editor.active) this.editor.refresh();
     this.placeCatcher();
     this.updateCellWidgets();

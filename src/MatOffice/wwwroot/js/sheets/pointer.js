@@ -105,9 +105,16 @@ export function attachPointer(app) {
     }
     if (d.kind === 'resize') endResize(d);
     else if (d.kind === 'fill') { grid.fillPreview = null; if (!sameArea(d.target, d.source)) app.commands.fill(d.source, d.target); grid.requestRender(); }
-    else if (d.kind === 'move') { grid.movePreview = null; if (d.dr || d.dc) app.commands.moveSelection(d.dr, d.dc, e.ctrlKey || e.metaKey); grid.requestRender(); }
+    else if (d.kind === 'move') {
+      grid.movePreview = null;
+      if (d.dr || d.dc) app.commands.moveSelection(d.dr, d.dc, e.ctrlKey || e.metaKey);
+      else { app.sel.set(d.start.row, d.start.col); app.selectionChanged({ scroll: false }); } // a click on the border selects the cell
+      grid.requestRender();
+    }
     else if (d.kind === 'point') { app.editor.input.focus(); }
+    else if (app.painter && (d.kind === 'cells' || d.kind === 'cols' || d.kind === 'rows')) app.commands.applyPainter();
     app.editor.refresh();
+    app.updateStatus();
   };
   sc.addEventListener('pointerup', finish);
   sc.addEventListener('pointercancel', finish);
@@ -333,6 +340,7 @@ export function attachPointer(app) {
     if ((again || double) && !app.readOnly) { sel.set(hit.row, hit.col); app.selectionChanged({ scroll: false }); app.editor.begin({ mode: 'edit' }); return; }
     sel.set(hit.row, hit.col);
     app.selectionChanged({ scroll: false });
+    if (app.painter) app.commands.applyPainter();
   }
 }
 

@@ -209,7 +209,7 @@ export class Grid {
   }
 
   onBorder(x, y, r) {
-    const near = (v, edge) => Math.abs(v - edge) <= 3;
+    const near = (v, edge) => Math.abs(v - edge) <= 2;
     const insideX = x >= r.x - 3 && x <= r.x + r.w + 3;
     const insideY = y >= r.y - 3 && y <= r.y + r.h + 3;
     return (insideY && (near(x, r.x) || near(x, r.x + r.w - 1))) || (insideX && (near(y, r.y) || near(y, r.y + r.h - 1)));
