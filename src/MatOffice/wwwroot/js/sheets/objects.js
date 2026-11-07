@@ -53,10 +53,15 @@ export class Objects {
         this.layer.insertBefore(node, this.frame);
         this.nodes.set(chart.id, node);
       }
-      const data = chartData(this.app, sheet, chart);
+      let data;
+      try { data = chartData(this.app, sheet, chart); } catch { data = { categories: [], series: [], format: null }; }
       const sig = JSON.stringify([chart, data, dark, this.app.locale]);
       if (node.dataset.sig !== sig) {
-        node.replaceChildren(renderChart(chart, data, { width: chart.w, height: chart.h, dark, locale: this.app.locale }));
+        try {
+          node.replaceChildren(renderChart(chart, data, { width: chart.w, height: chart.h, dark, locale: this.app.locale }));
+        } catch {
+          node.replaceChildren(); // a chart that cannot be drawn stays empty instead of stopping the editor
+        }
         node.dataset.sig = sig;
       }
     }

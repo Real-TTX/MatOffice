@@ -164,9 +164,9 @@ class SheetsApp {
     const changes = this.wb.takeChanges();
     if (structural) this.calc.rebuild();
     else if (changes.length) this.calc.update(changes);
+    this.ctx.changed();
     this.afterCalc();
     if (layout) this.grid.updateExtent();
-    this.ctx.changed();
   }
 
   afterCalc() {

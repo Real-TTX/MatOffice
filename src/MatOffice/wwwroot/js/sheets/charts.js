@@ -37,6 +37,7 @@ export function chartData(app, sheet, chart) {
     const values = body.map(line => { const v = value(line[j].r, line[j].c); return typeof v === 'number' ? v : null; });
     const s = { name, values };
     if (scatter && first.length > 1) s.xs = body.map(line => { const v = value(line[0].r, line[0].c); return typeof v === 'number' ? v : null; });
+    if (s.xs && s.xs.every(x => x === null)) delete s.xs; // texts as X: the points are numbered 1, 2, 3 like Excel does
     series.push(s);
   }
   const sample = body[0]?.[startCol];
