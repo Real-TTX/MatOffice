@@ -15,14 +15,15 @@ public static class BaseLayout
 
     public const int FormWidth = 640;
 
-    public static int ControlWidth(SourceField f) => f.Type switch
+    /// <summary>The width of the control of a field: a lookup shows the text of the other table, so it is wide whatever the type of its key.</summary>
+    public static int ControlWidth(SourceField f) => f.Lookup ? 240 : f.Type switch
     {
         "memo" => 400,
         "number" or "autonumber" => 120,
         "currency" or "datetime" => 140,
         "yesno" => 24,
         "hyperlink" => 300,
-        _ => f.Lookup ? 240 : 260,
+        _ => 260,
     };
 
     private static JsonObject Control(ref int n, string type, int x, int y, int w, int h, Action<JsonObject>? more = null)
@@ -121,7 +122,7 @@ public static class BaseLayout
         var x = 24;
         foreach (var f in fields)
         {
-            var w = f.Type switch { "memo" => 220, "number" or "autonumber" => 90, "currency" or "datetime" => 110, "yesno" => 70, _ => 160 };
+            var w = f.Lookup ? 160 : f.Type switch { "memo" => 220, "number" or "autonumber" => 90, "currency" or "datetime" => 110, "yesno" => 70, _ => 160 };
             var caption = string.IsNullOrEmpty(f.Caption) ? f.Name : f.Caption;
             labels.Add(Control(ref n, "label", x, 80, w, 24, c => { c["caption"] = caption; c["bold"] = true; }));
             detail.Add(Control(ref n, ControlType(f), f.Type == "yesno" ? x + (w / 2) - 12 : x, 4, f.Type == "yesno" ? 24 : w, 24, c =>

@@ -23,6 +23,7 @@ const caption = f => f.caption || f.name;
 const controlType = f => (f.type === 'yesno' ? 'checkbox' : f.lookup ? 'combobox' : 'textbox');
 
 export function controlWidth(f) {
+  if (f.lookup) return 240;
   if (f.type === 'memo') return 400;
   if (f.type === 'number' || f.type === 'autonumber') return 120;
   if (f.type === 'currency' || f.type === 'datetime') return 140;
@@ -96,7 +97,7 @@ export function tabularForm({ id, name, sourceId, title, fields }) {
   const detail = [];
   let x = 24;
   for (const f of fields) {
-    const w = f.type === 'memo' ? 220 : numeric(f) ? (f.type === 'currency' ? 110 : 90) : f.type === 'datetime' ? 110 : f.type === 'yesno' ? 70 : 160;
+    const w = f.lookup ? 160 : f.type === 'memo' ? 220 : numeric(f) ? (f.type === 'currency' ? 110 : 90) : f.type === 'datetime' ? 110 : f.type === 'yesno' ? 70 : 160;
     labels.push(control('label', x, 80, w, 24, { caption: caption(f), bold: true }));
     detail.push(control(controlType(f), f.type === 'yesno' ? x + w / 2 - 12 : x, 4, f.type === 'yesno' ? 24 : w, 24, { source: f.name, name: f.name, align: numeric(f) ? 'right' : 'left' }));
     x += w + 8;
