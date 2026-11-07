@@ -406,6 +406,18 @@ async function mount(ctx) {
   ctx.ribbon.set(buildRibbon(app));
   if (ctx.readOnly) app.editor.setReadOnly(true);
 
+  // links: Ctrl+click follows them like in Word (a plain click when the document is read-only); #id goes to the heading
+  app.view.scroller.addEventListener('click', e => {
+    const a = e.target.closest?.('a[href]');
+    if (!a || !(mod(e) || ctx.readOnly) || !app.view.scroller.contains(a)) return;
+    e.preventDefault();
+    const href = a.getAttribute('href');
+    if (href.startsWith('#')) {
+      const target = app.body.querySelector('#' + CSS.escape(href.slice(1)));
+      if (target) { target.scrollIntoView({ block: 'start', behavior: 'smooth' }); if (!ctx.readOnly) app.editor.select(target, 0, target, 0, false); }
+    } else if (/^(https?:|mailto:)/i.test(href)) window.open(href, '_blank', 'noopener,noreferrer');
+  });
+
   // the ribbon follows the selection (contextual tabs for tables and pictures)
   let frame = 0;
   let context = '';
