@@ -15,7 +15,11 @@
 :root[data-theme="dark"][data-kind="base"] { --mo-base-accent: color-mix(in oklab, var(--mo-kind) 52%, white); --mo-base-sel: rgba(255, 140, 140, .16); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"])[data-kind="base"] { --mo-base-accent: color-mix(in oklab, var(--mo-kind) 52%, white); --mo-base-sel: rgba(255, 140, 140, .16); }
+  /* the frame paints these in the dark app colour, too dark on a dark ribbon */
+  :root:not([data-theme="light"]):not([data-theme="dark"])[data-kind="base"] .mo-ribbon__tab.is-active { color: var(--mat-text); }
+  :root:not([data-theme="light"]):not([data-theme="dark"])[data-kind="base"] .mo-rbtn--lg .mo-rbtn__icon--lg.mat-icon { color: var(--mo-base-accent); }
 }
+:root[data-theme="dark"][data-kind="base"] .mo-rbtn--lg .mo-rbtn__icon--lg.mat-icon { color: var(--mo-base-accent); }
 
 /* ---- the frame of the work area: navigation pane | tabs + views ---- */
 .mo-base { --mo-base-nav-w: 240px; position: relative; display: grid; grid-template-columns: var(--mo-base-nav-w) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100%; min-height: 0; font-size: var(--mat-fs-sm); }
@@ -358,7 +362,7 @@
 .mo-base-dz.has-side { grid-template-columns: minmax(0, 1fr) auto; }
 .mo-base-dz__main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .mo-base-dz__canvas { position: relative; flex: 1 1 auto; min-height: 0; overflow: auto; padding: 16px 24px 64px; background: var(--mat-surface-3); outline: none; }
-.mo-base-dz__canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--mo-base-accent); }
+.mo-base-dz__canvas:focus-visible { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mo-base-accent) 60%, transparent); }
 .mo-base-dz__paper { position: relative; background: var(--mat-surface); box-shadow: var(--mat-shadow-1); }
 .mo-base-dz.is-report .mo-base-dz__paper { background: #fff; color: #1b1b1b; }
 .mo-base-dz.is-report { --mo-base-dot: rgba(0, 0, 0, .2); }

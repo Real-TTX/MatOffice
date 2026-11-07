@@ -6,7 +6,7 @@
 import { t, el, icon, dialog } from '../editor/util.js';
 import { BaseView, datasheetCan, datasheetRun, datasheetActive } from './view.js';
 import { Datasheet, safeHref } from './datasheet.js';
-import { recordsetOf, subformRecordset, EmptyRecordset } from './recordset.js';
+import { recordsetOf, subformRecordset, linkSubform, EmptyRecordset } from './recordset.js';
 import { ControlEval, domainFunction } from './layout.js';
 import { Designer, styleControl, actionName } from './designer.js';
 import { askParams } from './queryviews.js';
@@ -539,7 +539,7 @@ export class FormView extends BaseView {
       for (const b of this.binds) if (b.rowIndex === this.cur && document.activeElement !== b.input) this.fill(b);
     } else {
       for (const b of this.binds) if (document.activeElement !== b.input) this.fill(b); else if (!b.calc && b.col) b.startText = b.input.value;
-      if (added) this.rebuildSubforms();
+      if (added) this.linkSubforms();
       this.paintSelector();
     }
     if (this.kind === 'split' && this.ds) { this.syncing = true; this.ds.reload(); this.ds.moveTo(this.cur, this.ds.cur.c); this.syncing = false; }
@@ -641,12 +641,18 @@ export class FormView extends BaseView {
     if (!rs) { node.append(el('div', { class: 'mo-base-fc__error', text: '#Name?' })); return; }
     const ds = new Datasheet(this.app, { recordset: rs, settings: {}, compact: true, onStatus: () => this.app.ribbonRefresh() });
     node.append(ds.el);
-    node.addEventListener('focusin', async () => {
-      if (!this.pending || this.committing) return;
-      const wasNew = this.pending.id === null;
-      if (await this.commitRecord() && wasNew) this.rebuildSubforms();
-    });
-    this.subs.push({ c, ds, node, rs });
+    // entering the subform saves the record of the main form (a new one gets its key, and the subform's records follow it)
+    node.addEventListener('focusin', () => { if (this.pending && !this.committing) this.commitRecord(); });
+    this.subs.push({ c, ds, node, rs, masterCol });
+  }
+
+  /** A new record of the main form was saved: the subforms that waited for it take its key. */
+  linkSubforms() {
+    const row = this.row;
+    for (const s of this.subs) {
+      if (!s.rs.waitingForMaster || !row || !s.masterCol) continue;
+      linkSubform(s.rs, s.c.subform, this.rs.get(row, s.masterCol));
+    }
   }
 
   rebuildSubforms() {
@@ -883,7 +889,7 @@ export class FormView extends BaseView {
     const filtered = this.s.filterOn && this.s.filter;
     const search = el('input', { class: 'mo-base-ds__search', type: 'search', placeholder: t('Base.Nav.Search'), 'aria-label': t('Base.Nav.Search') });
     search.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); this.searchFor(search.value); } });
-    this.navBar.replaceChildren(
+    this.navBar.replaceChildren(...[
       el('span', { class: 'mo-base-ds__navlabel', text: t('Base.Nav.Record') }),
       btn('base-first', t('Base.Nav.First'), () => this.moveTo(0), this.cur <= 0),
       btn('chevron-left', t('Base.Nav.Previous'), () => this.moveTo(this.cur - 1), this.cur <= 0),
@@ -894,7 +900,7 @@ export class FormView extends BaseView {
       this.canAdd ? btn('base-new-record', t('Base.Nav.New'), () => this.moveTo(this.newIndex).then(() => this.focusFirst()), this.isNew) : null,
       el('button', { type: 'button', class: 'mo-base-ds__filterflag' + (filtered ? ' is-on' : ''), disabled: this.s.filter ? null : true, onclick: () => this.run('filterToggle') },
         icon(filtered ? 'filter' : 'base-filter-off'), el('span', { text: filtered ? t('Base.Nav.Filtered') : this.s.filter ? t('Base.Nav.Unfiltered') : t('Base.Nav.NoFilter') })),
-      search);
+      search].filter(Boolean));
   }
 
   searchFor(text) {

@@ -310,3 +310,12 @@ test('SQL written by hand shows in the grid', () => {
   const p = sqlToDesign('SELECT Name FROM Customers WHERE City = [Which city?]', db, fieldsOf(db));
   assert.equal(p.columns[1].criteria[0], '[Which city?]');
 });
+
+test('expression columns know their type: CCur is Currency, a date function a date, a comparison Yes/No', () => {
+  const db = sampleDb();
+  const res = runSelect(db, 'SELECT CCur([Qty]*[Price]) AS Line, [Qty]*[Price] AS Plain, Sum([Price]) AS Total, DateAdd("d", 7, Date()) AS Due, [Qty]>1 AS Many, Left("ab", 1) AS L FROM [Order Details] GROUP BY CCur([Qty]*[Price]), [Qty]*[Price], DateAdd("d", 7, Date()), [Qty]>1, Left("ab", 1);');
+  assert.deepEqual(res.columns.map(c => c.type), ['currency', 'currency', 'currency', 'datetime', 'yesno', 'text']);
+  // without records the expression still decides
+  assert.deepEqual(runSelect(db, 'SELECT CCur([Qty]*2) AS X FROM [Order Details] WHERE [Qty] > 100;').columns.map(c => c.type), ['currency']);
+  assert.deepEqual(runSelect(db, 'SELECT Count(*) AS N FROM [Order Details] WHERE [Qty] > 100;').columns.map(c => c.type), ['number']);
+});

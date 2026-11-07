@@ -885,6 +885,7 @@
   "Js.Base.Err.PkDuplicates": { "en": "The chosen fields have duplicate values, so they cannot become the primary key.", "de": "Die gewählten Felder haben doppelte Werte, daher können sie nicht der Primärschlüssel werden." },
   "Js.Base.Err.PkInRelationship": { "en": "The primary key is used by a relationship with referential integrity. Delete the relationship first.", "de": "Der Primärschlüssel wird von einer Beziehung mit referentieller Integrität verwendet. Lösche zuerst die Beziehung." },
   "Js.Base.Err.TableInRelationship": { "en": "The table “{0}” takes part in relationships and cannot be replaced.", "de": "Die Tabelle „{0}“ ist Teil von Beziehungen und kann nicht ersetzt werden." },
+  "Js.Base.Err.MasterFirst": { "en": "Enter the record of the main form first: the records of the subform belong to it.", "de": "Gib zuerst den Datensatz des Hauptformulars ein: Die Datensätze des Unterformulars gehören zu ihm." },
   "Js.Base.Err.NotUpdatable": { "en": "This recordset is not updateable.", "de": "Diese Datensatzgruppe kann nicht aktualisiert werden." },
   "Js.Base.Err.NoGrid": { "en": "The query uses SQL the design grid cannot show (for example a subquery or a join on an expression). Edit it in SQL view.", "de": "Die Abfrage verwendet SQL, das der Entwurfsbereich nicht darstellen kann (zum Beispiel eine Unterabfrage oder eine Verknüpfung über einen Ausdruck). Bearbeite sie in der SQL-Ansicht." }
 }

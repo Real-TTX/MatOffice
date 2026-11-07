@@ -345,7 +345,7 @@ export class Datasheet {
   renderNav() {
     const total = this.view.length;
     const pos = Math.min(this.cur.r, this.rowCount - 1) + 1;
-    const box = el('input', { class: 'mo-base-ds__pos', value: this.cur.r === this.newIndex ? '' : String(pos), 'aria-label': t('Base.Nav.Current'), inputmode: 'numeric' });
+    const box = el('input', { class: 'mo-base-ds__pos', value: this.cur.r === this.newIndex || !total ? '' : String(pos), 'aria-label': t('Base.Nav.Current'), inputmode: 'numeric' });
     box.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); const n = Number(box.value); if (n >= 1 && n <= total) this.moveTo(n - 1, this.cur.c, { focus: true }); else box.value = String(pos); }
     });
@@ -355,7 +355,7 @@ export class Datasheet {
     const search = el('input', { class: 'mo-base-ds__search', type: 'search', placeholder: t('Base.Nav.Search'), 'aria-label': t('Base.Nav.Search') });
     search.addEventListener('input', () => this.searchFor(search.value));
     search.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); this.searchFor(search.value, true); } });
-    this.navBar.replaceChildren(
+    this.navBar.replaceChildren(...[
       el('span', { class: 'mo-base-ds__navlabel', text: t('Base.Nav.Record') }),
       navBtn('base-first', t('Base.Nav.First'), () => this.moveTo(0, this.cur.c, { focus: true }), this.cur.r <= 0),
       navBtn('chevron-left', t('Base.Nav.Previous'), () => this.moveTo(this.cur.r - 1, this.cur.c, { focus: true }), this.cur.r <= 0),
@@ -369,7 +369,7 @@ export class Datasheet {
         onclick: () => this.toggleFilter(),
       }, icon(filtered ? 'filter' : 'base-filter-off'), el('span', { text: filtered ? t('Base.Nav.Filtered') : hasFilter ? t('Base.Nav.Unfiltered') : t('Base.Nav.NoFilter') })),
       search,
-    );
+    ].filter(Boolean));
   }
 
   // ---- current cell and editing ------------------------------------------------------------------------------------------------

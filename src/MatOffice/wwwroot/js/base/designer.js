@@ -902,7 +902,18 @@ export class Designer extends BaseView {
       this.inline = null;
       this.inlineDone = null;
       const value = input.value;
-      if (commit && value !== (hit.c.caption || '')) this.app.design(() => { hit.c.caption = value; });
+      if (commit && value !== (hit.c.caption || '')) {
+        this.app.design(() => {
+          hit.c.caption = value;
+          // a label grows to its text, like Access does it while the text is typed
+          if (hit.c.type === 'label') {
+            const g = (this.measure ||= document.createElement('canvas').getContext('2d'));
+            g.font = `${hit.c.italic ? 'italic ' : ''}${hit.c.bold ? '700 ' : ''}${px(hit.c.fontSize)}px ${getComputedStyle(this.paper).fontFamily}`;
+            hit.c.w = Math.min(4000, Math.max(hit.c.w, Math.ceil(g.measureText(value).width) + 10));
+            this.growSections();
+          }
+        });
+      }
       this.render();
       this.canvas.focus({ preventScroll: true });
     };

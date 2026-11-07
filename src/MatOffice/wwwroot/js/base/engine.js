@@ -459,7 +459,8 @@ function execSelect(db, s, ctx) {
         if (r) { field = r.f.field || null; source = r.idx; }
       } catch { /* ambiguous names were reported already */ }
     }
-    const type = field?.type || inferType(rows, i);
+    const known = field ? null : exprType(c.e, sources, aliases);
+    const type = field?.type || (known && known !== 'text' ? known : inferType(rows, i));
     const editable = single && source !== null && !!sources[source].table && field && field.type !== 'autonumber';
     return { name: c.name, type, field, source, key: field?.id ?? null, editable: !!editable };
   });
@@ -509,6 +510,66 @@ function sameField(a, b, sources) {
     return x && y && x.idx === y.idx && x.f === y.f;
   } catch { return false; }
 }
+
+const DATE_FNS = new Set(['DATE', 'NOW', 'TIME', 'CDATE', 'DATEADD', 'DATESERIAL', 'TIMESERIAL', 'DATEVALUE', 'TIMEVALUE']);
+const TEXT_FNS = new Set(['LEFT', 'RIGHT', 'MID', 'UCASE', 'LCASE', 'TRIM', 'LTRIM', 'RTRIM', 'REPLACE', 'SPACE', 'STRING', 'STRREVERSE', 'CHR', 'CSTR', 'STR', 'FORMAT',
+  'FORMATCURRENCY', 'FORMATNUMBER', 'FORMATPERCENT', 'FORMATDATETIME', 'MONTHNAME', 'WEEKDAYNAME']);
+const YESNO_FNS = new Set(['ISNULL', 'ISNUMERIC', 'ISDATE', 'CBOOL']);
+
+/**
+ * The type of the values of an expression column, as far as it follows from the expression: CCur(…) is Currency, a date function Date/Time, a
+ * comparison Yes/No, arithmetic with Currency stays Currency … (null: unknown; the values decide).
+ */
+function exprType(e, sources, aliases = null, depth = 0) {
+  if (!e || depth > 20) return null;
+  const of = x => exprType(x, sources, aliases, depth + 1);
+  switch (e.t) {
+    case 'num': return 'number';
+    case 'str': return 'text';
+    case 'bool': return 'yesno';
+    case 'date': return 'datetime';
+    case 'id': {
+      let r = null;
+      try { r = resolveField(sources, e.parts); } catch { r = null; }
+      if (r) { const ty = r.f.field?.type || r.f.type || null; return ty === 'autonumber' ? 'number' : ty; }
+      if (e.parts.length === 1 && aliases?.has(lower(e.parts[0]))) return of(aliases.get(lower(e.parts[0])));
+      return null;
+    }
+    case 'un': return e.op === 'NOT' ? 'yesno' : of(e.e);
+    case 'bin': {
+      if (e.op === '&') return 'text';
+      if (['=', '<>', '<', '>', '<=', '>=', 'AND', 'OR', 'XOR', 'EQV', 'IMP'].includes(e.op)) return 'yesno';
+      const a = of(e.l);
+      const b = of(e.r);
+      if (e.op === '-' && a === 'datetime' && b === 'datetime') return 'number';
+      if ((e.op === '+' || e.op === '-') && (a === 'datetime' || b === 'datetime')) return 'datetime';
+      if (a === 'currency' || b === 'currency') return e.op === '/' && a === 'currency' && b === 'currency' ? 'number' : 'currency';
+      return 'number';
+    }
+    case 'like': case 'between': case 'in': case 'isnull': return 'yesno';
+    case 'fn': {
+      const n = e.name.toUpperCase();
+      if (n === 'CCUR') return 'currency';
+      if (n === 'COUNT' || n === 'STDEV' || n === 'STDEVP' || n === 'VAR' || n === 'VARP') return 'number';
+      if (['SUM', 'AVG', 'MIN', 'MAX', 'FIRST', 'LAST', 'NZ', 'ROUND', 'ABS', 'INT', 'FIX'].includes(n)) {
+        const ty = of(e.args[0]);
+        if (n === 'SUM' || n === 'AVG') return ty === 'currency' ? 'currency' : 'number';
+        if (n === 'ROUND' || n === 'ABS' || n === 'INT' || n === 'FIX') return ty === 'currency' ? 'currency' : 'number';
+        return ty;
+      }
+      if (n === 'IIF') { const a = of(e.args[1]); const b = of(e.args[2]); return a === b ? a : a && b && a !== 'text' && b !== 'text' && (a === 'currency' || b === 'currency') ? 'currency' : null; }
+      if (DATE_FNS.has(n)) return 'datetime';
+      if (TEXT_FNS.has(n)) return 'text';
+      if (YESNO_FNS.has(n)) return 'yesno';
+      if (FUNCTIONS_NUMERIC.has(n)) return 'number';
+      return null;
+    }
+    default: return null;
+  }
+}
+
+const FUNCTIONS_NUMERIC = new Set(['LEN', 'INSTR', 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND', 'WEEKDAY', 'DATEDIFF', 'DATEPART', 'VAL', 'CINT', 'CLNG', 'CDBL',
+  'CSNG', 'CDEC', 'SGN', 'SQR', 'EXP', 'LOG', 'ASC', 'STRCOMP']);
 
 function inferType(rows, i) {
   for (const r of rows) {

@@ -21,7 +21,7 @@ const PROBLEMS = {
   RelMissing: 'Base.Err.RelMissing', FieldInRelationship: 'Base.Err.FieldInRelationship', NoAutoNumberWithData: 'Base.Err.NoAutoNumberWithData',
   OneAutoNumber: 'Base.Err.OneAutoNumber', RequiredViolated: 'Base.Err.RequiredViolated', DuplicatesExist: 'Base.Err.DuplicatesExist', RuleName: 'Base.Err.RuleName',
   PkMemo: 'Base.Err.PkMemo', PkNulls: 'Base.Err.PkNulls', PkDuplicates: 'Base.Err.PkDuplicates', PkInRelationship: 'Base.Err.PkInRelationship',
-  TableInRelationship: 'Base.Err.TableInRelationship', NotUpdatable: 'Base.Err.NotUpdatable', NoGrid: 'Base.Err.NoGrid',
+  TableInRelationship: 'Base.Err.TableInRelationship', NotUpdatable: 'Base.Err.NotUpdatable', NoGrid: 'Base.Err.NoGrid', MasterFirst: 'Base.Err.MasterFirst',
 };
 
 /** The words for a problem: a BaseError, { code, args }, or anything else (a general failure). */

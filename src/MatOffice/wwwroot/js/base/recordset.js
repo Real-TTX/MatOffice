@@ -286,9 +286,24 @@ export function subformRecordset(app, sub, masterValue) {
     rs = new QueryRecordset(app, sub.source, {}, sub.linkChild ? { fixed: { [sub.linkChild]: masterValue ?? null } } : {});
   }
   if (rs && sub.linkChild && (masterValue === null || masterValue === undefined)) {
-    for (const prop of ['canAdd', 'canEdit', 'canDelete']) Object.defineProperty(rs, prop, { get: () => false });
+    // the record of the main form is new: the subform waits until it is saved (the form saves it when the subform gets the focus)
+    rs.waitingForMaster = true;
+    const save = rs.save.bind(rs);
+    rs.save = (id, changes) => (rs.waitingForMaster ? { ok: false, error: { code: 'MasterFirst', args: [] } } : save(id, changes));
   }
   return rs;
+}
+
+/** The record of the main form was saved: the subform's records belong to its value of Link Master Fields from now on. */
+export function linkSubform(rs, sub, masterValue) {
+  if (!rs?.waitingForMaster || masterValue === null || masterValue === undefined) return false;
+  if (rs.kind === 'table') {
+    const f = rs.table?.fields.find(x => lower(x.name) === lower(sub.linkChild));
+    if (!f) return false;
+    rs.fixed = { [f.id]: masterValue };
+  } else rs.fixed = { [sub.linkChild]: masterValue };
+  rs.waitingForMaster = false;
+  return true;
 }
 
 export { fieldById };

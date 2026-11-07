@@ -320,6 +320,7 @@ export class QueryDesignView extends BaseView {
     this.app.design(() => { this.q.sql = sql; this.q.layout.tables = boxes; });
     this.lastSql = sql;
     this.app.paintTab(this.tab);
+    this.app.setStatus();
     return true;
   }
 
