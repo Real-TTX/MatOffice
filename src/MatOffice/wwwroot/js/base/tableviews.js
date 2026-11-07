@@ -110,10 +110,11 @@ export class TableDatasheetView extends BaseView {
 
   run(cmd, arg) { return datasheetRun(this.ds, cmd, arg); }
 
-  selectionLabel(kind) { return this.ds.selectionLabel(kind); }
+  selectionLabel(kind) { return this.ds?.selectionLabel(kind); }
 
   status() {
     const ds = this.ds;
+    if (!ds) return [];
     const out = [];
     if (ds.s.filterOn && ds.s.filter) out.push(t('Base.Status.Filtered'));
     return out;
@@ -317,7 +318,7 @@ export class TableDesignView extends BaseView {
     type.addEventListener('keydown', e => this.gridKey(e, i, 1));
     const desc = el('input', { class: 'mo-base-td__desc', value: f?.description || '', 'aria-label': t('Base.Design.Description'), maxlength: 255, readonly: this.ro || !f ? true : null, autocomplete: 'off' });
     desc.addEventListener('focus', () => this.select(i, null, false));
-    desc.addEventListener('change', () => { if (f) this.app.design(() => { f.description = desc.value.trim(); }); });
+    desc.addEventListener('change', () => { if (f && desc.value.trim() !== (f.description || '')) this.app.design(() => { f.description = desc.value.trim(); }); });
     desc.addEventListener('keydown', e => this.gridKey(e, i, 2));
     return el('div', { class: 'mo-base-td__row' + (selected ? ' is-selected' : '') + (f ? '' : ' is-empty'), role: 'row', 'data-row': i }, sel, name, type, desc);
   }
@@ -326,7 +327,12 @@ export class TableDesignView extends BaseView {
     const move = r => { e.preventDefault(); const target = this.grid.querySelector(`[data-row="${r}"]`)?.children[col + 1]; target?.focus(); };
     if (e.key === 'ArrowDown' && !(e.target.tagName === 'SELECT')) move(i + 1);
     else if (e.key === 'ArrowUp' && !(e.target.tagName === 'SELECT')) move(i - 1);
-    else if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.target.dispatchEvent(new Event('change')); move(col === 2 ? i + 1 : i); if (col < 2) this.grid.querySelector(`[data-row="${i}"]`)?.children[col + 2]?.focus(); }
+    else if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+      // blur() fires the one native change (a dispatched one would be followed by a second when the grid is drawn again)
+      e.target.blur();
+      move(col === 2 ? i + 1 : i);
+      if (col < 2) this.grid.querySelector(`[data-row="${i}"]`)?.children[col + 2]?.focus();
+    }
     else if (e.key === 'F6') { e.preventDefault(); this.props.querySelector('input, select, textarea')?.focus(); }
   }
 
@@ -360,9 +366,10 @@ export class TableDesignView extends BaseView {
     const table = this.table;
     const name = input.value.trim();
     if (!f) {
-      if (!name) return;
+      if (!name || input.dataset.added) return;
       const p = nameProblem(name) || (table.fields.some(x => lower(x.name) === lower(name)) ? { code: 'NameTaken', args: [name] } : null);
       if (p) { await showProblem(p); input.focus(); input.select(); return; }
+      input.dataset.added = '1';
       this.app.design(() => addField(table, 'text', name, table.fields.length));
       this.selected = [table.fields.length - 1];
       this.render();

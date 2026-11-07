@@ -1128,8 +1128,8 @@ export class Designer extends BaseView {
       case 'color': {
         const pick = el('input', { type: 'color', class: 'mo-base-ps__color', 'aria-label': row.label, disabled: ro ? true : null, value: same && value ? value : '#000000' });
         pick.addEventListener('change', () => commit(pick.value));
-        const clear = el('button', { type: 'button', class: 'mat-btn mat-btn--ghost mat-btn--sm', disabled: ro || !value ? true : null, onclick: () => commit(null) }, el('span', { text: t('Base.Prop.Automatic') }));
-        input = el('span', { class: 'mo-base-ps__colorrow' }, pick, el('span', { class: 'mo-base-ps__hex', text: same ? value || t('Base.Prop.Automatic') : '' }), clear);
+        const clear = iconButton('x', t('Base.Prop.Automatic'), () => commit(null), { disabled: ro || !value ? true : null });
+        input = el('span', { class: 'mo-base-ps__colorrow' }, pick, el('span', { class: 'mo-base-ps__hex', text: same ? value || t('Base.Prop.Automatic') : '' }), value ? clear : null);
         pick.id = id;
         break;
       }
@@ -1170,7 +1170,9 @@ export class Designer extends BaseView {
   setProp(row, value, list) {
     if (this.ro) return;
     const set = row.set || ((o, v) => { o[row.key] = v; });
-    const before = JSON.stringify(list.map(row.get || (o => o[row.key])));
+    const get = row.get || (o => o[row.key]);
+    if (list.every(o => JSON.stringify(get(o) ?? null) === JSON.stringify(value ?? null))) return;
+    const before = JSON.stringify(list.map(get));
     this.app.design(() => {
       for (const o of list) set(o, value);
       if (row.key === 'orientation') {

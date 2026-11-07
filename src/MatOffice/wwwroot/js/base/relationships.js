@@ -130,7 +130,8 @@ export class RelationshipsView extends BaseView {
     if (!box || !pos) return null;
     const list = box.querySelector('.mo-base-box__fields');
     const row = list.querySelector(`[data-field="${fieldId}"]`);
-    let y = pos.y + HEAD_H + (row ? row.offsetTop - list.scrollTop + ROW_H / 2 : 8);
+    // the row's offsetTop counts from the box (its positioned parent), the head included; 1 px of border above it
+    let y = pos.y + 1 + (row ? row.offsetTop - list.scrollTop + ROW_H / 2 : HEAD_H + 8);
     y = Math.max(pos.y + HEAD_H, Math.min(pos.y + box.offsetHeight - 6, y));
     return { x: side === 'right' ? pos.x + BOX_W : pos.x, y };
   }

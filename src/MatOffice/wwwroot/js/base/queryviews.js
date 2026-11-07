@@ -514,7 +514,8 @@ export class QueryDesignView extends BaseView {
     const row = [...list.children].find(r => lower(r.dataset.field) === lower(name));
     const b = this.layoutOf(alias) || { x: box.offsetLeft, y: box.offsetTop, w: box.offsetWidth };
     const head = box.querySelector('.mo-base-box__head').offsetHeight;
-    let y = b.y + head + (row ? row.offsetTop - list.scrollTop + FIELD_H / 2 : 10);
+    // the row's offsetTop counts from the box (it is the positioned parent), the head included; 1 px of border above it
+    let y = b.y + 1 + (row ? row.offsetTop - list.scrollTop + FIELD_H / 2 : head + 10);
     y = Math.max(b.y + head, Math.min(b.y + box.offsetHeight - 6, y));
     return { x: side === 'right' ? b.x + box.offsetWidth : b.x, y };
   }
@@ -622,6 +623,15 @@ export class QueryDesignView extends BaseView {
   }
 
   renderGrid() {
+    // the cell with the focus keeps it when the grid is drawn again
+    const a = document.activeElement?.closest?.('td[data-col]');
+    const keep = this.nextFocus || (a && this.gridBox.contains(a) ? { col: Number(a.dataset.col), row: a.dataset.row } : null);
+    this.nextFocus = null;
+    this.drawGrid();
+    if (keep) this.gridBox.querySelector(`td[data-col="${keep.col}"][data-row="${keep.row}"]`)?.firstElementChild?.focus({ preventScroll: true });
+  }
+
+  drawGrid() {
     const d = this.design;
     const cols = [...d.columns];
     while (cols.length < d.columns.length + 6) cols.push(null);
@@ -754,7 +764,14 @@ export class QueryDesignView extends BaseView {
     const isSelect = e.target.tagName === 'SELECT';
     if (e.key === 'ArrowDown' && !isSelect) go(rows[ri + 1], i);
     else if (e.key === 'ArrowUp' && !isSelect) go(rows[ri - 1], i);
-    else if (e.key === 'Enter' && !isSelect) { e.target.dispatchEvent(new Event('change')); go(rows[ri + 1] || rows[ri], i); }
+    else if (e.key === 'Enter' && !isSelect) {
+      // blur() fires the one native change (a dispatched one would be followed by a second when the grid is drawn again)
+      e.preventDefault();
+      this.nextFocus = { col: i, row: rows[ri + 1] || rows[ri] };
+      setTimeout(() => { this.nextFocus = null; }, 600);
+      e.target.blur();
+      go(rows[ri + 1] || rows[ri], i);
+    }
     else if (e.key === 'F6') { e.preventDefault(); this.canvas.focus(); }
   }
 

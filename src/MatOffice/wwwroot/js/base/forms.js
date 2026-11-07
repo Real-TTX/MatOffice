@@ -414,6 +414,7 @@ export class FormView extends BaseView {
     const focused = document.activeElement === input;
     const fmt = c.format ? { ...col, format: c.format, decimals: c.decimals ?? col.decimals } : col;
     input.value = focused ? this.rs.editText(col, v) : (c.type === 'combobox' || col.field?.lookup) && col.field?.lookup?.kind === 'table' ? this.rs.display(col, v) : this.rs.display(fmt, v);
+    if (!focused && col.type === 'hyperlink') input.value = input.value.replace(/^mailto:/i, '');
     if (focused) bind.startText = input.value;
   }
 
@@ -514,6 +515,9 @@ export class FormView extends BaseView {
       if (p.id === null) {
         if (!this.view.includes(r.row)) this.view.push(r.row);
         this.cur = this.view.indexOf(r.row);
+      } else {
+        const vi = this.view.findIndex(x => x.id === r.row.id);
+        if (vi >= 0) this.view[vi] = r.row;
       }
       this.afterSave(p.id === null);
       return true;

@@ -267,7 +267,7 @@ export class Datasheet {
       if (isCurrent && this.editor && !this.readOnlyCell(c, isNew) && c.type !== 'yesno') {
         cell.append(this.editor);
         if (this.pickerButton) cell.append(this.pickerButton);
-      } else this.fillCell(cell, c, v, isNew && !editingThis);
+      } else this.fillCell(cell, c, v, isNew);
       cell.addEventListener('pointerdown', e => this.onCellDown(e, i, ci));
       cell.addEventListener('contextmenu', e => { e.preventDefault(); this.cellContext(i, ci, { x: e.clientX, y: e.clientY }); });
       rowEl.append(cell);
@@ -569,13 +569,16 @@ export class Datasheet {
     this.pending = null;
     if (p.id === null) {
       // the new record stays where it was typed (at the end), a new "new record" row follows
-      this.view.push(r.row);
+      if (!this.view.includes(r.row)) this.view.push(r.row);
       this.body.style.height = this.rowCount * RH + 'px';
       this.rerenderRow(this.cur.r);
       this.rowEls.get(this.cur.r + 1)?.remove();
       this.rowEls.delete(this.cur.r + 1);
       this.renderRows();
     } else {
+      // a sorted or filtered view holds its own list: the saved record replaces the old one in it
+      const vi = this.view.findIndex(x => x.id === r.row.id);
+      if (vi >= 0) this.view[vi] = r.row;
       this.rerenderRow(this.cur.r);
     }
     this.renderTotals();
@@ -655,6 +658,13 @@ export class Datasheet {
         let c = this.cur.c + (back ? -1 : 1);
         if (c >= this.cols.length) { c = 0; r++; }
         if (c < 0) { c = this.cols.length - 1; r--; }
+        if (r >= this.rowCount && !back) {
+          // past the last field of the last record: the record is saved and the new record follows, like Access
+          if (e.key === 'Tab' && this.o.compact && !this.dirty) return;
+          e.preventDefault();
+          this.commit().then(ok => { if (ok && this.canAdd) this.moveTo(this.newIndex, 0, { focus: true }); else if (ok) this.focusEditor(false); });
+          return;
+        }
         if (r < 0 || r >= this.rowCount) { if (e.key === 'Tab' && this.o.compact) return; e.preventDefault(); return; }
         return go(r, c);
       }
@@ -811,7 +821,7 @@ export class Datasheet {
       });
       if (bad) { failed++; continue; }
       const r = this.rs.save(null, values);
-      if (r.ok) { done++; this.view.push(r.row); } else failed++;
+      if (r.ok) { done++; if (!this.view.includes(r.row)) this.view.push(r.row); } else failed++;
     }
     this.cur.r = this.newIndex;
     this.render();
