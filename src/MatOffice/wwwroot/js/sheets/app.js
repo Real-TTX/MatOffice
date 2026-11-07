@@ -298,7 +298,7 @@ class SheetsApp {
       } else write(row, col, formula);
     };
     if (options.quiet && this.wb.tx) { run(); return true; }
-    const ok = this.commands.change('typing', run);
+    const ok = this.commands.change('typing', run, { editing: true, protect: !!options.all });
     if (ok === false) return false;
     if (style.wrap || style.size > 11 || String(text).includes('\n')) this.autoFitRows([{ r1: row, r2: row, c1: 0, c2: MAX_COLS - 1 }]);
     return true;

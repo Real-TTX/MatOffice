@@ -20,10 +20,11 @@ export class Commands {
   get sel() { return this.app.sel; }
 
   /** Runs a change of the content: commits the editor, checks read-only and protection, wraps it into one undo step. */
-  change(label, fn, { structural = false, protect = true } = {}) {
+  change(label, fn, { structural = false, protect = true, editing = false } = {}) {
     const app = this.app;
     if (app.readOnly) { app.toastReadOnly(); return false; }
-    if (app.editor.active && !app.editor.commit(0, 0)) return false;
+    // a change made by the editor itself must not commit the editor again
+    if (!editing && app.editor.active && !app.editor.commit(0, 0)) return false;
     if (protect && this.sheet.protected && !this.selectionUnlocked()) { app.toastLocked(); return false; }
     const tx = this.wb.begin(label);
     tx.selBefore = tx.selBefore || this.sel.toJSON();

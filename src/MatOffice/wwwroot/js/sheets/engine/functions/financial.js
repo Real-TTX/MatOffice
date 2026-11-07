@@ -15,22 +15,25 @@ const fin = (name, args, types, f) => define(name, {
 const N = 'number';
 const O = 'number?';
 
+/** (1 + r)^n − 1, also precise for tiny rates. */
+const growth = (r, n) => (Math.abs(r) < 1e-4 ? Math.expm1(n * Math.log1p(r)) : (1 + r) ** n - 1);
+
 export function pmt(r, n, pv, fv = 0, type = 0) {
   if (r === 0) return -(pv + fv) / n;
-  const f = (1 + r) ** n;
-  return -(pv * f + fv) / (((1 + r * type) * (f - 1)) / r);
+  const g = growth(r, n);
+  return -(pv * (1 + g) + fv) / (((1 + r * type) * g) / r);
 }
 
 export function fv(r, n, p, pv = 0, type = 0) {
   if (r === 0) return -(pv + p * n);
-  const f = (1 + r) ** n;
-  return -(pv * f + (p * (1 + r * type) * (f - 1)) / r);
+  const g = growth(r, n);
+  return -(pv * (1 + g) + (p * (1 + r * type) * g) / r);
 }
 
 export function pv(r, n, p, fv = 0, type = 0) {
   if (r === 0) return -(fv + p * n);
-  const f = (1 + r) ** n;
-  return -(fv + (p * (1 + r * type) * (f - 1)) / r) / f;
+  const g = growth(r, n);
+  return -(fv + (p * (1 + r * type) * g) / r) / (1 + g);
 }
 
 /** The interest part of payment per (1 … n). */
@@ -57,15 +60,18 @@ fin('NPER', 'rate, pmt, pv, [fv], [type]', [N, N, N, O, O], (r, p, v, f = 0, t =
 });
 fin('ISPMT', 'rate, per, nper, pv', [N, N, N, N], (r, per, n, v) => (n === 0 ? DIV0 : v * r * (per / n - 1)));
 
-/** Newton's method from a guess: f(x) → [value, derivative]; the root, or #NUM! when it does not converge. */
-function solve(f, guess) {
+/**
+ * Newton's method from a guess: f(x) → [value, derivative]; the root, or #NUM! when it does not converge or what it converges to is no root
+ * (|value| above a millionth of scale, the size of the terms).
+ */
+function solve(f, guess, scale) {
   let x = guess;
   for (let i = 0; i < 100; i++) {
     const [y, dy] = f(x);
     if (!Number.isFinite(y) || !Number.isFinite(dy) || dy === 0) return NUM;
     let next = x - y / dy;
     if (next <= -1) next = (x - 1) / 2; // rates stay above -100 %
-    if (Math.abs(next - x) <= 1e-13 * Math.max(1, Math.abs(next))) return next;
+    if (Math.abs(next - x) <= 1e-13 * Math.max(1, Math.abs(next))) return Math.abs(f(next)[0]) <= 1e-7 * scale ? next : NUM;
     x = next;
   }
   return NUM;
@@ -76,12 +82,12 @@ fin('RATE', 'nper, pmt, pv, [fv], [type], [guess]', [N, N, N, O, O, O], (n, p, v
   const type = flag(t);
   return solve(r => {
     if (Math.abs(r) < 1e-10) return [v + p * n + f, v * n + p * (type * n + (n * (n - 1)) / 2)];
-    const q = (1 + r) ** n;
-    const dq = n * (1 + r) ** (n - 1);
-    const y = v * q + (p * (1 + r * type) * (q - 1)) / r + f;
-    const dy = v * dq + p * ((type * (q - 1)) / r + ((1 + r * type) * (dq * r - (q - 1))) / (r * r));
+    const g = growth(r, n);
+    const dq = (n * (1 + g)) / (1 + r);
+    const y = v * (1 + g) + (p * (1 + r * type) * g) / r + f;
+    const dy = v * dq + p * ((type * g) / r + ((1 + r * type) * (dq * r - g)) / (r * r));
     return [y, dy];
-  }, guess);
+  }, guess, Math.abs(v) + Math.abs(p * n) + Math.abs(f));
 });
 
 define('NPV', {
@@ -115,7 +121,7 @@ define('IRR', {
         dy -= (i * list[i]) / (d * (1 + r));
       }
       return [y, dy];
-    }, g);
+    }, g, list.reduce((t, x) => t + Math.abs(x), 0));
   },
 });
 
@@ -188,7 +194,7 @@ define('XIRR', {
     const g = optNumber(guess, ctx, 0.1);
     if (isErr(g)) return g;
     if (!flows[0].some(x => x > 0) || !flows[0].some(x => x < 0)) return NUM;
-    return solve(r => xnpv(r, flows), g);
+    return solve(r => xnpv(r, flows), g, flows[0].reduce((t, x) => t + Math.abs(x), 0));
   },
 });
 
