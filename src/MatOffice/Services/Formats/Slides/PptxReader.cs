@@ -1410,10 +1410,6 @@ public sealed class PptxReader
             if (rPr.Attribute("b") is { } b)
             {
                 run["b"] = b.Value is "1" or "true";
-                if (!run["b"]!.GetValue<bool>())
-                {
-                    run.Remove("b");
-                }
             }
 
             if (BoolAttr(rPr, "i"))

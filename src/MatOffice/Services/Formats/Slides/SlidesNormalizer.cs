@@ -683,7 +683,11 @@ public sealed partial class SlidesNormalizer
         }
 
         var r = new JsonObject { ["t"] = text };
-        CopyFlag(src, r, "b");
+        if (src["b"] is JsonValue bv && bv.TryGetValue<bool>(out var bold))
+        {
+            r["b"] = bold;
+        }
+
         CopyFlag(src, r, "i");
         CopyFlag(src, r, "u");
         CopyFlag(src, r, "s");

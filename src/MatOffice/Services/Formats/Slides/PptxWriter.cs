@@ -1127,9 +1127,14 @@ public sealed class PptxWriter
                 r.Add(new XAttribute("sz", S((int)Math.Round(size.GetValue<double>() * 100))));
             }
 
-            if (run?["b"]?.GetValue<bool>() == true || bold)
+            var b = run?["b"]?.GetValue<bool>();
+            if (b == true || (b is null && bold))
             {
                 r.Add(new XAttribute("b", "1"));
+            }
+            else if (b == false)
+            {
+                r.Add(new XAttribute("b", "0"));
             }
 
             if (run?["i"]?.GetValue<bool>() == true)
