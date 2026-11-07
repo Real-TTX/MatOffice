@@ -72,7 +72,7 @@ public sealed class PptxReader
         }
 
         var master = slideParts.FirstOrDefault()?.SlideLayoutPart?.SlideMasterPart ?? _presentation.SlideMasterParts.FirstOrDefault();
-        ReadTheme(master);
+        ReadTheme(master, slideParts);
 
         var slides = new JsonArray();
         var n = 0;
@@ -115,7 +115,7 @@ public sealed class PptxReader
 
     // ---- design ----------------------------------------------------------------------------------------------------------------------
 
-    private void ReadTheme(SlideMasterPart? master)
+    private void ReadTheme(SlideMasterPart? master, IReadOnlyList<SlidePart> slideParts)
     {
         var fallback = SlidesData.Theme("paper");
         var colors = new JsonObject();
@@ -167,16 +167,7 @@ public sealed class PptxReader
         var bodyColor = Color(masterXml?.Element(P + "txStyles")?.Element(P + "bodyStyle")?.Element(A + "lvl1pPr")?.Element(A + "defRPr")).Color;
         _theme["heading"] = titleColor ?? (dark ? "lt1" : "dk1");
         _theme["text"] = bodyColor ?? (dark ? "lt1" : "dk1");
-        var decor = new JsonArray();
-        if (masterXml is not null && master is not null)
-        {
-            foreach (var d in Decoration(masterXml, master, "all"))
-            {
-                decor.Add(d);
-            }
-        }
-
-        _theme["decor"] = decor;
+        _theme["decor"] = masterXml is not null && master is not null ? Decorations(master, masterXml, slideParts) : new JsonArray();
     }
 
     internal XElement? MasterXml { get; private set; }
@@ -185,6 +176,68 @@ public sealed class PptxReader
     {
         var face = (string?)font?.Element(A + "latin")?.Attribute("typeface");
         return string.IsNullOrWhiteSpace(face) ? null : face;
+    }
+
+    /// <summary>
+    /// The decoration of the design: the shapes of the master (on every layout that shows the master's shapes) and of the layouts (on the layout of Slides
+    /// that the file's layout becomes; the first file layout per Slides layout counts, the ones the slides use first). The same shape on several layouts is one entry.
+    /// </summary>
+    private JsonArray Decorations(SlideMasterPart master, XElement masterXml, IReadOnlyList<SlidePart> slideParts)
+    {
+        var layouts = new Dictionary<string, (SlideLayoutPart Part, XElement Xml)>(StringComparer.Ordinal);
+        foreach (var lp in slideParts.Select(s => s.SlideLayoutPart).OfType<SlideLayoutPart>().Concat(master.SlideLayoutParts).Distinct())
+        {
+            XElement xml;
+            try
+            {
+                xml = Load(lp);
+            }
+            catch (Exception ex) when (ex is XmlException or InvalidOperationException)
+            {
+                continue;
+            }
+
+            layouts.TryAdd(SlideReader.LayoutOf(xml), (lp, xml));
+        }
+
+        var hiding = layouts.Where(l => (string?)l.Value.Xml.Attribute("showMasterSp") is "0" or "false").Select(l => l.Key).ToHashSet(StringComparer.Ordinal);
+        var decor = new JsonArray();
+        foreach (var d in Decoration(masterXml, master, "all"))
+        {
+            if (hiding.Count > 0)
+            {
+                d["on"] = new JsonArray(SlidesData.Layouts.Select(l => l.Id).Where(id => !hiding.Contains(id)).Select(id => (JsonNode)JsonValue.Create(id)!).ToArray());
+            }
+
+            decor.Add(d);
+        }
+
+        foreach (var (id, (part, xml)) in layouts)
+        {
+            foreach (var d in Decoration(xml, part, id))
+            {
+                var same = decor.OfType<JsonObject>().FirstOrDefault(x => SameDecoration(x, d));
+                if (same is null)
+                {
+                    decor.Add(d);
+                }
+                else if (same["on"] is JsonArray on && !on.Any(o => o?.GetValue<string>() is { } v && (v == "all" || v == id)))
+                {
+                    on.Add(id);
+                }
+            }
+        }
+
+        return decor;
+    }
+
+    private static bool SameDecoration(JsonObject a, JsonObject b)
+    {
+        var x = (JsonObject)a.DeepClone();
+        var y = (JsonObject)b.DeepClone();
+        x.Remove("on");
+        y.Remove("on");
+        return JsonNode.DeepEquals(x, y);
     }
 
     /// <summary>The shapes of a master or layout that are no placeholders: the decoration of the design.</summary>
@@ -568,7 +621,7 @@ public sealed class PptxReader
             return slide;
         }
 
-        private static string LayoutOf(XElement? layout)
+        internal static string LayoutOf(XElement? layout)
         {
             var type = (string?)layout?.Attribute("type");
             var mapped = type switch

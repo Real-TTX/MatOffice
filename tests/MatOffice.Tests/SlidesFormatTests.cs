@@ -263,6 +263,39 @@ public sealed class SlidesFormatTests
         Assert.True(SlidesData.ThemeIds.Count() >= 8);
     }
 
+    public static TheoryData<string> Designs()
+    {
+        var data = new TheoryData<string>();
+        foreach (var id in SlidesData.ThemeIds)
+        {
+            data.Add(id);
+        }
+
+        return data;
+    }
+
+    /// <summary>The decoration of a design is written into the master and the layouts; read back, every layout shows the same shapes again.</summary>
+    [Theory]
+    [MemberData(nameof(Designs))]
+    public void The_decoration_of_a_design_comes_back_on_every_layout(string theme)
+    {
+        var deck = new Deck(theme);
+        foreach (var layout in SlidesData.Layouts)
+        {
+            deck.Slide(layout.Id);
+        }
+
+        var content = Handler.Normalize(deck.Root.ToJsonString()).Json!;
+        var back = JsonNode.Parse(Kinds.Read(Handler, new MemoryStream(Handler.Export(content, ".pptx", theme)), ".pptx").Json!)!;
+        var before = JsonNode.Parse(content)!["theme"]!["decor"]!.AsArray();
+        var after = back["theme"]!["decor"]!.AsArray();
+        foreach (var layout in SlidesData.Layouts)
+        {
+            static int On(JsonArray decor, SlideLayout l) => decor.Count(d => d!["on"]!.AsArray().Any(o => o!.GetValue<string>() is var v && (v == "all" || v == l.Id || v == l.Group)));
+            Assert.True(On(before, layout) == On(after, layout), $"{theme}/{layout.Id}: {On(before, layout)} shapes before, {On(after, layout)} after");
+        }
+    }
+
     [Fact]
     public void Four_to_three_is_written_as_such()
     {

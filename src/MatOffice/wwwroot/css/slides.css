@@ -44,7 +44,9 @@
 .mo-slides.no-notes .mo-slides-main { grid-template-rows: minmax(0, 1fr) 7px 0; }
 .mo-slides.no-notes .mo-slides-notes { display: none; }
 .mo-slides-stage { position: relative; overflow: auto; background: var(--mo-slides-work); outline: none; overscroll-behavior: contain; touch-action: pan-x pan-y pinch-zoom; scrollbar-width: thin; }
-.mo-slides-stage:focus-visible { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mo-kind) 45%, transparent); border-radius: 0; }
+/* the focus ring of the slide area only for people who move with the keyboard (Tab); a click or the app focusing it shows none, like the office suites */
+.mo-slides-stage:focus-visible { box-shadow: none; border-radius: 0; }
+.mo-slides-kbd .mo-slides-stage:focus-visible { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mo-kind) 55%, transparent); }
 .mo-slides-sheet { position: relative; }
 .mo-slides-slide { position: absolute; transform-origin: 0 0; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .28), 0 6px 18px rgba(0, 0, 0, .14); }
 .mo-slides-slide .mo-sr-el:not(.mo-sr-decor) { cursor: move; }

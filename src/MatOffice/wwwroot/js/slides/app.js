@@ -21,6 +21,11 @@ import { contextMenu, layoutGallery } from './ui.js';
 
 const CLIP_TYPE = 'application/x-matoffice-slides+json';
 
+/** Makes the font sizes a text says itself smaller or larger (a slide size change). */
+function scaleText(body, k) {
+  for (const p of body?.paras || []) for (const r of p.runs) if (r.size) r.size = Math.max(1, Math.round(r.size * k * 2) / 2);
+}
+
 /** Undo by snapshots of the content; pictures (long data: addresses) are kept once in a pool, not in every snapshot. */
 class Snapshots {
   constructor(limit = 120) { this.limit = limit; this.past = []; this.future = []; this.pool = new Map(); this.list = []; }
@@ -225,7 +230,9 @@ class SlidesApp {
   /** The ribbon: set again when the contextual tabs change (Shape Format, Picture Format, Table), else only refreshed. */
   updateRibbon(force = false) {
     const sel = this.canvas?.selected() || [];
-    const key = [sel.some(e => e.type === 'shape' || e.type === 'text' || e.type === 'line') ? 'shape' : '', sel.some(e => e.type === 'image') ? 'picture' : '', sel.length === 1 && sel[0].type === 'table' ? 'table' : ''].join('|');
+    // the galleries show the design and the slide size: a new design or size builds the ribbon again
+    const look = this.content ? [this.content.theme.id, this.content.theme.variant || 0, this.content.theme.colors?.accent1, this.content.size.w, this.content.size.h] : [];
+    const key = [sel.some(e => e.type === 'shape' || e.type === 'text' || e.type === 'line') ? 'shape' : '', sel.some(e => e.type === 'image') ? 'picture' : '', sel.length === 1 && sel[0].type === 'table' ? 'table' : '', ...look].join('|');
     if (force || key !== this.ribbonKey) {
       this.ribbonKey = key;
       this.ctx.ribbon.set(buildRibbon(this));
@@ -722,6 +729,9 @@ class SlidesApp {
     document.addEventListener('copy', e => this.onCopy(e, false));
     document.addEventListener('cut', e => this.onCopy(e, true));
     document.addEventListener('paste', e => this.onPaste(e));
+    // keyboard or pointer: the focus ring of the slide area shows only for the keyboard
+    document.addEventListener('keydown', e => { if (e.key === 'Tab' || e.key === 'F6') document.body.classList.add('mo-slides-kbd'); }, true);
+    document.addEventListener('pointerdown', () => document.body.classList.remove('mo-slides-kbd'), true);
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && this.drawing) { this.cancelDrawing(); e.preventDefault(); }
       if (e.key === 'Escape' && this.painter) { this.cancelPainter(); }
@@ -1059,17 +1069,33 @@ class SlidesApp {
     }, { all: true });
   }
 
+  /** 16:9 or 4:3, like "Ensure fit" of the office suites: placeholders take the places of their layout, everything else is scaled evenly and centred. */
   setSize(kind) {
     const w = kind === '4:3' ? 960 : 1280, h = 720;
-    if (this.content.size.w === w && this.content.size.h === h) return;
-    const k = w / this.content.size.w;
+    const old = this.content.size;
+    if (old.w === w && old.h === h) return;
+    const k = Math.min(w / old.w, h / old.h);
+    const dx = (w - old.w * k) / 2, dy = (h - old.h * k) / 2;
+    const near = (a, b) => Math.abs(a - b) < 1.5;
     this.edit(() => {
-      for (const s of this.content.slides) for (const e of s.elements) {
-        const cx = (e.x + e.w / 2) * k;
-        if (e.type === 'image') { e.w = round(e.w * Math.min(1, k)); e.h = round(e.h * Math.min(1, k)); }
-        else if (e.type === 'table') { e.cols = e.cols.map(c => round(c * k)); e.w = round(e.cols.reduce((a, b) => a + b, 0)); }
-        else e.w = round(e.w * k);
-        e.x = round(cx - e.w / 2);
+      for (const s of this.content.slides) {
+        const layout = layoutOf(s.layout);
+        for (const e of s.elements) {
+          const slot = e.ph ? layout.slots.find(x => x.ph === e.ph) : null;
+          if (slot && e.type !== 'image' && e.type !== 'table' && !e.rot
+            && near(e.x, slot.x * old.w) && near(e.y, slot.y * old.h) && near(e.w, slot.w * old.w) && near(e.h, slot.h * old.h)) {
+            Object.assign(e, { x: round(slot.x * w), y: round(slot.y * h), w: round(slot.w * w), h: round(slot.h * h) });
+            continue;
+          }
+          Object.assign(e, { x: round(e.x * k + dx), y: round(e.y * k + dy), w: round(e.w * k), h: round(e.h * k) });
+          if (k === 1) continue;
+          if (e.type === 'table') {
+            e.cols = e.cols.map(c => round(c * k));
+            for (const r of e.rows) { r.h = round(r.h * k); for (const c of r.cells) scaleText(c.text, k); }
+            e.w = round(e.cols.reduce((a, b) => a + b, 0));
+            e.h = round(e.rows.reduce((a, r) => a + r.h, 0));
+          } else if (e.text && !slot) scaleText(e.text, k);
+        }
       }
       this.content.size = { w, h };
     }, { all: true });
