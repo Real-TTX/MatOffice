@@ -242,3 +242,19 @@ nesting: `a` › `span[data-comment]` › `span[style]` › `strong` › `em` �
 
 The server keeps only this allowlist (HtmlSanitizer): no `class`, no other `data-*`, no `script`/`style`/`iframe`/`object`/`form`/event attributes,
 no `url(…)` in styles, links only `http(s):`/`mailto:`/`#`, images only `data:image/(png|jpeg|gif|webp)`.
+
+The last `<br>` of a paragraph is the placeholder a browser needs for an empty line, never content: `<p>a<br><br></p>` is "a" and an empty
+second line, as the browser shows it. A list level whose kind changes (numbers, then bullets, then numbers again) starts again at 1.
+
+### The Docs editor
+
+- **Pages**: the body is one editing host inside a "flow" that the browser paginates itself: CSS multi-column with `column-height` = the text
+  height of a page and `column-wrap: wrap` (every row of columns is one page, `row-gap` = the margins plus the gap between the sheets); the white
+  sheets with their header and footer are drawn behind it at the same distances. Lines continue on the next sheet without any change of the DOM;
+  caret, selection, IME and spelling stay native. Browsers without `column-wrap` show one long page with page lines. Zoom is a transform, so page
+  breaks never depend on it.
+- **Editing** (`editor.js`): typing inside a paragraph is the browser's; Enter, Backspace/Delete at the border of a paragraph, deleting over
+  several paragraphs, paste, drop, formatting, styles and lists read the blocks into the model (`model.js`, `htmlio.js`), change them, render them
+  again and put the selection back by character offsets. Undo/redo are snapshots whose unchanged blocks share their strings (pictures kept once).
+- **Print**: `@page` with the size and margins of the document; header and footer as margin boxes (their text, page fields as counters).
+- **Tests**: the modules without the DOM are tested in Node: `node --test tests/js/`.

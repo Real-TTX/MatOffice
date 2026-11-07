@@ -107,6 +107,8 @@ export class Nav {
     if (at && sel && sel.start.offset > 0 && domLength(sel.start.block) > 0 && at === sel.start.block) at = at.nextElementSibling;
     if (at) for (const n of nodes) app.body.insertBefore(n, at);
     else app.body.append(...nodes);
+    // an empty paragraph the table was inserted into goes (unless it is the last one)
+    if (at && at.matches('p') && !at.textContent && !at.querySelector('img,[data-field],[data-fn]') && at.nextElementSibling) at.remove();
     app.editor.ensureTail(app.body);
     app.changed();
     setTimeout(() => app.tocPages(), 200);

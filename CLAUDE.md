@@ -22,6 +22,7 @@ Accent: Office orange `#d83b01` (white text 4.6:1; accent text `#b23000`, dark m
 - **Tests:** `dotnet test`. Database tests run when `MATOFFICE_TEST_DB` is set (an administrator connection string, e.g.
   `Host=localhost;Port=4822;Username=matoffice;Password=matoffice;Database=postgres` while the local stack runs); each test creates, migrates and drops a database of its own.
   `TextCatalogTests` checks every text key of the server code and of the editors (`t('Editor.X')` → `Js.Editor.X`) in English and German.
+  Pure JavaScript modules of the editors (no DOM) have Node tests in `tests/js/` (`node --test tests/js/`).
 - **Run / test the app: always rebuild the container** (`./scripts/redeploy.ps1`, `-Clean` for empty volumes). CSS, JS and cshtml are baked into the image.
 - **Test account (always):** `admin@example.com` / `Start12345` – the first account of a fresh stack (it becomes the administrator).
 - **Real tests are end to end in a browser** (Playwright with the installed Edge, `channel: 'msedge'`): create a document of each app, edit it with mouse and keyboard, reload,
