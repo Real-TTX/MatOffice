@@ -32,6 +32,12 @@ export function buildRibbon(app) {
 
   const home = {
     id: 'home', label: t('Docs.Tab.Home'), groups: [
+      { label: t('Docs.Group.Undo'), items: [
+        { type: 'stack', rows: [
+          [{ type: 'button', label: t('Docs.Undo'), icon: 'undo', key: 'Mod+Z', global: false, disabled: () => !ed.canUndo, run: () => { ed.focus(); ed.undo(); } }],
+          [{ type: 'button', label: t('Docs.Redo'), icon: 'redo', key: 'Mod+Y', global: false, disabled: () => !ed.canRedo, run: () => { ed.focus(); ed.redo(); } }],
+        ] },
+      ] },
       { label: t('Docs.Group.Clipboard'), items: [
         { type: 'split', id: 'paste', label: t('Docs.Paste'), icon: 'docs-paste', size: 'large', run: () => app.clipboardPaste(false), items: [
           { label: t('Docs.Paste'), icon: 'docs-paste', key: 'Mod+V', run: () => app.clipboardPaste(false) },
@@ -170,7 +176,8 @@ export function buildRibbon(app) {
       ] },
       { label: t('Docs.Group.Text'), items: [
         { type: 'stack', rows: [
-          [{ type: 'button', label: t('Docs.DateTime'), icon: 'calendar', showLabel: true, run: () => app.dialogs.dateTime() }],
+          [{ type: 'button', label: t('Docs.DateTime'), icon: 'calendar', showLabel: true, run: () => app.dialogs.dateTime() },
+            { type: 'button', label: t('Docs.InsertFile'), icon: 'file-text', showLabel: true, disabled: () => !inBody(), run: () => app.insertFile() }],
           [{ type: 'menu', label: t('Docs.Symbol'), icon: 'docs-symbol', items: () => [
             ...'©®™§¶°±×÷€£¥–—…•→←≤≥≠∞½¼¾✓'.split('').map(ch => ({ label: ch, render: () => chip(ch), run: () => c.text(ch) })),
             '-', { label: t('Docs.Symbol.More'), run: () => app.dialogs.symbols() },

@@ -1,4 +1,9 @@
 {
+  "Js.Docs.Group.Undo": { "en": "Undo", "de": "Rückgängig" },
+  "Js.Docs.Undo": { "en": "Undo", "de": "Rückgängig" },
+  "Js.Docs.Redo": { "en": "Redo", "de": "Wiederholen" },
+  "Js.Docs.InsertFile": { "en": "Text from File", "de": "Text aus Datei" },
+  "Js.Docs.InsertFile.Failed": { "en": "The file could not be read.", "de": "Die Datei ließ sich nicht lesen." },
   "Js.Docs.Tab.Home": { "en": "Home", "de": "Start" },
   "Js.Docs.Tab.Insert": { "en": "Insert", "de": "Einfügen" },
   "Js.Docs.Tab.Layout": { "en": "Layout", "de": "Layout" },

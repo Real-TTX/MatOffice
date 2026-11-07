@@ -2,7 +2,7 @@
    find and replace, the comments), connects the editing engine (editor.js), the page view (layout.js) and the content of the server
    (docs/EDITORS.md "Docs content"), the ribbon (ribbon.js), the keyboard and the status bar. */
 import { startEditor } from '../editor/frame.js';
-import { t, el, icon, mod, debounce, lang as pageLang } from '../editor/util.js';
+import { t, el, icon, mod, debounce, pickFile, request, lang as pageLang } from '../editor/util.js';
 import { DocEditor } from './editor.js';
 import { PageView } from './layout.js';
 import { parseHtml, readBlock, readBlocks, readTable, renderBlock, isTextBlockEl, counterSet } from './htmlio.js';
@@ -475,6 +475,30 @@ app.layoutCommands = {
     updateStatus();
     app.ribbonRefresh();
   },
+};
+
+/** Insert → Text from File: a Word, HTML, Markdown or text file converted by the server (/live/convert/docs/read) and inserted at the caret. */
+app.insertFile = async () => {
+  if (app.ctx.readOnly) return;
+  app.editor.focus();
+  const mark = app.editor.bookmark();
+  const file = await pickFile('.docx,.html,.htm,.md,.markdown,.txt');
+  if (!file) return;
+  const ext = (/\.[^.]+$/.exec(file.name)?.[0] || '.txt').toLowerCase();
+  const host = app.ctx.doc.mode === 'host' ? '&host=' + encodeURIComponent(app.ctx.doc.api.split('?')[0].split('/').pop()) : '';
+  try {
+    const content = await request('POST', `/live/convert/docs/read?ext=${encodeURIComponent(ext)}${host}`, file);
+    // notes and comments of the other file are not taken: their references go
+    const blocks = parseHtml(typeof content?.html === 'string' ? content.html : '').map(function strip(b) {
+      if (b.runs) return { ...b, runs: b.runs.filter(r => r.obj !== 'note').map(r => (r.f?.cmt ? { ...r, f: { ...r.f, cmt: undefined } } : r)) };
+      if (b.type === 'table') return { ...b, rows: b.rows.map(r => ({ ...r, cells: r.cells.map(c => ({ ...c, blocks: c.blocks.map(strip) })) })) };
+      return b;
+    });
+    if (mark) app.editor.restoreBookmark(mark, false);
+    if (blocks.length) app.editor.insertBlocks(blocks);
+  } catch (e) {
+    app.ctx.toast(e.body?.error || t('Docs.InsertFile.Failed'), 'danger');
+  }
 };
 
 app.zoomTo = f => { app.view.setZoom(f); app.ctx.status.setZoom(app.view.zoom); app.imagesUi?.position(); };
