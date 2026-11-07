@@ -120,7 +120,7 @@ export function textRect(shape, w, h) {
 
 /** The points of an arrow head at the tip (x, y) pointing along the angle (radians), for a line of width lw (px). */
 export function arrowHead(kind, x, y, angle, lw) {
-  const len = Math.max(6, lw * 3.2), half = Math.max(4, lw * 1.8);
+  const len = Math.max(9, lw * 4), half = Math.max(5, lw * 2.2);
   const back = (d, side) => [x - Math.cos(angle) * d + Math.cos(angle + Math.PI / 2) * side, y - Math.sin(angle) * d + Math.sin(angle + Math.PI / 2) * side];
   switch (kind) {
     case 'triangle': return { type: 'polygon', points: [[x, y], back(len, half), back(len, -half)] };
@@ -133,7 +133,7 @@ export function arrowHead(kind, x, y, angle, lw) {
 }
 
 /** How far a line end has to be pulled back so that it ends inside its arrow head. */
-export const arrowInset = (kind, lw) => (kind === 'triangle' || kind === 'stealth' ? Math.max(6, lw * 3.2) * 0.7 : kind === 'oval' || kind === 'diamond' ? Math.max(4, lw * 1.8) : 0);
+export const arrowInset = (kind, lw) => (kind === 'triangle' || kind === 'stealth' ? Math.max(9, lw * 4) * 0.7 : kind === 'oval' || kind === 'diamond' ? Math.max(5, lw * 2.2) : 0);
 
 /** The dash pattern of a line (px) for its width. */
 export function dashArray(dash, lw) {

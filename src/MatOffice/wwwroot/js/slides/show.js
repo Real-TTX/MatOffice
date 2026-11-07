@@ -93,6 +93,9 @@ export class Show {
     const r = this.screen.getBoundingClientRect();
     const scale = Math.min(r.width / w, r.height / h);
     this.scale = scale;
+    // transitions and effects stay inside the slide (nothing moves through the black border)
+    const left = (r.width - w * scale) / 2, top = (r.height - h * scale) / 2;
+    this.screen.style.clipPath = `inset(${top}px ${left}px ${top}px ${left}px)`;
     for (const layer of this.screen.children) this.place(layer, scale);
     this.updatePresenter();
   }
@@ -152,7 +155,8 @@ export class Show {
 
   transition(layer, old, tr) {
     const ms = Math.max(100, (tr.duration || 0.7) * 1000);
-    const r = this.screen.getBoundingClientRect();
+    // by the size of the slide, so that a pushed slide and the next one stay together (no gap of the black border)
+    const r = { width: layer.offsetWidth || this.screen.clientWidth, height: layer.offsetHeight || this.screen.clientHeight };
     const dir = tr.dir || (tr.type === 'push' ? 'down' : 'right');
     const off = { right: [r.width, 0], left: [-r.width, 0], down: [0, r.height], up: [0, -r.height] }[dir] || [r.width, 0];
     const opts = { duration: ms, easing: 'cubic-bezier(.4, 0, .2, 1)' };

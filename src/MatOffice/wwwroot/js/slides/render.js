@@ -18,7 +18,7 @@ export const RENDER_CSS = `
 .mo-sr-body{flex:none;outline:none;min-height:1px;}
 .mo-sr-p{position:relative;margin:0;white-space:pre-wrap;overflow-wrap:break-word;tab-size:4;}
 .mo-sr-nowrap .mo-sr-p{white-space:pre;}
-.mo-sr-p[data-bullet]::before{content:attr(data-bullet);position:absolute;left:var(--bx,0px);top:0;font-size:var(--bs);color:var(--bc);font-family:var(--bf);font-weight:var(--bw,400);font-style:normal;text-decoration:none;white-space:pre;}
+.mo-sr-p[data-bullet]::before{content:attr(data-bullet);display:inline-block;min-width:var(--bh,0px);margin-left:calc(-1 * var(--bh,0px));padding-right:var(--bp,0px);text-align:left;text-indent:0;font-size:var(--bs);color:var(--bc);font-family:var(--bf);font-weight:var(--bw,400);font-style:normal;text-decoration:none;white-space:pre;}
 .mo-sr-table{border-collapse:collapse;table-layout:fixed;}
 .mo-sr-table td{padding:0;}
 .mo-sr-img{position:absolute;max-width:none;max-height:none;user-select:none;-webkit-user-drag:none;}
@@ -288,7 +288,10 @@ export function renderBody(doc, content, slide, e, body, opts = {}, cell = null)
     para.style.paddingLeft = px(ind.left);
     if (mark && !isEmptyLine(p, opts)) {
       para.dataset.bullet = mark;
-      para.style.setProperty('--bx', px(ind.left - ind.hang));
+      // the mark hangs in front of the first line (inline: with centred or right-aligned text it stays in front of the text, like the office suites)
+      const align = p.align || d.align;
+      if (align === 'center' || align === 'right') para.style.setProperty('--bp', '.4em');
+      else para.style.setProperty('--bh', px(ind.hang));
       para.style.setProperty('--bs', `calc(var(--fs, 1) * ${px(size)})`);
       para.style.setProperty('--bc', resolveColor(first.color || d.color, theme));
       para.style.setProperty('--bf', isNumbering(bullet) ? fontStack(first.font || d.font) : 'Arial, "Segoe UI Symbol", sans-serif');
