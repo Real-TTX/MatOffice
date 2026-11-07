@@ -152,22 +152,65 @@ internal sealed class StyleSheet
 
         var props = new Props();
         var borders = new Dictionary<string, Border?>(StringComparer.Ordinal);
+        var conditionals = new Dictionary<string, Conditional>(StringComparer.Ordinal);
+        var (rowBand, columnBand) = (1, 1);
         var chain = Chain(id, "table");
         foreach (var s in chain)
         {
             MergeStyle(props, s);
-            if (s.StyleTableProperties?.GetFirstChild<TableBorders>() is { } tableBorders)
+            if (s.StyleTableProperties is { } tblPr)
             {
-                foreach (var (side, border) in ReadBorders(tableBorders))
+                if (tblPr.GetFirstChild<TableBorders>() is { } tableBorders)
                 {
-                    borders[side] = border;
+                    foreach (var (side, border) in ReadBorders(tableBorders))
+                    {
+                        borders[side] = border;
+                    }
+                }
+
+                rowBand = tblPr.GetFirstChild<TableStyleRowBandSize>()?.Val?.Value is { } rows and > 0 ? rows : rowBand;
+                columnBand = tblPr.GetFirstChild<TableStyleColumnBandSize>()?.Val?.Value is { } columns and > 0 ? columns : columnBand;
+            }
+
+            foreach (var conditional in s.Elements<TableStyleProperties>())
+            {
+                if (conditional.Type?.InnerText is { } type)
+                {
+                    conditionals[type] = ReadConditional(conditional, conditionals.GetValueOrDefault(type));
                 }
             }
         }
 
-        var result = chain.Count == 0 ? null : new Resolved(id, NameOf(chain[^1]), "Normal", props) { TableBorders = borders };
+        var result = chain.Count == 0 ? null : new Resolved(id, NameOf(chain[^1]), "Normal", props)
+        {
+            TableBorders = borders, Conditionals = conditionals, RowBand = rowBand, ColumnBand = columnBand,
+        };
         _tables[id] = result;
         return result;
+    }
+
+    /// <summary>One conditional formatting of a table style (<c>w:tblStylePr</c>) over the one of a style it is based on.</summary>
+    private Conditional ReadConditional(TableStyleProperties conditional, Conditional? basedOn)
+    {
+        var props = basedOn?.Props.Clone() ?? new Props();
+        var fill = basedOn?.Fill;
+        foreach (var part in conditional.ChildElements)
+        {
+            switch (part.LocalName)
+            {
+                case "pPr":
+                    props.MergeParagraph(part);
+                    break;
+                case "rPr":
+                    props.MergeRun(part, this);
+                    break;
+                case "tcPr" when part.GetFirstChild<Shading>() is { } shading:
+                    fill = ShadingColour(shading) ?? string.Empty;
+                    break;
+            }
+        }
+
+        return new Conditional(fill, props);
     }
 
     /// <summary>The numbering instance a numbering style (<c>w:numStyleLink</c>) stands for, or null.</summary>
@@ -348,9 +391,14 @@ internal sealed class StyleSheet
     /// <summary>A border side: its CSS (<c>0.5pt solid #000000</c>, null = explicitly none) and the space to the text in points.</summary>
     internal sealed record Border(string? Css, double Space);
 
+    /// <summary>The conditional formatting of a table style for one kind of cells (first row, banded rows …): shading (<c>RRGGBB</c>, empty = none) and properties.</summary>
+    internal sealed record Conditional(string? Fill, Props Props);
+
     /// <summary>A resolved style.</summary>
     internal sealed class Resolved(string id, string name, string key, Props props)
     {
+        private readonly Dictionary<string, Resolved> _cells = new(StringComparer.Ordinal);
+
         public string Id { get; } = id;
 
         /// <summary>The name in Word ("heading 1").</summary>
@@ -363,6 +411,43 @@ internal sealed class StyleSheet
 
         /// <summary>The borders of a table style (top, right, bottom, left, insideH, insideV).</summary>
         public Dictionary<string, Border?> TableBorders { get; init; } = new(StringComparer.Ordinal);
+
+        /// <summary>The conditional formatting of a table style by type (<c>firstRow</c>, <c>band1Horz</c> …).</summary>
+        public Dictionary<string, Conditional> Conditionals { get; init; } = new(StringComparer.Ordinal);
+
+        /// <summary>How many rows and columns one band of a banded table style spans.</summary>
+        public int RowBand { get; init; } = 1;
+
+        public int ColumnBand { get; init; } = 1;
+
+        /// <summary>The table style as one cell sees it: the conditional formatting of its types (in Word's order, the last wins) over the style.</summary>
+        public Resolved ForCell(IReadOnlyList<string> types)
+        {
+            var applied = types.Where(Conditionals.ContainsKey).ToList();
+            if (applied.Count == 0)
+            {
+                return this;
+            }
+
+            var key = string.Join(',', applied);
+            if (!_cells.TryGetValue(key, out var cell))
+            {
+                var merged = Props.Clone();
+                foreach (var type in applied)
+                {
+                    merged.Merge(Conditionals[type].Props);
+                }
+
+                cell = new Resolved(Id + "|" + key, Name, Key, merged) { TableBorders = TableBorders };
+                _cells[key] = cell;
+            }
+
+            return cell;
+        }
+
+        /// <summary>The shading a table style gives a cell of these types (<c>RRGGBB</c>), or null.</summary>
+        public string? FillFor(IReadOnlyList<string> types)
+            => types.Select(t => Conditionals.GetValueOrDefault(t)?.Fill).LastOrDefault(f => f is not null) is { Length: > 0 } fill ? fill : null;
     }
 
     /// <summary>The properties of a paragraph and of a run; null = not said at this level (inherited).</summary>

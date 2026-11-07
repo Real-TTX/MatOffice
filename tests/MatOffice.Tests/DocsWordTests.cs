@@ -368,6 +368,45 @@ public sealed class DocsWordTests
         Assert.True(Handler.Normalize(content.ToJsonString()).Ok);
     }
 
+    /// <summary>Word's "Grid Table 4 - Accent 1": the header row, the bands and the bold first column come from the conditional formatting of the style.</summary>
+    private const string GridTable4Accent1 = """
+        <w:style w:type="table" w:styleId="Gitternetztabelle4Akzent1"><w:name w:val="Grid Table 4 Accent 1"/><w:basedOn w:val="NormaleTabelle"/><w:uiPriority w:val="49"/>
+          <w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>
+          <w:tblPr><w:tblStyleRowBandSize w:val="1"/><w:tblStyleColBandSize w:val="1"/><w:tblBorders>
+            <w:top w:val="single" w:sz="4" w:space="0" w:color="8EAADB" w:themeColor="accent1" w:themeTint="99"/><w:left w:val="single" w:sz="4" w:space="0" w:color="8EAADB" w:themeColor="accent1" w:themeTint="99"/>
+            <w:bottom w:val="single" w:sz="4" w:space="0" w:color="8EAADB" w:themeColor="accent1" w:themeTint="99"/><w:right w:val="single" w:sz="4" w:space="0" w:color="8EAADB" w:themeColor="accent1" w:themeTint="99"/>
+            <w:insideH w:val="single" w:sz="4" w:space="0" w:color="8EAADB" w:themeColor="accent1" w:themeTint="99"/><w:insideV w:val="single" w:sz="4" w:space="0" w:color="8EAADB" w:themeColor="accent1" w:themeTint="99"/>
+          </w:tblBorders></w:tblPr>
+          <w:tblStylePr w:type="firstRow"><w:rPr><w:b/><w:bCs/><w:color w:val="FFFFFF" w:themeColor="background1"/></w:rPr><w:tblPr/><w:tcPr><w:tcBorders>
+            <w:top w:val="single" w:sz="4" w:space="0" w:color="4472C4" w:themeColor="accent1"/><w:left w:val="single" w:sz="4" w:space="0" w:color="4472C4" w:themeColor="accent1"/>
+            <w:bottom w:val="single" w:sz="4" w:space="0" w:color="4472C4" w:themeColor="accent1"/><w:right w:val="single" w:sz="4" w:space="0" w:color="4472C4" w:themeColor="accent1"/>
+            <w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tcBorders><w:shd w:val="clear" w:color="auto" w:fill="4472C4" w:themeFill="accent1"/></w:tcPr></w:tblStylePr>
+          <w:tblStylePr w:type="lastRow"><w:rPr><w:b/><w:bCs/></w:rPr><w:tblPr/><w:tcPr><w:tcBorders><w:top w:val="double" w:sz="4" w:space="0" w:color="4472C4" w:themeColor="accent1"/></w:tcBorders></w:tcPr></w:tblStylePr>
+          <w:tblStylePr w:type="firstCol"><w:rPr><w:b/><w:bCs/></w:rPr></w:tblStylePr>
+          <w:tblStylePr w:type="lastCol"><w:rPr><w:b/><w:bCs/></w:rPr></w:tblStylePr>
+          <w:tblStylePr w:type="band1Vert"><w:tblPr/><w:tcPr><w:shd w:val="clear" w:color="auto" w:fill="D9E2F3" w:themeFill="accent1" w:themeFillTint="33"/></w:tcPr></w:tblStylePr>
+          <w:tblStylePr w:type="band1Horz"><w:tblPr/><w:tcPr><w:shd w:val="clear" w:color="auto" w:fill="D9E2F3" w:themeFill="accent1" w:themeFillTint="33"/></w:tcPr></w:tblStylePr>
+        </w:style>
+        """;
+
+    [Theory]
+    [InlineData("<w:tblLook w:val=\"04A0\" w:firstRow=\"1\" w:lastRow=\"0\" w:firstColumn=\"1\" w:lastColumn=\"0\" w:noHBand=\"0\" w:noVBand=\"1\"/>")]
+    [InlineData("<w:tblLook w:val=\"04A0\"/>")]
+    public void A_table_in_a_built_in_table_style_gets_its_look(string tblLook)
+    {
+        string Cell(string text) => $"<w:tc><w:tcPr><w:tcW w:w=\"4531\" w:type=\"dxa\"/></w:tcPr><w:p><w:r><w:t>{text}</w:t></w:r></w:p></w:tc>";
+        var body = $"<w:tbl><w:tblPr><w:tblStyle w:val=\"Gitternetztabelle4Akzent1\"/><w:tblW w:w=\"0\" w:type=\"auto\"/>{tblLook}</w:tblPr>"
+            + "<w:tblGrid><w:gridCol w:w=\"4531\"/><w:gridCol w:w=\"4531\"/></w:tblGrid>"
+            + $"<w:tr>{Cell("Name")}{Cell("Wert")}</w:tr><w:tr>{Cell("Alpha")}{Cell("1")}</w:tr><w:tr>{Cell("Beta")}{Cell("2")}</w:tr><w:tr>{Cell("Gamma")}{Cell("3")}</w:tr></w:tbl>";
+        var p = "<p style=\"line-height: 1.2; margin-bottom: 0pt\">";
+        Assert.Equal(
+            "<table data-table-style=\"accent1\" style=\"width: 100%\"><colgroup><col style=\"width: 50%\"><col style=\"width: 50%\"></colgroup>"
+            + $"<thead><tr><th>{p}Name</p></th><th>{p}Wert</p></th></tr></thead>"
+            + $"<tbody><tr><td>{p}<strong>Alpha</strong></p></td><td>{p}1</p></td></tr><tr><td>{p}<strong>Beta</strong></p></td><td>{p}2</p></td></tr>"
+            + $"<tr><td>{p}<strong>Gamma</strong></p></td><td>{p}3</p></td></tr></tbody></table>",
+            Read(WordFile(body, GermanStyles + GridTable4Accent1))["html"]!.GetValue<string>());
+    }
+
     [Fact]
     public void Only_bookmarks_a_link_points_to_become_ids_and_pictures_take_no_text_formatting()
     {

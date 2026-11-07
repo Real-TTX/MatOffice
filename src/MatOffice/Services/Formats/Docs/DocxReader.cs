@@ -1236,18 +1236,28 @@ internal sealed partial class DocxReader
 
         var rows = new List<TableRow>();
         CollectRows(table.ChildElements, rows, 0);
+        if (rows.Count > 10000)
+        {
+            rows.RemoveRange(10000, rows.Count - 10000);
+        }
+
         var mergeOrigin = new Dictionary<int, DocCell>();
         var header = true;
-        var cellStory = story.InTable(tableStyle);
-        foreach (var tr in rows.Take(10000))
+        var look = TableLookOf(tblPr?.GetFirstChild<DocumentFormat.OpenXml.Wordprocessing.TableLook>());
+
+        // A first row the table style shows as a header (Word's "Header Row") is the header row of Docs.
+        var styledHeader = look.FirstRow && tableStyle?.Conditionals.ContainsKey("firstRow") == true;
+        for (var r = 0; r < rows.Count; r++)
         {
+            var tr = rows[r];
             var row = new DocRow();
             var trPr = tr.TableRowProperties;
-            header &= trPr?.GetFirstChild<TableHeader>() is { } th && StyleSheet.OnOff(th);
+            header &= (trPr?.GetFirstChild<TableHeader>() is { } th && StyleSheet.OnOff(th)) || (r == 0 && styledHeader);
             row.Header = header;
             var column = Int(trPr?.GetFirstChild<GridBefore>()?.Val?.InnerText) ?? 0;
             var cells = new List<TableCell>();
             CollectCells(tr.ChildElements, cells, 0);
+            var columns = Math.Max(grid.Count, column + cells.Sum(c => Math.Clamp(Int(c.TableCellProperties?.GridSpan?.Val?.InnerText) ?? 1, 1, 1000)));
             foreach (var tc in cells)
             {
                 var tcPr = tc.TableCellProperties;
@@ -1262,9 +1272,14 @@ internal sealed partial class DocxReader
                 }
 
                 var cell = new DocCell { ColSpan = span, HeaderCell = header };
+                var types = tableStyle is null ? [] : ConditionalTypes(look, tableStyle, r, rows.Count, row.Header, column, span, columns);
                 if (tcPr?.Shading is { } shading && StyleSheet.ShadingColour(shading) is { Length: > 0 } fill)
                 {
                     cell.Css.Set("background-color", DocsCss.Colour("#" + fill));
+                }
+                else if (tableStyle?.FillFor(types) is { } styleFill)
+                {
+                    cell.Css.Set("background-color", DocsCss.Colour("#" + styleFill));
                 }
 
                 if (tcPr?.TableCellVerticalAlignment?.Val?.InnerText is { } valign && valign != "top")
@@ -1283,7 +1298,7 @@ internal sealed partial class DocxReader
                     }
                 }
 
-                ReadBlocks(tc.ChildElements, cell.Blocks, cellStory, depth + 1);
+                ReadBlocks(tc.ChildElements, cell.Blocks, story.InTable(tableStyle?.ForCell(types)), depth + 1);
                 if (cell.Blocks.Count == 0)
                 {
                     cell.Blocks.Add(new DocParagraph());
@@ -1322,6 +1337,69 @@ internal sealed partial class DocxReader
         result.TableStyle = Look(result, borders) ?? fallback;
         HeaderText(result);
         return result;
+    }
+
+    /// <summary>Which conditional formatting of its table style a table shows (<c>w:tblLook</c>: the attributes, or the bits of the older <c>w:val</c>).</summary>
+    private static (bool FirstRow, bool LastRow, bool FirstColumn, bool LastColumn, bool RowBands, bool ColumnBands) TableLookOf(OpenXmlElement? tblLook)
+    {
+        var attributes = tblLook?.GetAttributes().ToDictionary(a => a.LocalName, a => a.Value, StringComparer.Ordinal) ?? [];
+        var bits = attributes.TryGetValue("val", out var hex) && int.TryParse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var n) ? n : 0;
+        bool Flag(string name, int bit) => attributes.TryGetValue(name, out var v) ? v?.Trim().ToLowerInvariant() is "1" or "true" or "on" : (bits & bit) != 0;
+        return (Flag("firstRow", 0x20), Flag("lastRow", 0x40), Flag("firstColumn", 0x80), Flag("lastColumn", 0x100), !Flag("noHBand", 0x200), !Flag("noVBand", 0x400));
+    }
+
+    /// <summary>The conditional formatting types of a cell, in Word's order (the later ones win): whole table, bands, first/last column, first/last row, corners.</summary>
+    private static List<string> ConditionalTypes(
+        (bool FirstRow, bool LastRow, bool FirstColumn, bool LastColumn, bool RowBands, bool ColumnBands) look,
+        StyleSheet.Resolved style, int row, int rows, bool headerRow, int column, int span, int columns)
+    {
+        var types = new List<string> { "wholeTable" };
+        var firstRow = look.FirstRow && headerRow;
+        var lastRow = look.LastRow && row == rows - 1 && !firstRow;
+        var firstColumn = look.FirstColumn && column == 0;
+        var lastColumn = look.LastColumn && column + span >= columns;
+        var bandColumn = column - (look.FirstColumn ? 1 : 0);
+        if (look.ColumnBands && bandColumn >= 0 && !firstColumn && !lastColumn)
+        {
+            types.Add(bandColumn / style.ColumnBand % 2 == 0 ? "band1Vert" : "band2Vert");
+        }
+
+        var bandRow = row - (look.FirstRow ? 1 : 0);
+        if (look.RowBands && bandRow >= 0 && !firstRow && !lastRow)
+        {
+            types.Add(bandRow / style.RowBand % 2 == 0 ? "band1Horz" : "band2Horz");
+        }
+
+        if (firstColumn)
+        {
+            types.Add("firstCol");
+        }
+
+        if (lastColumn)
+        {
+            types.Add("lastCol");
+        }
+
+        if (firstRow)
+        {
+            types.Add("firstRow");
+        }
+
+        if (lastRow)
+        {
+            types.Add("lastRow");
+        }
+
+        if (firstRow || lastRow)
+        {
+            var corner = (firstRow ? "n" : "s") + (firstColumn ? "w" : lastColumn ? "e" : string.Empty);
+            if (corner.Length == 2)
+            {
+                types.Add(corner + "Cell");
+            }
+        }
+
+        return types;
     }
 
     private static readonly string[] Looks = ["accent1", "accent2", "accent6", "striped", "light", "grid", "plain"];
