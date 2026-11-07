@@ -132,7 +132,52 @@ public static class DocumentEndpoints
 
         // pictures that are put into a document are kept inside it (data: addresses); this only checks and shrinks nothing, it tells the editor the limit
         live.MapGet("/limits", () => Results.Json(new { maxContentBytes = Kinds.MaxContentBytes, maxImageBytes = 5 * 1024 * 1024 }, Json)).AllowAnonymous();
+
+        // conversions for an editor that is open (no document is read or written): a file into the content of an app (Base takes an Excel file as tables, Slides
+        // the slides of a PowerPoint file …) and content into a file (the state on the screen, not the saved one). A signed-in person or the secret of an open host session.
+        var convert = app.MapGroup("/live/convert");
+        convert.MapPost("/{slug}/read", async (string slug, string ext, Guid? host, HttpContext http, AppDbContext db, CurrentUser me) =>
+        {
+            if (!await MayConvertAsync(db, me, host, http.RequestAborted))
+            {
+                return Results.NotFound();
+            }
+
+            if (Kinds.BySlug(slug) is not { } handler)
+            {
+                return Results.NotFound();
+            }
+
+            using var buffer = new MemoryStream();
+            await http.Request.Body.CopyToAsync(buffer, http.RequestAborted);
+            buffer.Position = 0;
+            var read = Kinds.Read(handler, buffer, ext);
+            return read.Ok ? Results.Text(read.Json!, "application/json") : Results.Json(new { error = read.Error }, Json, statusCode: StatusCodes.Status422UnprocessableEntity);
+        }).AllowAnonymous().AddEndpointFilter(Antiforgery).WithRequestSizeLimit();
+
+        convert.MapPost("/{slug}/write", async (string slug, string ext, string? name, Guid? host, HttpContext http, AppDbContext db, CurrentUser me) =>
+        {
+            if (!await MayConvertAsync(db, me, host, http.RequestAborted) || Kinds.BySlug(slug) is not { } handler)
+            {
+                return Results.NotFound();
+            }
+
+            using var reader = new StreamReader(http.Request.Body);
+            var content = await reader.ReadToEndAsync(http.RequestAborted);
+            var check = handler.Normalize(content);
+            if (!check.Ok)
+            {
+                return Results.Json(new { error = check.Error }, Json, statusCode: StatusCodes.Status422UnprocessableEntity);
+            }
+
+            var file = DocumentService.Export(handler.Kind, check.Json!, string.IsNullOrWhiteSpace(name) ? "document" : name, ext);
+            return file.Ok ? Results.File(file.Value!.Bytes, file.Value.MimeType, file.Value.FileName) : Results.Json(new { error = file.Error }, Json, statusCode: StatusCodes.Status422UnprocessableEntity);
+        }).AllowAnonymous().AddEndpointFilter(Antiforgery).WithRequestSizeLimit();
     }
+
+    /// <summary>A conversion is for a signed-in person, or for the editor of an open host session (whose browser knows its secret).</summary>
+    private static async Task<bool> MayConvertAsync(AppDbContext db, CurrentUser me, Guid? host, CancellationToken ct)
+        => me.Id is not null || (host is { } token && await HostSessionService.FindAsync(db, token, ct) is not null);
 
     /// <summary>The person of the cookie (if any) and the secret of the link (if one is given).</summary>
     public static Actor ActorOf(HttpContext http, CurrentUser me)

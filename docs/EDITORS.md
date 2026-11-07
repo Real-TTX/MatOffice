@@ -124,3 +124,13 @@ Formats that cannot be written well are import-only (`CanExport: false`); a host
 - `dotnet build MatOffice.slnx` (0 warnings), `dotnet test` (TextCatalogTests checks every `t('Docs.X')` against `Js.Docs.X` in English and German, and every server key).
 - Pure logic (formula engine, layout, converters) gets unit tests: C# in `tests/MatOffice.Tests`, JavaScript modules that do not touch the DOM can be tested in Node (`node --test`).
 - In the browser: `./scripts/redeploy.ps1`, sign in with `admin@example.com` / `Start12345`, create a document of the app on `/home`, use it with mouse and keyboard, reload (saved?), a phone width (390 px), dark mode, read-only (a version), print preview. Look at the screenshots.
+
+## Conversions while an editor is open
+
+Two endpoints convert without reading or writing a document (a signed-in person, or `?host=<secret>` of an open host session; anti-forgery header):
+
+- `POST /live/convert/<slug>/read?ext=.xlsx` – body: the bytes of a file → the content of that app as JSON (`IKindHandler.Import` + `Normalize`). Base uses it to take
+  the sheets of an Excel file as tables, Slides to take the slides of a PowerPoint file, Docs to insert a Word file.
+- `POST /live/convert/<slug>/write?ext=.xlsx&name=…` – body: content JSON → the file (`Export`), e.g. the state on the screen, or one table of a database.
+
+The secret of a host session is the last part of `ctx.doc.api` (`/live/host/<secret>`).
