@@ -135,6 +135,51 @@ Two endpoints convert without reading or writing a document (a signed-in person,
 
 The secret of a host session is the last part of `ctx.doc.api` (`/live/host/<secret>`).
 
+## Slides content
+
+The content of a presentation (version 1; the full comment is in `Services/Formats/Slides/SlidesHandler.cs`). Coordinates are px of a slide at 96 dpi
+(16:9 = 1280 × 720, 4:3 = 960 × 720; 1 px = 9525 EMU), font sizes and line widths pt. Text is structured – paragraphs of runs, never HTML – so the server
+checks it field by field and writes it as DrawingML.
+
+```js
+{
+  version: 1,
+  size: { w: 1280, h: 720 },
+  theme: {                                  // the design, kept whole in the file (an imported pptx brings its own)
+    id, name, variant?, fonts: { major, minor }, colors: { dk1, lt1, dk2, lt2, accent1 … accent6, hlink },   // #rrggbb
+    background: Fill, heading: Color, text: Color,
+    groups?: { cover|content|other: { background?, heading?, text? } },               // per layout group
+    decor: [{ on: ['all'|group|layout], shape, x, y, w, h /* fractions */, fill: Color | src: picture, opacity?, flipH?, flipV?, rot? }],
+  },
+  footer: { number, date, dateText /* '' = today */, text, skipTitle },
+  slides: [{
+    id, layout: 'title|titleContent|section|twoContent|comparison|titleOnly|blank|pictureCaption',
+    hidden?, background?: Fill, notes?: 'plain text',
+    transition?: { type: 'none|fade|push|wipe|split|zoom|cover', dir?: 'left|right|up|down', duration /* s */, auto? /* s */ },
+    elements: [Element],                    // back to front
+    animations?: [{ el, effect: 'appear|fade|fly|zoom|wipe', trigger: 'click|with|after', dir?: 'bottom|top|left|right', duration, delay? }],
+  }],
+}
+// Element: { id, type, x, y, w, h, rot?, flipH?, flipV?, ph? (placeholder slot: title, subtitle, body, left, right, leftHead, rightHead, picture, caption),
+//            group? (id shared by the members), name? } and by type:
+//   text   { text: TextBody, fill?, line?, shadow?, opacity? }
+//   shape  { shape: 'rect|roundRect|ellipse|triangle|…' (PowerPoint preset names), adj?, fill?, line?, shadow?, opacity?, text? }
+//   line   { line: Line, arrowStart, arrowEnd: 'none|triangle|arrow|stealth|oval|diamond' }   from (x, y) to (x + w, y + h), mirrored by flipH/flipV
+//   image  { src: 'data:image/(png|jpeg|gif|webp);base64,…' (never SVG), crop?: { l, t, r, b }, line?, shadow?, opacity?, alt? }
+//   table  { cols: [px], rows: [{ h, cells: [{ text: TextBody, fill? }] }], tableStyle: 'none|light|medium|dark', accent, header, banded, firstCol, lastRow }
+// TextBody: { paras: [{ runs: [{ t, b?, i?, u?, s?, font?, size?, color?, hl? }], align?, level? (0–8), bullet? ('none', '•', '1.', 'a)' …),
+//             lineSpacing?, spaceBefore?, spaceAfter? }], anchor?: 'top|middle|bottom', autofit?: 'none|shrink|grow', inset?: [l, t, r, b], wrap?: false }
+// Fill: { type: 'none' } | { type: 'solid', color } | { type: 'gradient', from, to, angle } | { type: 'image', src }
+// Line: { color, width /* pt */, dash: 'solid|dash|dot|dashDot|longDash' }
+// Color: '#rrggbb' or a colour of the design 'dk1|lt1|dk2|lt2|accent1..6|hlink' with an optional ':+40' (lighter) / ':-25' (darker)
+```
+
+What a run or paragraph does not say comes from the layout slot and the design (title 44 pt in the major font, body 28/24/20/18 pt with bullets …).
+The layouts and the designs are data shared by both sides: `Resources/Templates/slides/layouts.json` + `themes.json` on the server,
+`wwwroot/js/slides/layouts-data.js` + `themes-data.js` in the editor (`SlidesFormatTests` checks that they agree). `SlidesNormalizer` copies only what it
+knows (unknown fields are dropped, numbers clamped, colours and fonts checked, control characters removed, pictures only as PNG/JPEG/GIF/WebP data
+addresses); `PptxWriter`/`PptxReader` convert to and from PowerPoint, `.pdf` is printing in the browser.
+
 ## Docs content
 
 The content of a Docs document (`Services/Formats/Docs/DocsHandler.cs` checks it, `wwwroot/js/docs/` edits it). Lengths of the page are millimetres.
