@@ -179,28 +179,64 @@ public sealed class PptxReader
     }
 
     /// <summary>
-    /// The decoration of the design: the shapes of the master (on every layout that shows the master's shapes) and of the layouts (on the layout of Slides
-    /// that the file's layout becomes; the first file layout per Slides layout counts, the ones the slides use first). The same shape on several layouts is one entry.
+    /// The decoration of the design: the shapes of the master (on every layout that shows the master's shapes) and of the layouts. A layout of Slides takes the
+    /// shapes of the file's layout of the same PowerPoint type (title, obj, secHead …, the ones Slides writes), but only when no slide shows that layout of Slides
+    /// through another file layout (a custom layout of the file has a look of its own: then nothing is taken from layouts for it). The same shape on several
+    /// layouts is one entry.
     /// </summary>
     private JsonArray Decorations(SlideMasterPart master, XElement masterXml, IReadOnlyList<SlidePart> slideParts)
     {
-        var layouts = new Dictionary<string, (SlideLayoutPart Part, XElement Xml)>(StringComparer.Ordinal);
-        foreach (var lp in slideParts.Select(s => s.SlideLayoutPart).OfType<SlideLayoutPart>().Concat(master.SlideLayoutParts).Distinct())
+        var xmlOf = new Dictionary<SlideLayoutPart, XElement>();
+        XElement? Xml(SlideLayoutPart lp)
         {
-            XElement xml;
+            if (xmlOf.TryGetValue(lp, out var known))
+            {
+                return known;
+            }
+
             try
             {
-                xml = Load(lp);
+                return xmlOf[lp] = Load(lp);
             }
             catch (Exception ex) when (ex is XmlException or InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        // the file layouts the slides use, by the layout of Slides they become
+        var used = new Dictionary<string, HashSet<SlideLayoutPart>>(StringComparer.Ordinal);
+        foreach (var lp in slideParts.Select(s => s.SlideLayoutPart).OfType<SlideLayoutPart>().Distinct())
+        {
+            if (Xml(lp) is { } xml)
+            {
+                var id = SlideReader.LayoutOf(xml);
+                if (!used.TryGetValue(id, out var set))
+                {
+                    used[id] = set = [];
+                }
+
+                set.Add(lp);
+            }
+        }
+
+        var layouts = new Dictionary<string, (SlideLayoutPart Part, XElement Xml)>(StringComparer.Ordinal);
+        foreach (var layout in SlidesData.Layouts)
+        {
+            var own = master.SlideLayoutParts.FirstOrDefault(lp => Xml(lp) is { } x && (string?)x.Attribute("type") == layout.Pptx);
+            if (own is null || (used.TryGetValue(layout.Id, out var through) && through.Any(lp => lp != own)))
             {
                 continue;
             }
 
-            layouts.TryAdd(SlideReader.LayoutOf(xml), (lp, xml));
+            layouts[layout.Id] = (own, Xml(own)!);
         }
 
-        var hiding = layouts.Where(l => (string?)l.Value.Xml.Attribute("showMasterSp") is "0" or "false").Select(l => l.Key).ToHashSet(StringComparer.Ordinal);
+        // master shapes hidden by the layout (showMasterSp="0"): the one taken above, else the first file layout the slides show it through
+        bool Hides(SlideLayoutPart lp) => (string?)Xml(lp)?.Attribute("showMasterSp") is "0" or "false";
+        var hiding = SlidesData.Layouts.Select(l => l.Id)
+            .Where(id => layouts.TryGetValue(id, out var taken) ? Hides(taken.Part) : used.TryGetValue(id, out var set) && set.All(Hides))
+            .ToHashSet(StringComparer.Ordinal);
         var decor = new JsonArray();
         foreach (var d in Decoration(masterXml, master, "all"))
         {
@@ -212,6 +248,7 @@ public sealed class PptxReader
             decor.Add(d);
         }
 
+        _designLayouts.UnionWith(layouts.Values.Select(l => l.Part));
         foreach (var (id, (part, xml)) in layouts)
         {
             foreach (var d in Decoration(xml, part, id))
@@ -230,6 +267,11 @@ public sealed class PptxReader
 
         return decor;
     }
+
+    private readonly HashSet<SlideLayoutPart> _designLayouts = [];
+
+    /// <summary>Whether the look of a file layout is in the design (its shapes became decoration): else a slide on it takes them as its own elements.</summary>
+    internal bool IsDesignLayout(SlideLayoutPart layout) => _designLayouts.Contains(layout);
 
     private static bool SameDecoration(JsonObject a, JsonObject b)
     {
@@ -576,6 +618,10 @@ public sealed class PptxReader
         private readonly Dictionary<string, string> _ids = new(StringComparer.Ordinal);
         private readonly XElement? _layoutXml = part.SlideLayoutPart is { } lp ? Load(lp) : null;
         private SlideLayout _layout = SlidesData.Layout("blank");
+
+        /// <summary>The part whose relationships the pictures of the elements being read are found in (the slide, or its layout).</summary>
+        private OpenXmlPart _rels = part;
+        private bool _fromLayout;
         private int _next;
         private int _groups;
 
@@ -593,6 +639,17 @@ public sealed class PptxReader
             if (bg is not null)
             {
                 slide["background"] = bg;
+            }
+
+            // a layout of the file whose look is not part of the design (a custom layout): its shapes come onto the slide, behind everything
+            if (part.SlideLayoutPart is { } own && _layoutXml?.Element(P + "cSld")?.Element(P + "spTree") is { } layoutTree && !owner.IsDesignLayout(own))
+            {
+                _rels = own;
+                _fromLayout = true;
+                var shapes = new XElement(layoutTree.Name, layoutTree.Elements().Where(x => !x.Descendants(P + "ph").Any()));
+                Walk(shapes, null, []);
+                _rels = part;
+                _fromLayout = false;
             }
 
             var tree = root.Element(P + "cSld")?.Element(P + "spTree");
@@ -771,7 +828,7 @@ public sealed class PptxReader
                     }
 
                     var source = (string?)e.Descendants().FirstOrDefault(d => d.Name.LocalName == "cNvPr")?.Attribute("id");
-                    if (source is not null)
+                    if (source is not null && !_fromLayout)
                     {
                         _ids[source] = element["id"]!.GetValue<string>();
                     }
@@ -941,7 +998,7 @@ public sealed class PptxReader
                 }
             }
 
-            var fill = owner.Fill(spPr, part, ph is null ? owner.StyleColor(sp, "fillRef") : default);
+            var fill = owner.Fill(spPr, _rels, ph is null ? owner.StyleColor(sp, "fillRef") : default);
             if (fill is not null)
             {
                 if (fill["opacity"] is { } op)
@@ -1060,7 +1117,7 @@ public sealed class PptxReader
         private JsonObject? Pic(XElement pic, LayoutSlot? slot)
         {
             var rel = (string?)pic.Element(P + "blipFill")?.Element(A + "blip")?.Attribute(R + "embed");
-            var src = owner.Picture(part, rel);
+            var src = owner.Picture(_rels, rel);
             if (src is null)
             {
                 return null;
@@ -1139,7 +1196,7 @@ public sealed class PptxReader
                         cell["text"] = text;
                     }
 
-                    if (tc.Element(A + "tcPr") is { } tcPr && tcPr.Element(A + "solidFill") is not null && owner.Fill(tcPr, part) is { } fill)
+                    if (tc.Element(A + "tcPr") is { } tcPr && tcPr.Element(A + "solidFill") is not null && owner.Fill(tcPr, _rels) is { } fill)
                     {
                         fill.Remove("opacity");
                         cell["fill"] = fill;
