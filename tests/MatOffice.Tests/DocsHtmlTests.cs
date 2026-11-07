@@ -71,7 +71,7 @@ public sealed class DocsHtmlTests
     [InlineData("<p><span data-comment=\"c1\"><a href=\"https://x.org\">a</a></span></p>", "<p><a href=\"https://x.org\"><span data-comment=\"c1\">a</span></a></p>")]
     [InlineData("<p><sup data-fn=\"n1\">1</sup><span data-field=\"pages\">7</span></p>", "<p><sup data-fn=\"n1\"></sup><span data-field=\"pages\"></span></p>")]
     [InlineData("<p id=\"1bad\">a</p><p id=\"ok\">b</p><p id=\"ok\">c</p>", "<p>a</p><p id=\"ok\">b</p><p>c</p>")]
-    [InlineData("<p style=\"margin: 0 0 8pt; border: 1px solid red; line-height: 150%\">a</p>", "<p style=\"margin-top: 0pt; margin-right: 0pt; margin-bottom: 8pt; margin-left: 0pt; border-top: 0.75pt solid #ff0000; border-right: 0.75pt solid #ff0000; border-bottom: 0.75pt solid #ff0000; border-left: 0.75pt solid #ff0000; line-height: 1.5\">a</p>")]
+    [InlineData("<p style=\"margin: 0 0 8pt; border: 1px solid red; line-height: 150%\">a</p>", "<p style=\"line-height: 1.5; margin-top: 0pt; margin-bottom: 8pt; margin-left: 0pt; margin-right: 0pt; border-top: 0.75pt solid #ff0000; border-right: 0.75pt solid #ff0000; border-bottom: 0.75pt solid #ff0000; border-left: 0.75pt solid #ff0000\">a</p>")]
     public void The_canonicalizer_makes_a_flat_block_list(string html, string expected) => Assert.Equal(expected, DocsHtml.Clean(html));
 
     [Fact]

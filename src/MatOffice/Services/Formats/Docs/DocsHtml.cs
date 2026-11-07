@@ -44,11 +44,17 @@ internal static class DocsHtml
         "summary", "dl", "dt", "dd", "fieldset", "legend", "hgroup", "form", "body", "html", "search",
     }.ToFrozenSet(StringComparer.Ordinal);
 
-    private static readonly FrozenSet<string> ParagraphProperties = new[]
-    {
-        "text-align", "line-height", "margin-top", "margin-right", "margin-bottom", "margin-left", "text-indent", "background-color",
+    /// <summary>The paragraph formatting in the order it is written: the canonical form does not depend on the order of the source.</summary>
+    private static readonly string[] ParagraphOrder =
+    [
+        "text-align", "line-height", "margin-top", "margin-bottom", "margin-left", "margin-right", "text-indent", "background-color",
         "border-top", "border-right", "border-bottom", "border-left", "padding-top", "padding-right", "padding-bottom", "padding-left",
-    }.ToFrozenSet(StringComparer.Ordinal);
+    ];
+
+    /// <summary>The formatting of a table cell in the order it is written.</summary>
+    private static readonly string[] CellOrder = ["background-color", "vertical-align", "border-top", "border-right", "border-bottom", "border-left"];
+
+    private static readonly FrozenSet<string> ParagraphProperties = ParagraphOrder.ToFrozenSet(StringComparer.Ordinal);
 
     private static readonly HtmlSanitizer Sanitizer = CreateSanitizer();
 
@@ -1458,8 +1464,10 @@ internal static class DocsHtml
                 };
                 var background = DocsCss.Colour(css?.Get("background-color")) ?? DocsCss.Colour(rowCss?.Get("background-color"));
                 cell.Css.Set("background-color", background);
-                var verticalAlign = css?.Get("vertical-align")?.ToLowerInvariant();
-                cell.Css.Set("vertical-align", verticalAlign is "top" or "middle" or "bottom" ? verticalAlign : null);
+
+                // Top is where the text of a cell starts anyway (as in Word).
+                var verticalAlign = (css?.Get("vertical-align") ?? rowCss?.Get("vertical-align"))?.ToLowerInvariant();
+                cell.Css.Set("vertical-align", verticalAlign is "middle" or "bottom" ? verticalAlign : null);
                 foreach (var (k, v) in ParagraphCss(css, options).Items)
                 {
                     if (k.StartsWith("border-", StringComparison.Ordinal))
@@ -1569,7 +1577,7 @@ internal static class DocsHtml
                     Attribute(sb, "data-start", p.Start?.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 }
 
-                Attribute(sb, "style", p.Css.Count > 0 ? p.Css.ToString() : null);
+                Attribute(sb, "style", p.Css.Count > 0 ? Ordered(p.Css, ParagraphOrder) : null);
                 sb.Append('>');
                 if (p.Tag == "pre" && p.Inlines.FirstOrDefault() is DocText { Text: [ '\n', ..] })
                 {
@@ -1645,7 +1653,7 @@ internal static class DocsHtml
             sb.Append('<').Append(tag);
             Attribute(sb, "colspan", cell.ColSpan > 1 ? cell.ColSpan.ToString(System.Globalization.CultureInfo.InvariantCulture) : null);
             Attribute(sb, "rowspan", cell.RowSpan > 1 ? cell.RowSpan.ToString(System.Globalization.CultureInfo.InvariantCulture) : null);
-            Attribute(sb, "style", cell.Css.Count > 0 ? cell.Css.ToString() : null);
+            Attribute(sb, "style", cell.Css.Count > 0 ? Ordered(cell.Css, CellOrder) : null);
             sb.Append('>');
             if (cell.Blocks.Count == 0)
             {
@@ -1772,6 +1780,28 @@ internal static class DocsHtml
         {
             sb.Append(open[i].Close);
         }
+    }
+
+    /// <summary>The declarations in the given order (others after them, as they come).</summary>
+    private static string Ordered(CssList css, string[] order)
+    {
+        if (css.Count == 1)
+        {
+            return css.ToString();
+        }
+
+        var ordered = new CssList();
+        foreach (var name in order)
+        {
+            ordered.Set(name, css.Get(name));
+        }
+
+        foreach (var (name, value) in css.Items)
+        {
+            ordered.SetDefault(name, value);
+        }
+
+        return ordered.ToString();
     }
 
     private static void Attribute(StringBuilder sb, string name, string? value)

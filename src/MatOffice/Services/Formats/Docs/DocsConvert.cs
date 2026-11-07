@@ -127,10 +127,15 @@ internal static class DocsConvert
     };
 }
 
-/// <summary>Counts list items the way the editor does: consecutive list paragraphs form one list, any other block ends it; a level restarts after a higher one.</summary>
+/// <summary>
+/// Counts list items the way the editor does: consecutive list paragraphs form one list, any other block ends it; a level restarts after a higher
+/// one, when its kind changes (a numbered item after a bullet of the same level counts from 1 again, like a new <c>ol</c>) and at <c>data-start</c>.
+/// </summary>
 internal sealed class ListNumbering
 {
     private readonly int[] _counters = new int[9];
+
+    private readonly string?[] _kinds = new string?[9];
 
     private bool _inList;
 
@@ -139,6 +144,7 @@ internal sealed class ListNumbering
     {
         _inList = false;
         Array.Clear(_counters);
+        Array.Clear(_kinds);
     }
 
     /// <summary>The number of a list item and the numbers of the levels above it (for outline numbers).</summary>
@@ -147,14 +153,22 @@ internal sealed class ListNumbering
         if (!_inList)
         {
             Array.Clear(_counters);
+            Array.Clear(_kinds);
             _inList = true;
         }
 
         var level = Math.Clamp(p.Level, 0, 8);
+        if (_kinds[level] != p.List)
+        {
+            _counters[level] = 0;
+            _kinds[level] = p.List;
+        }
+
         _counters[level] = p.Start ?? _counters[level] + 1;
         for (var i = level + 1; i < 9; i++)
         {
             _counters[i] = 0;
+            _kinds[i] = null;
         }
 
         var path = new int[level + 1];

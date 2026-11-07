@@ -73,7 +73,7 @@ internal sealed class DocxWriter
 
     private void Build()
     {
-        _package.PackageProperties.Title = _name;
+        _package.PackageProperties.Title = XmlSafe(_name);
         _package.PackageProperties.Created = DateTime.UtcNow;
         _package.PackageProperties.Modified = DateTime.UtcNow;
         _package.PackageProperties.Language = WordLanguage(_document.Language);
@@ -130,10 +130,14 @@ internal sealed class DocxWriter
 
     private Settings BuildSettings()
     {
-        var settings = new Settings(
-            new Zoom { Percent = "100" },
-            new DefaultTabStop { Val = 720 },
-            new CharacterSpacingControl { Val = CharacterSpacingValues.DoNotCompress });
+        var settings = new Settings(new Zoom { Percent = "100" });
+        if (!_document.Spellcheck)
+        {
+            // Word's "hide spelling and grammar errors in this document" is the spell check of Docs switched off.
+            settings.Append(new HideSpellingErrors(), new HideGrammaticalErrors());
+        }
+
+        settings.Append(new DefaultTabStop { Val = 720 }, new CharacterSpacingControl { Val = CharacterSpacingValues.DoNotCompress });
         if (_noteNumbers.Count > 0)
         {
             settings.Append(new FootnoteDocumentWideProperties(new FootnoteSpecialReference { Id = -1 }, new FootnoteSpecialReference { Id = 0 }));
@@ -274,7 +278,12 @@ internal sealed class DocxWriter
 
     // ------------------------------------------------------------------ bookmarks, comments
 
-    /// <summary>Every block id becomes a bookmark (Word's names: letters, digits and underscores, at most 40).</summary>
+    /// <summary>
+    /// Every block id becomes a bookmark of at most 40 characters. The id is kept as it is (Word's own names have no hyphen, but Word keeps and
+    /// follows any name, like the <c>_heading=h.x</c> of Google Docs), so it comes back unchanged.
+    /// </summary>
+    private static string BookmarkName(string id) => new(id.Select(c => char.IsAsciiLetterOrDigit(c) || c is '_' or '-' ? c : '_').Take(40).ToArray());
+
     private void PrepareBookmarks()
     {
         var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -285,7 +294,7 @@ internal sealed class DocxWriter
                 continue;
             }
 
-            var name = new string(p.Id.Select(c => char.IsAsciiLetterOrDigit(c) ? c : '_').Take(40).ToArray());
+            var name = BookmarkName(p.Id);
             var unique = name;
             for (var n = 2; !used.Add(unique); n++)
             {
@@ -502,42 +511,61 @@ internal sealed class DocxWriter
     }
 
     /// <summary>
-    /// A run of list paragraphs: one abstract numbering for the kinds of its levels, one numbering instance per segment (a list restarts at
-    /// <c>data-start</c>; every instance overrides the start values, so no list continues another one by accident).
+    /// A run of list paragraphs, numbered as <see cref="ListNumbering"/> counts them. The run is cut into segments where a level changes its kind;
+    /// each segment has one abstract numbering for the kinds of its levels and starts a numbering instance, and so does every <c>data-start</c>.
+    /// Every instance overrides the start values, so no list continues another one by accident.
     /// </summary>
     private void ListRun(List<DocParagraph> items, OpenXmlCompositeElement parent, Story story)
     {
-        var kinds = new string[9];
-        foreach (var item in items)
+        var segments = new List<(int First, string?[] Kinds)>();
+        string?[]? kinds = null;
+        for (var i = 0; i < items.Count; i++)
         {
-            kinds[Math.Clamp(item.Level, 0, 8)] ??= item.List!;
+            var level = Math.Clamp(items[i].Level, 0, 8);
+            if (kinds is null || (kinds[level] is { } kind && kind != items[i].List))
+            {
+                var next = new string?[9];
+                if (kinds is not null)
+                {
+                    Array.Copy(kinds, next, level);
+                }
+
+                kinds = next;
+                segments.Add((i, kinds));
+            }
+
+            kinds[level] ??= items[i].List;
         }
 
-        var first = items[0].List!;
-        for (var l = 0; l < 9; l++)
-        {
-            kinds[l] ??= l > 0 ? kinds[l - 1] : first;
-        }
-
-        var abstractId = AbstractNumFor(kinds);
+        var numbering = new ListNumbering();
         var counters = new int[9];
+        var segment = 0;
+        var abstractId = 0;
         var numId = 0;
         for (var i = 0; i < items.Count; i++)
         {
             var p = items[i];
             var level = Math.Clamp(p.Level, 0, 8);
-            if (i == 0 || p.Start is not null)
+            var (number, _) = numbering.Next(p);
+            var newSegment = segment < segments.Count && segments[segment].First == i;
+            if (newSegment)
+            {
+                abstractId = AbstractNumFor(LevelKinds(segments[segment].Kinds, p.List!));
+                segment++;
+            }
+
+            if (newSegment || p.Start is not null)
             {
                 var starts = new int[9];
                 for (var l = 0; l < 9; l++)
                 {
-                    starts[l] = l < level ? counters[l] + 1 : l == level ? p.Start ?? 1 : 1;
+                    starts[l] = l < level ? counters[l] + 1 : l == level ? number : 1;
                 }
 
                 numId = Num(abstractId, starts);
             }
 
-            counters[level] = p.Start ?? counters[level] + 1;
+            counters[level] = number;
             for (var l = level + 1; l < 9; l++)
             {
                 counters[l] = 0;
@@ -545,6 +573,18 @@ internal sealed class DocxWriter
 
             parent.Append(WriteParagraph(p, story, (numId, level)));
         }
+    }
+
+    /// <summary>The kind of every level of a numbering: the ones a segment uses, the others like the level above.</summary>
+    private static string[] LevelKinds(string?[] used, string first)
+    {
+        var kinds = new string[9];
+        for (var l = 0; l < 9; l++)
+        {
+            kinds[l] = used[l] ?? (l > 0 ? kinds[l - 1] : first);
+        }
+
+        return kinds;
     }
 
     private int AbstractNumFor(string[] kinds)
@@ -1007,7 +1047,7 @@ internal sealed class DocxWriter
         if (href.StartsWith('#'))
         {
             var id = href[1..];
-            return new Hyperlink { Anchor = _bookmarks.GetValueOrDefault(id) ?? new string(id.Select(c => char.IsAsciiLetterOrDigit(c) ? c : '_').Take(40).ToArray()), History = true };
+            return new Hyperlink { Anchor = _bookmarks.GetValueOrDefault(id) ?? BookmarkName(id), History = true };
         }
 
         try
@@ -1196,7 +1236,7 @@ internal sealed class DocxWriter
         var rest = unknown > 0 ? Math.Max(5 * unknown, 100 - known) / unknown : 0;
         var shares = Enumerable.Range(0, columns).Select(i => i < given.Count && given[i] is { } g && g > 0 ? g : rest).ToList();
         var total = shares.Sum();
-        var widths = shares.Select(s => (long)Math.Max(100, tableTwips * s / total)).ToList();
+        var widths = shares.Select(s => (long)Math.Max(100, Math.Round(tableTwips * s / total))).ToList();
 
         var tblPr = new TableProperties();
         if (look.Key == "grid")

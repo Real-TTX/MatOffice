@@ -11,7 +11,7 @@
       "<p data-style=\"NoSpacing\">Contoso Ltd</p>",
       "<p data-style=\"NoSpacing\">45 Deansgate</p>",
       "<p data-style=\"NoSpacing\">Manchester M3 2AY</p>",
-      "<p style=\"margin-top: 24pt; text-align: right\">12 November 2026</p>",
+      "<p style=\"text-align: right; margin-top: 24pt\">12 November 2026</p>",
       "<p style=\"margin-top: 12pt\"><strong>Your enquiry about the redesign of your customer portal</strong></p>",
       "<p>Dear Ms Taylor,</p>",
       "<p>Thank you for your enquiry of 28 October and for taking the time to show us your current portal last week. We were impressed by how much your customers already do online, and we can see clear ways to make it simpler and faster for them.</p>",

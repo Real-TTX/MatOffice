@@ -46,10 +46,12 @@ internal static partial class HtmlFormat
                      || dom.QuerySelector("meta[name=Generator]")?.GetAttribute("content")?.Contains("Microsoft Word", StringComparison.OrdinalIgnoreCase) == true;
         var options = HtmlReadOptions.Import with { IsWord = isWord };
         var document = new DocsDocument();
-        if (dom.DocumentElement.GetAttribute("lang") is { } lang && LanguageCode(lang) is { } code)
+        if ((dom.DocumentElement.GetAttribute("lang") ?? dom.Body?.GetAttribute("lang")) is { } lang && LanguageCode(lang) is { } code)
         {
             document.Language = code;
         }
+
+        document.Spellcheck = !string.Equals(dom.DocumentElement.GetAttribute("spellcheck") ?? dom.Body?.GetAttribute("spellcheck"), "false", StringComparison.OrdinalIgnoreCase);
 
         ReadPage(dom, document.Page);
         var body = dom.Body;
@@ -66,6 +68,7 @@ internal static partial class HtmlFormat
             comments.Remove();
         }
 
+        Anchors(body);
         WordLists(body);
         StylesFromClasses(dom, body);
         PageBreaks(dom, body);
@@ -226,6 +229,43 @@ internal static partial class HtmlFormat
         }
     }
 
+    /// <summary>
+    /// Ids stay only where a link of the page points to (Docs keeps an id for the links to it; pages are full of ids for their scripts), and
+    /// a target that is no valid id (Word's <c>_Toc123</c>) gets one, in the link too.
+    /// </summary>
+    private static void Anchors(IElement body)
+    {
+        var targets = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var link in body.QuerySelectorAll("a[href^='#']"))
+        {
+            var target = link.GetAttribute("href")![1..];
+            if (target.Length > 0 && target.Length <= 200)
+            {
+                targets.Add(target);
+                if (!DocsHtml.IsId(target))
+                {
+                    link.SetAttribute("href", "#" + DocsHtml.ToId(target));
+                }
+            }
+        }
+
+        foreach (var element in body.QuerySelectorAll("[id], a[name]").ToList())
+        {
+            var name = element.Id is { Length: > 0 } id && targets.Contains(id) ? id
+                : element.LocalName == "a" && element.GetAttribute("name") is { } anchor && targets.Contains(anchor) ? anchor
+                : null;
+            element.RemoveAttribute("name");
+            if (name is null)
+            {
+                element.RemoveAttribute("id");
+            }
+            else
+            {
+                element.Id = DocsHtml.IsId(name) ? name : DocsHtml.ToId(name);
+            }
+        }
+    }
+
     /// <summary>Paragraphs of Word's HTML with <c>mso-list:l0 level2 lfo1</c>: list items (the marker in a <c>mso-list:Ignore</c> span tells the kind).</summary>
     private static void WordLists(IElement body)
     {
@@ -322,7 +362,7 @@ internal static partial class HtmlFormat
     /// <summary>The classes of Word (<c>MsoTitle</c> …, also written by the export of Docs) as paragraph styles.</summary>
     private static void StylesFromClasses(IHtmlDocument dom, IElement body)
     {
-        foreach (var element in body.QuerySelectorAll("p[class], div[class]").ToList())
+        foreach (var element in body.QuerySelectorAll("p[class], div[class], blockquote[class]").ToList())
         {
             if (element.HasAttribute("data-list"))
             {
@@ -495,6 +535,12 @@ internal static partial class HtmlFormat
                 f = f with { LetterSpacing = null };
             }
 
+            if (f.Italic && style.Italic)
+            {
+                // A quote or a caption is italic anyway.
+                f = f with { Italic = false };
+            }
+
             if (f.Href is not null)
             {
                 f = f with { Underline = false, Color = f.Color is "#0563c1" or "#0000ff" or "#1155cc" or "#0000ee" ? null : f.Color };
@@ -582,7 +628,8 @@ internal static partial class HtmlFormat
     {
         var page = document.Page;
         var sb = new StringBuilder();
-        sb.Append("<!DOCTYPE html>\n<html lang=\"").Append(DocsHtml.EscapeAttribute(document.Language)).Append("\">\n<head>\n<meta charset=\"utf-8\">\n");
+        sb.Append("<!DOCTYPE html>\n<html lang=\"").Append(DocsHtml.EscapeAttribute(document.Language)).Append(document.Spellcheck ? "\"" : "\" spellcheck=\"false\"")
+            .Append(">\n<head>\n<meta charset=\"utf-8\">\n");
         sb.Append("<meta name=\"generator\" content=\"MatOffice Docs\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n");
         sb.Append("<title>");
         DocsHtml.EscapeText(sb, name);

@@ -117,7 +117,14 @@ public sealed class DocsHandler : IKindHandler
             var sb = new StringBuilder();
             DocsHtml.PlainText(sb, document.Body, max);
             var text = sb.ToString().TrimEnd();
-            return text.Length <= max ? text : text[..max];
+            if (text.Length <= max)
+            {
+                return text;
+            }
+
+            // Never half a character (a surrogate pair) at the end.
+            var cut = char.IsHighSurrogate(text[max - 1]) ? max - 1 : max;
+            return text[..cut].TrimEnd();
         }
         catch (Exception ex) when (ex is FormatException or JsonException or InvalidOperationException or ArgumentException)
         {

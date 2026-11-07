@@ -72,20 +72,14 @@ internal sealed partial class DocxReader
     private DocsDocument ReadDocument()
     {
         var body = _main.Document?.Body ?? throw new FormatException(Localization.Text.T("Docs.Import.Damaged"));
-        foreach (var link in body.Descendants<Hyperlink>())
+        OpenXmlElement?[] roots =
+        [
+            body, _main.FootnotesPart?.Footnotes, _main.EndnotesPart?.Endnotes,
+            .. _main.HeaderParts.Select(h => (OpenXmlElement?)h.Header), .. _main.FooterParts.Select(f => (OpenXmlElement?)f.Footer),
+        ];
+        foreach (var root in roots.OfType<OpenXmlElement>())
         {
-            if (link.Anchor?.Value is { } anchor)
-            {
-                _anchors.Add(anchor);
-            }
-        }
-
-        foreach (var code in body.Descendants<FieldCode>().Select(f => f.Text).Concat(body.Descendants<SimpleField>().Select(f => f.Instruction?.Value)))
-        {
-            if (code is not null && AnchorInFieldRegex().Match(code) is { Success: true } m)
-            {
-                _anchors.Add(m.Groups[1].Value);
-            }
+            CollectAnchors(root);
         }
 
         var sections = body.Descendants<SectionProperties>().ToList();
@@ -108,7 +102,28 @@ internal sealed partial class DocxReader
             _document.Language = language;
         }
 
+        _document.Spellcheck = !StyleSheet.OnOff(_main.DocumentSettingsPart?.Settings?.GetFirstChild<HideSpellingErrors>());
         return _document;
+    }
+
+    /// <summary>The bookmarks the links of a story point to (<c>w:hyperlink w:anchor</c>, <c>HYPERLINK \l</c>): only they become ids.</summary>
+    private void CollectAnchors(OpenXmlElement story)
+    {
+        foreach (var link in story.Descendants<Hyperlink>())
+        {
+            if (link.Anchor?.Value is { Length: > 0 } anchor)
+            {
+                _anchors.Add(anchor);
+            }
+        }
+
+        foreach (var code in story.Descendants<FieldCode>().Select(f => f.Text).Concat(story.Descendants<SimpleField>().Select(f => f.Instruction?.Value)))
+        {
+            if (code is not null && AnchorInFieldRegex().Match(code) is { Success: true } m)
+            {
+                _anchors.Add(m.Groups[1].Value);
+            }
+        }
     }
 
     // ------------------------------------------------------------------ stories
@@ -242,7 +257,11 @@ internal sealed partial class DocxReader
 
         public DocParagraph Current { get; set; } = null!;
 
-        public bool Flushed { get; set; }
+        /// <summary>The parts of the paragraph in the output (a page break inside a paragraph cuts it in two).</summary>
+        public List<DocParagraph> Segments { get; } = [];
+
+        /// <summary>A page or column break was inside the paragraph.</summary>
+        public bool Broken { get; set; }
 
         public string? Href { get; set; }
 
@@ -305,9 +324,19 @@ internal sealed partial class DocxReader
         _pendingBookmarks.Clear();
         Inline(paragraph.ChildElements, context, depth);
         EndParagraph(context);
+
+        // The code of a field ends in its paragraph (its result may go on, like a table of contents): a field of a damaged file that never
+        // reaches its result must not hide the rest of the document.
+        story.Fields.RemoveAll(f => !f.InResult);
         if (shell.List is not null && props.NumId is { } numId && _numbering.Number(numId, level) is { } number && DocsStyles.NumberKinds.Contains(kind!))
         {
             _wordNumbers[context.Current] = number;
+        }
+
+        if (context.Segments is [{ Inlines.Count: 0, List: null, Tag: "p", Id: null } empty] && IsRule(empty.Css) && output[^1] == empty)
+        {
+            // An empty paragraph with only a line below it: Word's way to draw a horizontal line.
+            output[^1] = new DocRule();
         }
 
         output.AddRange(context.After);
@@ -333,34 +362,46 @@ internal sealed partial class DocxReader
         }
 
         context.Current = p;
+        context.Segments.Add(p);
         context.Output.Add(p);
     }
 
-    /// <summary>A page break in the middle of a paragraph: the paragraph ends, a page break block, the rest is a paragraph of its own.</summary>
+    /// <summary>
+    /// A page break in a paragraph: the text before it stays a paragraph, the break becomes a block, the text after it a paragraph of its own.
+    /// A part without text is dropped (Word shows the mark of a paragraph that holds only a break next to the break, not on the next page).
+    /// </summary>
     private static void BreakParagraph(ParagraphContext context, string kind)
     {
-        if (context.Current.Inlines.Count == 0)
+        var before = context.Current;
+        if (before.Inlines.Count == 0)
         {
-            context.Output.Remove(context.Current);
-        }
-        else
-        {
-            context.Flushed = true;
+            context.Output.Remove(before);
+            context.Segments.Remove(before);
         }
 
+        context.Broken = true;
         context.Output.Add(new DocBreak(kind));
         StartSegment(context, first: false);
+        if (before.Inlines.Count == 0)
+        {
+            context.Current.Id = before.Id;
+        }
     }
 
     private static void EndParagraph(ParagraphContext context)
     {
         var p = context.Current;
-        if (p.Inlines.Count == 0 && context.Flushed)
+        if (p.Inlines.Count == 0 && context.Broken)
         {
             context.Output.Remove(p);
-            context.Current = context.Output.OfType<DocParagraph>().LastOrDefault() ?? p;
+            context.Segments.Remove(p);
+            context.Current = context.Segments.LastOrDefault() ?? p;
         }
     }
+
+    /// <summary>The formatting of a horizontal line: a border below, none around.</summary>
+    private static bool IsRule(CssList css)
+        => css.Has("border-bottom") && !css.Has("border-top") && !css.Has("border-left") && !css.Has("border-right") && !css.Has("background-color");
 
     private void Inline(IEnumerable<OpenXmlElement> elements, ParagraphContext context, int depth)
     {
@@ -503,20 +544,11 @@ internal sealed partial class DocxReader
                 case TabChar or PositionalTab:
                     AddText(context, "\t", f);
                     break;
-                case Break br:
-                    var type = br.Type?.InnerText;
-                    if (type is "page" or "column")
-                    {
-                        BreakParagraph(context, type);
-                    }
-                    else
-                    {
-                        context.Current.Inlines.Add(new DocLineBreak { Format = f with { Script = 0 } });
-                    }
-
+                case Break br when br.Type?.InnerText is "page" or "column":
+                    BreakParagraph(context, br.Type!.InnerText);
                     break;
-                case CarriageReturn:
-                    context.Current.Inlines.Add(new DocLineBreak { Format = f with { Script = 0 } });
+                case Break or CarriageReturn:
+                    LineBreak(context, f);
                     break;
                 case NoBreakHyphen:
                     AddText(context, "\u2011", f);
@@ -640,6 +672,19 @@ internal sealed partial class DocxReader
         const string upper = "ΑΒΧΔΕΦΓΗΙϑΚΛΜΝΟΠΘΡΣΤΥςΩΞΨΖ";
         const string lower = "αβχδεφγηιϕκλμνοπθρστυϖωξψζ";
         return code <= 0x5A ? upper[code - 0x41].ToString() : lower[code - 0x61].ToString();
+    }
+
+    /// <summary>A line break: <c>br</c>, or a new line in the text of code (<c>pre</c> keeps its lines as text).</summary>
+    private static void LineBreak(ParagraphContext context, RunFormat format)
+    {
+        if (context.Shell.Tag == "pre")
+        {
+            AddText(context, "\n", format);
+        }
+        else
+        {
+            context.Current.Inlines.Add(new DocLineBreak { Format = format with { Script = 0 } });
+        }
     }
 
     private static void AddText(ParagraphContext context, string text, RunFormat format)
@@ -870,10 +915,13 @@ internal sealed partial class DocxReader
         }
     }
 
-    /// <summary>A bookmark gives its paragraph an id (hidden ones like _Toc only when a link points to them); links to it are rewritten at the end.</summary>
+    /// <summary>
+    /// A bookmark a link points to gives its paragraph an id (Docs keeps ids for the links to them, like the table of contents); the links are
+    /// rewritten to the ids at the end.
+    /// </summary>
     private void Bookmark(string name, DocParagraph? paragraph)
     {
-        if (name == "_GoBack" || (name.StartsWith('_') && !_anchors.Contains(name)))
+        if (!_anchors.Contains(name))
         {
             return;
         }
@@ -898,19 +946,18 @@ internal sealed partial class DocxReader
         _bookmarks.TryAdd(name, paragraph.Id);
     }
 
-    /// <summary>Links to bookmarks point to the ids of their paragraphs.</summary>
+    /// <summary>Links to bookmarks point to the ids of their paragraphs; a link to a bookmark that is not there (or to <c>_top</c>) is plain text.</summary>
     private void ResolveAnchors()
     {
-        var blocks = _document.Body.Concat(_document.Notes.SelectMany(n => n.Blocks)).Concat(_document.Header).Concat(_document.Footer);
+        var blocks = _document.Body.Concat(_document.Notes.SelectMany(n => n.Blocks)).Concat(_document.Header).Concat(_document.Footer)
+            .Concat(_document.FirstHeader).Concat(_document.FirstFooter);
         foreach (var p in DocsHtml.Paragraphs(blocks))
         {
             foreach (var inline in p.Inlines)
             {
                 if (inline.Format.Href is { } href && href.StartsWith('#'))
                 {
-                    var name = href[1..];
-                    var target = _bookmarks.GetValueOrDefault(name) ?? (name.Length > 0 ? DocsHtml.ToId(name) : null);
-                    inline.Format = inline.Format with { Href = target is null || name == "_top" ? null : "#" + target };
+                    inline.Format = inline.Format with { Href = _bookmarks.GetValueOrDefault(href[1..]) is { } target ? "#" + target : null };
                 }
             }
         }
@@ -1140,7 +1187,9 @@ internal sealed partial class DocxReader
             Width = Math.Round(width, 2),
             Height = Math.Round(height, 2),
             Align = align,
-            Format = format with { Script = 0 },
+
+            // Fonts and colours of the run mean nothing for a picture; a link and a comment do.
+            Format = RunFormat.Plain with { Href = format.Href, Comment = format.Comment },
         });
     }
 
@@ -1165,13 +1214,14 @@ internal sealed partial class DocxReader
             }
         }
 
-        result.TableStyle = tableStyle?.Name.Equals("Table Grid", StringComparison.OrdinalIgnoreCase) == true || borders.Values.Any(b => b?.Css is not null) ? "grid" : "plain";
+        var fallback = tableStyle?.Name.Equals("Table Grid", StringComparison.OrdinalIgnoreCase) == true || borders.Values.Any(b => b?.Css is not null) ? "grid" : "plain";
 
         var grid = table.GetFirstChild<TableGrid>()?.Elements<GridColumn>().Select(c => Twips(c.Width?.Value)).ToList() ?? [];
         var gridTotal = grid.Sum();
         if (gridTotal > 0)
         {
-            result.Columns.AddRange(grid.Select(w => (string?)(CssList.Num(w / gridTotal * 100) + "%")));
+            // A tenth of a percent is far below a millimetre: whole twips do not turn 35% into 34.99%.
+            result.Columns.AddRange(grid.Select(w => (string?)(CssList.Num(Math.Round(w / gridTotal * 100, 1)) + "%")));
         }
 
         var textTwips = _document.Page.TextWidth * 56.6929;
@@ -1264,7 +1314,109 @@ internal sealed partial class DocxReader
             }
         }
 
-        return result.Rows.Count == 0 ? null : result;
+        if (result.Rows.Count == 0)
+        {
+            return null;
+        }
+
+        result.TableStyle = Look(result, borders) ?? fallback;
+        HeaderText(result);
+        return result;
+    }
+
+    private static readonly string[] Looks = ["accent1", "accent2", "accent6", "striped", "light", "grid", "plain"];
+
+    /// <summary>
+    /// The table style of Docs whose look a table has: the borders of the table fit, and so does the shading of most cells (Docs writes its
+    /// table styles into Word files as direct formatting). The shading that only repeats the look is dropped; the rest stays on its cells.
+    /// </summary>
+    private static string? Look(DocTable table, Dictionary<string, StyleSheet.Border?> borders)
+    {
+        foreach (var key in Looks)
+        {
+            var look = DocsStyles.Look(key);
+            if (!BordersFit(look, borders))
+            {
+                continue;
+            }
+
+            var (agree, disagree, filled) = (0, 0, 0);
+            foreach (var (cell, background) in LookShading(table, look))
+            {
+                if (cell.Css.Get("background-color") == background)
+                {
+                    agree++;
+                    filled += background is null ? 0 : 1;
+                }
+                else
+                {
+                    disagree++;
+                }
+            }
+
+            if (disagree * 4 > agree || (filled == 0 && (look.HeaderFill is not null || look.BandFill is not null)))
+            {
+                continue;
+            }
+
+            foreach (var (cell, background) in LookShading(table, look))
+            {
+                if (background is not null && cell.Css.Get("background-color") == background)
+                {
+                    cell.Css.Remove("background-color");
+                }
+            }
+
+            return key;
+        }
+
+        return null;
+    }
+
+    /// <summary>Every cell with the shading a look gives it (header row, banded rows), or null.</summary>
+    private static IEnumerable<(DocCell Cell, string? Background)> LookShading(DocTable table, TableLook look)
+    {
+        var bodyIndex = 0;
+        for (var r = 0; r < table.Rows.Count; r++)
+        {
+            var row = table.Rows[r];
+            var background = DocsStyles.CellCss(look, row.Header, r == 0, bodyIndex).Get("background-color");
+            foreach (var cell in row.Cells)
+            {
+                yield return (cell, background);
+            }
+
+            if (!row.Header)
+            {
+                bodyIndex++;
+            }
+        }
+    }
+
+    private static bool BordersFit(TableLook look, Dictionary<string, StyleSheet.Border?> borders)
+    {
+        string[] sides = ["top", "left", "bottom", "right", "insideH", "insideV"];
+        string? Colour(string side) => borders.GetValueOrDefault(side)?.Css?.Split(' ') is [_, "solid", var colour] ? colour : null;
+        bool None(string side) => borders.GetValueOrDefault(side)?.Css is null;
+        return look switch
+        {
+            { Border: null } => sides.All(None),
+            { AllBorders: true } => sides.All(s => Colour(s) == look.Border),
+            _ => Colour("top") == look.Border && Colour("bottom") == look.Border && Colour("insideH") == look.Border && None("left") && None("right") && None("insideV"),
+        };
+    }
+
+    /// <summary>The text of a header row is bold in every table style (white on the accent colours): that is the look, not formatting.</summary>
+    private static void HeaderText(DocTable table)
+    {
+        var look = DocsStyles.Look(table.TableStyle);
+        foreach (var cell in table.Rows.Where(r => r.Header).SelectMany(r => r.Cells))
+        {
+            foreach (var inline in DocsHtml.Paragraphs(cell.Blocks).SelectMany(p => p.Inlines))
+            {
+                inline.Format = inline.Format with { Bold = false, Color = inline.Format.Color == look.HeaderText ? null : inline.Format.Color };
+            }
+        }
     }
 
     private static void CollectRows(IEnumerable<OpenXmlElement> elements, List<TableRow> rows, int depth)

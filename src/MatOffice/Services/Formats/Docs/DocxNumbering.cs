@@ -94,18 +94,25 @@ internal sealed class WordNumbering
         var own = KindOf(levels[level]);
         if (own is null || family is null)
         {
-            return own;
+            return own is null ? null : Cycle(own, level);
         }
 
         if (family == "outline")
         {
-            return DocsStyles.NumberKinds.Contains(own) ? "outline" : own;
+            return DocsStyles.NumberKinds.Contains(own) ? "outline" : Cycle(own, level);
         }
 
         return DocsStyles.LevelFormat(family, level) == own || (DocsStyles.NumberKinds.Contains(own) && DocsStyles.NumberKinds.Contains(family) && own == "decimal")
             ? family
-            : own;
+            : Cycle(own, level);
     }
+
+    /// <summary>
+    /// The kind of a level of its own: bullets and numbers whose marker is the one their cycle shows on this level (◦ on level 1 of a bulleted
+    /// list, a. on level 1 of a numbered one) are the plain bullet or number kind, as the editor writes a sub-list.
+    /// </summary>
+    private static string Cycle(string own, int level)
+        => DocsStyles.LevelFormat("bullet", level) == own ? "bullet" : DocsStyles.LevelFormat("decimal", level) == own ? "decimal" : own;
 
     /// <summary>The number Word shows for the next paragraph of this numbering and level (call it once per paragraph, in the order of the document).</summary>
     public int? Number(int numId, int level)

@@ -67,11 +67,11 @@ internal static class DocxStyles
             Default = true,
         });
 
+        // Unlike Word's own "Table Grid" without the spacing of its paragraphs: the cells of Docs hold Normal paragraphs, in every table style.
         styles.Append(new Style(
             new StyleName { Val = "Table Grid" },
             new BasedOn { Val = "TableNormal" },
             new UIPriority { Val = 39 },
-            new StyleParagraphProperties(new SpacingBetweenLines { After = "0", Line = "240", LineRule = LineSpacingRuleValues.Auto }),
             new StyleTableProperties(new TableBorders(
                 new TopBorder { Val = BorderValues.Single, Size = 4U, Space = 0U, Color = "auto" },
                 new LeftBorder { Val = BorderValues.Single, Size = 4U, Space = 0U, Color = "auto" },
