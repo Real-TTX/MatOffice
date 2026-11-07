@@ -47,6 +47,12 @@ public interface IKindHandler
     /// <summary>The other formats (not the native one), in the order of the menu "Download as".</summary>
     IReadOnlyList<FileFormat> Formats { get; }
 
+    /// <summary>
+    /// The format of a new file that a connected app (MatDrive) makes: the first foreign format that goes both ways (people expect Word, Excel and
+    /// PowerPoint files), else the own one. A kind whose foreign format holds only a part of its content answers its own format.
+    /// </summary>
+    string NewFileExtension => Formats.FirstOrDefault(f => f.CanImport && f.CanExport)?.Extension ?? NativeExtension;
+
     /// <summary>The templates of the start page; the first one is the blank document.</summary>
     IReadOnlyList<KindTemplate> Templates { get; }
 
