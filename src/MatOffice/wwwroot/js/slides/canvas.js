@@ -654,6 +654,8 @@ export class Canvas {
     const app = this.app;
     if (app.text.active && app.text.bodyEl?.contains(e.target)) { app.textMenu(e.clientX, e.clientY); return; }
     if (app.text.active) app.text.stop();
+    // a handle of the selection belongs to the selected objects
+    if (e.target.closest?.('[data-handle]') && app.selection.length) { app.objectMenu(e.clientX, e.clientY, true); return; }
     const hitEl = this.hit(e.target);
     if (hitEl && !app.selection.includes(hitEl.id)) app.select(withGroups(this.slide, [hitEl.id]));
     if (!hitEl) app.select([]);

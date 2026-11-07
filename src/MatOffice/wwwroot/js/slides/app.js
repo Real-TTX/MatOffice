@@ -457,7 +457,8 @@ class SlidesApp {
     if (this.text.active) this.text.stop();
     this.drawing = kind;
     this.canvas.stage.classList.add('is-drawing');
-    this.ctx.toast(t('Slides.DrawHint'), 'info');
+    // the hint once; afterwards the cross-hair says it
+    if (!this.drawHinted) { this.drawHinted = true; this.ctx.toast(t('Slides.DrawHint'), 'info'); }
     this.canvas.focus();
   }
 
@@ -615,8 +616,10 @@ class SlidesApp {
     });
   }
 
+  /** Ctrl+D: the selected objects, or the selected slides when the slide pane (or the sorter) has the focus. */
   duplicate() {
-    if (this.area === 'thumbs' || this.view.mode === 'sorter' || !this.selection.length) { this.duplicateSlides(); return; }
+    if (this.area === 'thumbs' || this.view.mode === 'sorter') { this.duplicateSlides(); return; }
+    if (!this.selection.length) return;
     if (this.text.active) this.text.stop();
     const els = this.slide.elements.filter(e => this.selection.includes(e.id));
     this.pasteElements(clone(els), 24);
