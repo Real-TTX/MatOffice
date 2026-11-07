@@ -1,0 +1,114 @@
+{
+  "en": {
+    "version": 1,
+    "page": {
+      "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+      "margins": { "top": 40, "right": 20, "bottom": 30, "left": 25 }, "header": 12.5, "footer": 10, "columns": 1, "differentFirst": false
+    },
+    "html": [
+      "<table data-table-style=\"plain\" style=\"width: 100%\"><colgroup><col style=\"width: 55%\"><col style=\"width: 45%\"></colgroup><tbody><tr>",
+      "<td>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt; color: #595959\">Bill to</span></p>",
+      "<p data-style=\"NoSpacing\">Contoso Ltd</p>",
+      "<p data-style=\"NoSpacing\">Accounts Payable</p>",
+      "<p data-style=\"NoSpacing\">45 Deansgate</p>",
+      "<p data-style=\"NoSpacing\">Manchester M3 2AY</p>",
+      "</td>",
+      "<td>",
+      "<p data-style=\"NoSpacing\"><strong>Invoice no.:</strong> INV-2026-0412</p>",
+      "<p data-style=\"NoSpacing\"><strong>Invoice date:</strong> 12 November 2026</p>",
+      "<p data-style=\"NoSpacing\"><strong>Tax point:</strong> 6 November 2026</p>",
+      "<p data-style=\"NoSpacing\"><strong>Customer no.:</strong> C-10233</p>",
+      "<p data-style=\"NoSpacing\"><strong>Your order:</strong> PO 4500018832</p>",
+      "</td>",
+      "</tr></tbody></table>",
+      "<p data-style=\"Title\" style=\"margin-top: 24pt\">Invoice</p>",
+      "<p>For our work in the discovery phase of the customer portal project, we charge as follows:</p>",
+      "<table data-table-style=\"light\" style=\"width: 100%\"><colgroup><col style=\"width: 8%\"><col style=\"width: 47%\"><col style=\"width: 10%\"><col style=\"width: 17%\"><col style=\"width: 18%\"></colgroup>",
+      "<thead><tr><th><p>No.</p></th><th><p>Description</p></th><th><p style=\"text-align: right\">Qty</p></th><th><p style=\"text-align: right\">Unit price</p></th><th><p style=\"text-align: right\">Amount</p></th></tr></thead>",
+      "<tbody>",
+      "<tr><td><p>1</p></td><td><p>Workshop “Customer journey” (days)</p></td><td><p style=\"text-align: right\">2</p></td><td><p style=\"text-align: right\">£1,100.00</p></td><td><p style=\"text-align: right\">£2,200.00</p></td></tr>",
+      "<tr><td><p>2</p></td><td><p>Concept and wireframes (days)</p></td><td><p style=\"text-align: right\">6</p></td><td><p style=\"text-align: right\">£1,000.00</p></td><td><p style=\"text-align: right\">£6,000.00</p></td></tr>",
+      "<tr><td><p>3</p></td><td><p>Usability test with 8 participants</p></td><td><p style=\"text-align: right\">1</p></td><td><p style=\"text-align: right\">£2,400.00</p></td><td><p style=\"text-align: right\">£2,400.00</p></td></tr>",
+      "<tr><td><p>4</p></td><td><p>Travel expenses (flat rate)</p></td><td><p style=\"text-align: right\">1</p></td><td><p style=\"text-align: right\">£180.00</p></td><td><p style=\"text-align: right\">£180.00</p></td></tr>",
+      "<tr><td colspan=\"4\"><p style=\"text-align: right\">Subtotal</p></td><td><p style=\"text-align: right\">£10,780.00</p></td></tr>",
+      "<tr><td colspan=\"4\"><p style=\"text-align: right\">VAT 20 %</p></td><td><p style=\"text-align: right\">£2,156.00</p></td></tr>",
+      "<tr><td colspan=\"4\"><p style=\"text-align: right\"><strong>Total due</strong></p></td><td><p style=\"text-align: right\"><strong>£12,936.00</strong></p></td></tr>",
+      "</tbody></table>",
+      "<p style=\"margin-top: 12pt\">Please pay the total due within 14 days, by 26 November 2026, to the account below and quote the invoice number INV-2026-0412 as the reference.</p>",
+      "<p>Thank you for your business.</p>"
+    ],
+    "header": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 20pt; color: #185abd\"><strong>Northwind Consulting</strong></span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 9pt; color: #595959\">12 High Street · London EC1A 1BB · +44 20 7946 0123 · hello@example.com</span></p>"
+    ],
+    "footer": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Northwind Consulting Ltd · Registered in England and Wales, company no. 01234567 · VAT reg. no. GB 123 4567 89</span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Example Bank plc · Sort code 12-34-56 · Account no. 12345678 · IBAN GB12 EXMP 1234 5612 3456 78</span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 8pt; color: #595959\">Page <span data-field=\"page\"></span> of <span data-field=\"pages\"></span></span></p>"
+    ],
+    "firstHeader": "",
+    "firstFooter": "",
+    "notes": [],
+    "comments": [],
+    "settings": { "language": "en-GB", "spellcheck": true }
+  },
+  "de": {
+    "version": 1,
+    "page": {
+      "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+      "margins": { "top": 45, "right": 20, "bottom": 30, "left": 25 }, "header": 12.5, "footer": 10, "columns": 1, "differentFirst": false
+    },
+    "html": [
+      "<table data-table-style=\"plain\" style=\"width: 100%\"><colgroup><col style=\"width: 61%\"><col style=\"width: 39%\"></colgroup><tbody><tr>",
+      "<td>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 8pt\">Muster GmbH · Musterstraße 12 · 12345 Musterstadt</span></p>",
+      "<p data-style=\"NoSpacing\"></p>",
+      "<p data-style=\"NoSpacing\">Beispiel AG</p>",
+      "<p data-style=\"NoSpacing\">Buchhaltung</p>",
+      "<p data-style=\"NoSpacing\">Hauptstraße 5</p>",
+      "<p data-style=\"NoSpacing\">54321 Beispielstadt</p>",
+      "</td>",
+      "<td>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Rechnungsnummer: RE-2026-0412</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Rechnungsdatum: 12.11.2026</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Leistungszeitraum: 02.11.–06.11.2026</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Kundennummer: K-10233</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Ihre Bestellung: 4500018832</span></p>",
+      "</td>",
+      "</tr></tbody></table>",
+      "<p data-style=\"Title\" style=\"margin-top: 24pt\">Rechnung</p>",
+      "<p>Sehr geehrte Damen und Herren,</p>",
+      "<p>für unsere Leistungen in der Analysephase des Projekts Kundenportal berechnen wir Ihnen:</p>",
+      "<table data-table-style=\"light\" style=\"width: 100%\"><colgroup><col style=\"width: 8%\"><col style=\"width: 47%\"><col style=\"width: 10%\"><col style=\"width: 17%\"><col style=\"width: 18%\"></colgroup>",
+      "<thead><tr><th><p>Pos.</p></th><th><p>Leistung</p></th><th><p style=\"text-align: right\">Menge</p></th><th><p style=\"text-align: right\">Einzelpreis</p></th><th><p style=\"text-align: right\">Betrag</p></th></tr></thead>",
+      "<tbody>",
+      "<tr><td><p>1</p></td><td><p>Workshop „Customer Journey“ (Tage)</p></td><td><p style=\"text-align: right\">2</p></td><td><p style=\"text-align: right\">1.100,00 €</p></td><td><p style=\"text-align: right\">2.200,00 €</p></td></tr>",
+      "<tr><td><p>2</p></td><td><p>Konzept und Wireframes (Tage)</p></td><td><p style=\"text-align: right\">6</p></td><td><p style=\"text-align: right\">1.000,00 €</p></td><td><p style=\"text-align: right\">6.000,00 €</p></td></tr>",
+      "<tr><td><p>3</p></td><td><p>Usability-Test mit 8 Teilnehmenden</p></td><td><p style=\"text-align: right\">1</p></td><td><p style=\"text-align: right\">2.400,00 €</p></td><td><p style=\"text-align: right\">2.400,00 €</p></td></tr>",
+      "<tr><td><p>4</p></td><td><p>Reisekosten (Pauschale)</p></td><td><p style=\"text-align: right\">1</p></td><td><p style=\"text-align: right\">180,00 €</p></td><td><p style=\"text-align: right\">180,00 €</p></td></tr>",
+      "<tr><td colspan=\"4\"><p style=\"text-align: right\">Zwischensumme (netto)</p></td><td><p style=\"text-align: right\">10.780,00 €</p></td></tr>",
+      "<tr><td colspan=\"4\"><p style=\"text-align: right\">zzgl. 19 % Umsatzsteuer</p></td><td><p style=\"text-align: right\">2.048,20 €</p></td></tr>",
+      "<tr><td colspan=\"4\"><p style=\"text-align: right\"><strong>Gesamtbetrag</strong></p></td><td><p style=\"text-align: right\"><strong>12.828,20 €</strong></p></td></tr>",
+      "</tbody></table>",
+      "<p style=\"margin-top: 12pt\">Bitte überweisen Sie den Gesamtbetrag innerhalb von 14 Tagen ohne Abzug, also bis zum 26.11.2026, auf das unten genannte Konto. Geben Sie dabei bitte die Rechnungsnummer RE-2026-0412 an.</p>",
+      "<p>Vielen Dank für Ihren Auftrag und die gute Zusammenarbeit.</p>",
+      "<p>Mit freundlichen Grüßen</p>",
+      "<p data-style=\"NoSpacing\" style=\"margin-top: 24pt\">Max Mustermann</p>"
+    ],
+    "header": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 20pt; color: #185abd\"><strong>Muster GmbH</strong></span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 9pt; color: #595959\">Musterstraße 12 · 12345 Musterstadt · Telefon 030 1234567-0 · info@example.com</span></p>"
+    ],
+    "footer": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Muster GmbH · Sitz: Musterstadt · Amtsgericht Musterstadt HRB 12345 · Geschäftsführer: Max Mustermann · Steuernummer 12/345/67890 · USt-IdNr. DE123456789</span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Musterbank · IBAN DE12 3456 7890 1234 5678 90 · BIC MUSTDEM1XXX</span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 8pt; color: #595959\">Seite <span data-field=\"page\"></span> von <span data-field=\"pages\"></span></span></p>"
+    ],
+    "firstHeader": "",
+    "firstFooter": "",
+    "notes": [],
+    "comments": [],
+    "settings": { "language": "de-DE", "spellcheck": true }
+  }
+}

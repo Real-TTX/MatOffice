@@ -1,0 +1,132 @@
+{
+  "en": {
+    "version": 1,
+    "page": {
+      "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+      "margins": { "top": 25, "right": 25, "bottom": 20, "left": 25 }, "header": 12.5, "footer": 12.5, "columns": 1, "differentFirst": true
+    },
+    "html": [
+      "<p data-style=\"Title\" style=\"margin-top: 96pt\">Quarterly report Q3 2026</p>",
+      "<p data-style=\"Subtitle\">Northwind Consulting · Results, customers and outlook · October 2026</p>",
+      "<p style=\"margin-top: 24pt\">This report summarises the third quarter of 2026: revenue and costs by service line, the most important new customers and projects, and our priorities for the last quarter of the year.</p>",
+      "<p data-style=\"TOCHeading\">Contents</p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-summary\">Executive summary</a></p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-results\">Financial results</a></p>",
+      "<p data-style=\"TOC2\"><a href=\"#h-revenue\">Revenue</a></p>",
+      "<p data-style=\"TOC2\"><a href=\"#h-costs\">Costs and margin</a></p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-customers\">Customers and projects</a></p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-outlook\">Outlook for the fourth quarter</a></p>",
+      "<div data-break=\"page\"></div>",
+      "<h1 id=\"h-summary\">Executive summary</h1>",
+      "<p>Northwind Consulting closed the third quarter of 2026 with revenue of £2.83 million, 17.2 % more than in the same quarter last year.<sup data-fn=\"n1\"></sup> Strategy consulting and digital projects both beat their targets; only training stayed slightly below plan, mainly because two courses moved from September to October.</p>",
+      "<p>The operating margin improved to 14.6 % (Q3 2025: 12.1 %), helped by a higher share of fixed-price projects and lower travel costs. The highlights of the quarter:</p>",
+      "<p data-list=\"bullet\">Revenue of £2.83 million, up 17.2 %</p>",
+      "<p data-list=\"bullet\">Operating margin of 14.6 %, up 2.5 points</p>",
+      "<p data-list=\"bullet\">11 new customers, among them two of the ten largest retailers in the region</p>",
+      "<p data-list=\"bullet\">Customer satisfaction of 4.6 out of 5 (survey of 64 customers)</p>",
+      "<h1 id=\"h-results\">Financial results</h1>",
+      "<h2 id=\"h-revenue\">Revenue</h2>",
+      "<p>Revenue grew in two of our three service lines. Digital projects grew fastest, driven by the customer portal for Contoso and three new online shops. Table 1 compares the quarter with the same quarter of last year.</p>",
+      "<table data-table-style=\"accent1\" style=\"width: 100%\"><colgroup><col style=\"width: 40%\"><col style=\"width: 20%\"><col style=\"width: 20%\"><col style=\"width: 20%\"></colgroup>",
+      "<thead><tr><th><p>Service line</p></th><th><p style=\"text-align: right\">Q3 2025</p></th><th><p style=\"text-align: right\">Q3 2026</p></th><th><p style=\"text-align: right\">Change</p></th></tr></thead>",
+      "<tbody>",
+      "<tr><td><p>Strategy consulting</p></td><td><p style=\"text-align: right\">1,240</p></td><td><p style=\"text-align: right\">1,410</p></td><td><p style=\"text-align: right\">+13.7 %</p></td></tr>",
+      "<tr><td><p>Digital projects</p></td><td><p style=\"text-align: right\">860</p></td><td><p style=\"text-align: right\">1,120</p></td><td><p style=\"text-align: right\">+30.2 %</p></td></tr>",
+      "<tr><td><p>Training</p></td><td><p style=\"text-align: right\">310</p></td><td><p style=\"text-align: right\">295</p></td><td><p style=\"text-align: right\">−4.8 %</p></td></tr>",
+      "<tr><td><p><strong>Total</strong></p></td><td><p style=\"text-align: right\"><strong>2,410</strong></p></td><td><p style=\"text-align: right\"><strong>2,825</strong></p></td><td><p style=\"text-align: right\"><strong>+17.2 %</strong></p></td></tr>",
+      "</tbody></table>",
+      "<p data-style=\"Caption\">Table 1: Revenue by service line in £ thousand</p>",
+      "<h2 id=\"h-costs\">Costs and margin</h2>",
+      "<p>Personnel costs rose by 9 % to £1.71 million, mainly because six new consultants joined in July. Other operating costs fell slightly: more workshops took place online, which lowered travel costs by a third. The operating result (EBIT) reached £412,000, a margin of 14.6 %.</p>",
+      "<h1 id=\"h-customers\">Customers and projects</h1>",
+      "<p>We won 11 new customers in the quarter. The largest new project is the redesign of the customer portal for Contoso Ltd, worth £380,000 and running until June 2027. Other important projects:</p>",
+      "<p data-list=\"bullet\">Online shop and warehouse interface for a regional chain of garden centres</p>",
+      "<p data-list=\"bullet\">Strategy review for a mid-sized logistics company</p>",
+      "<p data-list=\"bullet\">Leadership training for 40 team leaders of a hospital group</p>",
+      "<blockquote>“The new booking process saves our service team two hours every day.” – Emma Taylor, Head of Operations, Contoso Ltd</blockquote>",
+      "<h1 id=\"h-outlook\">Outlook for the fourth quarter</h1>",
+      "<p>We expect revenue of £2.9 to 3.1 million in the fourth quarter; the order book is well filled until February. Our priorities until the end of the year:</p>",
+      "<p data-list=\"decimal\">Hire four more consultants for the digital projects team.</p>",
+      "<p data-list=\"decimal\">Launch the new online training catalogue in November.</p>",
+      "<p data-list=\"decimal\">Shorten the average time until our invoices are paid from 38 to 30 days.</p>"
+    ],
+    "header": [
+      "<p style=\"text-align: right\"><span style=\"font-size: 9pt; color: #7f7f7f\"><span data-field=\"title\"></span></span></p>"
+    ],
+    "footer": [
+      "<p style=\"text-align: center\"><span style=\"font-size: 9pt; color: #7f7f7f\">Page <span data-field=\"page\"></span> of <span data-field=\"pages\"></span></span></p>"
+    ],
+    "firstHeader": "",
+    "firstFooter": "",
+    "notes": [
+      { "id": "n1", "html": ["<p>Compared with the third quarter of 2025. All figures exclude VAT.</p>"] }
+    ],
+    "comments": [],
+    "settings": { "language": "en-GB", "spellcheck": true }
+  },
+  "de": {
+    "version": 1,
+    "page": {
+      "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+      "margins": { "top": 25, "right": 25, "bottom": 20, "left": 25 }, "header": 12.5, "footer": 12.5, "columns": 1, "differentFirst": true
+    },
+    "html": [
+      "<p data-style=\"Title\" style=\"margin-top: 96pt\">Quartalsbericht Q3 2026</p>",
+      "<p data-style=\"Subtitle\">Muster GmbH · Ergebnisse, Kunden und Ausblick · Oktober 2026</p>",
+      "<p style=\"margin-top: 24pt\">Dieser Bericht fasst das dritte Quartal 2026 zusammen: Umsatz und Kosten nach Geschäftsbereichen, die wichtigsten neuen Kunden und Projekte sowie unsere Schwerpunkte für das letzte Quartal des Jahres.</p>",
+      "<p data-style=\"TOCHeading\">Inhalt</p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-zusammenfassung\">Zusammenfassung</a></p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-ergebnisse\">Finanzielle Ergebnisse</a></p>",
+      "<p data-style=\"TOC2\"><a href=\"#h-umsatz\">Umsatz</a></p>",
+      "<p data-style=\"TOC2\"><a href=\"#h-kosten\">Kosten und Marge</a></p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-kunden\">Kunden und Projekte</a></p>",
+      "<p data-style=\"TOC1\"><a href=\"#h-ausblick\">Ausblick auf das vierte Quartal</a></p>",
+      "<div data-break=\"page\"></div>",
+      "<h1 id=\"h-zusammenfassung\">Zusammenfassung</h1>",
+      "<p>Die Muster GmbH hat das dritte Quartal 2026 mit einem Umsatz von 2,83 Mio. € abgeschlossen, 17,2 % mehr als im Vorjahresquartal.<sup data-fn=\"n1\"></sup> Strategieberatung und Digitalprojekte haben ihre Ziele übertroffen; nur der Bereich Schulungen blieb leicht unter Plan, vor allem weil zwei Kurse von September auf Oktober verschoben wurden.</p>",
+      "<p>Die operative Marge stieg auf 14,6 % (Q3 2025: 12,1 %), unterstützt durch einen höheren Anteil an Festpreisprojekten und geringere Reisekosten. Die wichtigsten Kennzahlen des Quartals:</p>",
+      "<p data-list=\"bullet\">Umsatz von 2,83 Mio. €, plus 17,2 %</p>",
+      "<p data-list=\"bullet\">Operative Marge von 14,6 %, plus 2,5 Prozentpunkte</p>",
+      "<p data-list=\"bullet\">11 neue Kunden, darunter zwei der zehn größten Händler der Region</p>",
+      "<p data-list=\"bullet\">Kundenzufriedenheit von 4,6 von 5 Punkten (Befragung von 64 Kunden)</p>",
+      "<h1 id=\"h-ergebnisse\">Finanzielle Ergebnisse</h1>",
+      "<h2 id=\"h-umsatz\">Umsatz</h2>",
+      "<p>Der Umsatz ist in zwei unserer drei Geschäftsbereiche gewachsen. Am stärksten legten die Digitalprojekte zu, getragen vom Kundenportal für die Beispiel AG und drei neuen Onlineshops. Tabelle 1 vergleicht das Quartal mit dem Vorjahresquartal.</p>",
+      "<table data-table-style=\"accent1\" style=\"width: 100%\"><colgroup><col style=\"width: 40%\"><col style=\"width: 20%\"><col style=\"width: 20%\"><col style=\"width: 20%\"></colgroup>",
+      "<thead><tr><th><p>Geschäftsbereich</p></th><th><p style=\"text-align: right\">Q3 2025</p></th><th><p style=\"text-align: right\">Q3 2026</p></th><th><p style=\"text-align: right\">Veränderung</p></th></tr></thead>",
+      "<tbody>",
+      "<tr><td><p>Strategieberatung</p></td><td><p style=\"text-align: right\">1.240</p></td><td><p style=\"text-align: right\">1.410</p></td><td><p style=\"text-align: right\">+13,7 %</p></td></tr>",
+      "<tr><td><p>Digitalprojekte</p></td><td><p style=\"text-align: right\">860</p></td><td><p style=\"text-align: right\">1.120</p></td><td><p style=\"text-align: right\">+30,2 %</p></td></tr>",
+      "<tr><td><p>Schulungen</p></td><td><p style=\"text-align: right\">310</p></td><td><p style=\"text-align: right\">295</p></td><td><p style=\"text-align: right\">−4,8 %</p></td></tr>",
+      "<tr><td><p><strong>Gesamt</strong></p></td><td><p style=\"text-align: right\"><strong>2.410</strong></p></td><td><p style=\"text-align: right\"><strong>2.825</strong></p></td><td><p style=\"text-align: right\"><strong>+17,2 %</strong></p></td></tr>",
+      "</tbody></table>",
+      "<p data-style=\"Caption\">Tabelle 1: Umsatz nach Geschäftsbereichen in Tsd. €</p>",
+      "<h2 id=\"h-kosten\">Kosten und Marge</h2>",
+      "<p>Die Personalkosten stiegen um 9 % auf 1,71 Mio. €, vor allem weil im Juli sechs neue Beraterinnen und Berater zu uns gekommen sind. Die sonstigen betrieblichen Kosten sanken leicht: Mehr Workshops fanden online statt, wodurch die Reisekosten um ein Drittel zurückgingen. Das operative Ergebnis (EBIT) erreichte 412.000 €, eine Marge von 14,6 %.</p>",
+      "<h1 id=\"h-kunden\">Kunden und Projekte</h1>",
+      "<p>Im Quartal haben wir 11 neue Kunden gewonnen. Das größte neue Projekt ist die Neugestaltung des Kundenportals der Beispiel AG mit einem Volumen von 380.000 € und einer Laufzeit bis Juni 2027. Weitere wichtige Projekte:</p>",
+      "<p data-list=\"bullet\">Onlineshop mit Lageranbindung für eine regionale Gartencenter-Kette</p>",
+      "<p data-list=\"bullet\">Strategieüberprüfung für ein mittelständisches Logistikunternehmen</p>",
+      "<p data-list=\"bullet\">Führungskräftetraining für 40 Teamleitungen einer Klinikgruppe</p>",
+      "<blockquote>„Der neue Buchungsprozess spart unserem Serviceteam jeden Tag zwei Stunden.“ – Erika Beispiel, Leiterin Kundenservice, Beispiel AG</blockquote>",
+      "<h1 id=\"h-ausblick\">Ausblick auf das vierte Quartal</h1>",
+      "<p>Für das vierte Quartal erwarten wir einen Umsatz von 2,9 bis 3,1 Mio. €; der Auftragsbestand reicht bis in den Februar. Unsere Schwerpunkte bis zum Jahresende:</p>",
+      "<p data-list=\"decimal\">Vier weitere Beraterinnen und Berater für das Team Digitalprojekte einstellen.</p>",
+      "<p data-list=\"decimal\">Den neuen Online-Schulungskatalog im November starten.</p>",
+      "<p data-list=\"decimal\">Die durchschnittliche Zeit bis zur Zahlung unserer Rechnungen von 38 auf 30 Tage verkürzen.</p>"
+    ],
+    "header": [
+      "<p style=\"text-align: right\"><span style=\"font-size: 9pt; color: #7f7f7f\"><span data-field=\"title\"></span></span></p>"
+    ],
+    "footer": [
+      "<p style=\"text-align: center\"><span style=\"font-size: 9pt; color: #7f7f7f\">Seite <span data-field=\"page\"></span> von <span data-field=\"pages\"></span></span></p>"
+    ],
+    "firstHeader": "",
+    "firstFooter": "",
+    "notes": [
+      { "id": "n1", "html": ["<p>Im Vergleich zum dritten Quartal 2025. Alle Beträge ohne Umsatzsteuer.</p>"] }
+    ],
+    "comments": [],
+    "settings": { "language": "de-DE", "spellcheck": true }
+  }
+}
