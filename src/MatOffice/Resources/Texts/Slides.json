@@ -1,0 +1,19 @@
+{
+  "Slides.Invalid": { "en": "This is not a valid presentation.", "de": "Das ist keine gültige Präsentation." },
+  "Slides.Invalid.Picture": { "en": "Pictures in a presentation must be PNG, JPEG, GIF or WebP.", "de": "Bilder in einer Präsentation müssen PNG, JPEG, GIF oder WebP sein." },
+  "Slides.Invalid.TooLarge": { "en": "The presentation has too many slides, objects or too much text.", "de": "Die Präsentation hat zu viele Folien, Objekte oder zu viel Text." },
+  "Slides.Format.Pptx": { "en": "PowerPoint presentation", "de": "PowerPoint-Präsentation" },
+  "Slides.Export.Failed": { "en": "The presentation could not be written as a PowerPoint file.", "de": "Die Präsentation ließ sich nicht als PowerPoint-Datei schreiben." },
+  "Slides.Import.NotPresentation": { "en": "The file is not a PowerPoint presentation that can be read.", "de": "Die Datei ist keine lesbare PowerPoint-Präsentation." },
+
+  "Slides.Template.Pitch": { "en": "Pitch deck", "de": "Pitch-Deck" },
+  "Slides.Template.Pitch.Text": { "en": "Present your start-up to investors", "de": "Stelle dein Start-up Investoren vor" },
+  "Slides.Template.Status": { "en": "Project status report", "de": "Projektstatusbericht" },
+  "Slides.Template.Status.Text": { "en": "Status, milestones and risks for the steering committee", "de": "Status, Meilensteine und Risiken für den Lenkungsausschuss" },
+  "Slides.Template.Workshop": { "en": "Workshop", "de": "Workshop" },
+  "Slides.Template.Workshop.Text": { "en": "Run a training or a workshop", "de": "Eine Schulung oder einen Workshop leiten" },
+  "Slides.Template.Review": { "en": "Quarterly business review", "de": "Quartalsbericht" },
+  "Slides.Template.Review.Text": { "en": "Figures, highlights and goals of a quarter", "de": "Zahlen, Höhepunkte und Ziele eines Quartals" },
+  "Slides.Template.Album": { "en": "Photo album", "de": "Fotoalbum" },
+  "Slides.Template.Album.Text": { "en": "Pictures of an event with captions", "de": "Bilder einer Veranstaltung mit Bildunterschriften" }
+}

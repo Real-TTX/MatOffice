@@ -1,0 +1,137 @@
+{
+  "//": "The designs (themes) of MatOffice Slides: colours, fonts, background, per-group overrides and the decoration of the master. Own designs. The same data is in wwwroot/js/slides/themes.js (a test compares them).",
+  "themes": [
+    {
+      "id": "paper", "name": "Paper",
+      "fonts": { "major": "Calibri Light", "minor": "Calibri" },
+      "colors": { "dk1": "#000000", "lt1": "#ffffff", "dk2": "#2b3a4a", "lt2": "#e8e6e1", "accent1": "#3a6ea5", "accent2": "#e07b39", "accent3": "#8c8c8c", "accent4": "#f2b632", "accent5": "#4a9fd8", "accent6": "#6aa84f", "hlink": "#2a64b8" },
+      "background": { "type": "solid", "color": "lt1" },
+      "heading": "dk1", "text": "dk1",
+      "decor": []
+    },
+    {
+      "id": "slate", "name": "Slate",
+      "fonts": { "major": "Segoe UI Light", "minor": "Segoe UI" },
+      "colors": { "dk1": "#16191d", "lt1": "#ffffff", "dk2": "#262c33", "lt2": "#d5dbe1", "accent1": "#2ec4b6", "accent2": "#ffb347", "accent3": "#ff6b6b", "accent4": "#5dade2", "accent5": "#a3d977", "accent6": "#b28dff", "hlink": "#7cc7ff" },
+      "background": { "type": "solid", "color": "dk2" },
+      "heading": "lt1", "text": "lt2",
+      "groups": { "cover": { "background": { "type": "solid", "color": "dk1" } } },
+      "decor": [
+        { "on": ["title"], "shape": "rect", "x": 0.4375, "y": 0.5185, "w": 0.125, "h": 0.0056, "fill": "accent1" },
+        { "on": ["section"], "shape": "rect", "x": 0.0682, "y": 0.6625, "w": 0.1, "h": 0.0056, "fill": "accent1" },
+        { "on": ["content"], "shape": "rect", "x": 0, "y": 0, "w": 1, "h": 0.0083, "fill": "accent1" }
+      ]
+    },
+    {
+      "id": "horizon", "name": "Horizon",
+      "fonts": { "major": "Corbel", "minor": "Corbel" },
+      "colors": { "dk1": "#101828", "lt1": "#ffffff", "dk2": "#1e3c72", "lt2": "#dfe6f5", "accent1": "#ffd166", "accent2": "#06d6a0", "accent3": "#ef476f", "accent4": "#4cc9f0", "accent5": "#f78c6b", "accent6": "#7b4fc4", "hlink": "#9ad1ff" },
+      "background": { "type": "gradient", "from": "dk2", "to": "accent6:-25", "angle": 135 },
+      "heading": "lt1", "text": "lt2",
+      "decor": [
+        { "on": ["cover"], "shape": "ellipse", "x": 0.68, "y": 0.42, "w": 0.46, "h": 0.82, "fill": "lt1", "opacity": 0.06 },
+        { "on": ["cover"], "shape": "ellipse", "x": -0.08, "y": -0.2, "w": 0.24, "h": 0.43, "fill": "lt1", "opacity": 0.05 },
+        { "on": ["content", "other"], "shape": "ellipse", "x": 0.84, "y": -0.18, "w": 0.26, "h": 0.46, "fill": "lt1", "opacity": 0.06 }
+      ]
+    },
+    {
+      "id": "banner", "name": "Banner",
+      "fonts": { "major": "Trebuchet MS", "minor": "Trebuchet MS" },
+      "colors": { "dk1": "#1d1d1f", "lt1": "#ffffff", "dk2": "#173f5f", "lt2": "#eef2f5", "accent1": "#1f5f8b", "accent2": "#f39c12", "accent3": "#27ae60", "accent4": "#8e44ad", "accent5": "#e74c3c", "accent6": "#16a085", "hlink": "#1f6fb2" },
+      "background": { "type": "solid", "color": "lt1" },
+      "heading": "dk2", "text": "dk1",
+      "groups": {
+        "cover": { "background": { "type": "solid", "color": "accent1" }, "heading": "lt1", "text": "lt1" },
+        "content": { "heading": "lt1" }
+      },
+      "decor": [
+        { "on": ["content"], "shape": "rect", "x": 0, "y": 0, "w": 1, "h": 0.25, "fill": "accent1" },
+        { "on": ["content"], "shape": "rect", "x": 0, "y": 0.25, "w": 1, "h": 0.0083, "fill": "accent2" },
+        { "on": ["cover"], "shape": "rect", "x": 0, "y": 0.8, "w": 1, "h": 0.2, "fill": "accent1:-25" },
+        { "on": ["cover"], "shape": "rect", "x": 0, "y": 0.8, "w": 1, "h": 0.0083, "fill": "accent2" },
+        { "on": ["other"], "shape": "rect", "x": 0, "y": 0, "w": 0.025, "h": 1, "fill": "accent1" }
+      ]
+    },
+    {
+      "id": "meridian", "name": "Meridian",
+      "fonts": { "major": "Georgia", "minor": "Calibri" },
+      "colors": { "dk1": "#1f1f1f", "lt1": "#ffffff", "dk2": "#2c3e50", "lt2": "#f3efe6", "accent1": "#b5651d", "accent2": "#2c7a7b", "accent3": "#6b4f9e", "accent4": "#c9a227", "accent5": "#4a6fa5", "accent6": "#8a9a5b", "hlink": "#2c7a7b" },
+      "background": { "type": "solid", "color": "lt2:+50" },
+      "heading": "dk2", "text": "dk1",
+      "decor": [
+        { "on": ["all"], "shape": "rect", "x": 0, "y": 0, "w": 0.0125, "h": 1, "fill": "accent1" },
+        { "on": ["content"], "shape": "rect", "x": 0.06875, "y": 0.2435, "w": 0.08, "h": 0.005, "fill": "accent2" },
+        { "on": ["title"], "shape": "rect", "x": 0.125, "y": 0.5165, "w": 0.75, "h": 0.003, "fill": "accent1" },
+        { "on": ["section"], "shape": "rect", "x": 0.0682, "y": 0.6625, "w": 0.8625, "h": 0.003, "fill": "accent1" }
+      ]
+    },
+    {
+      "id": "coral", "name": "Coral",
+      "fonts": { "major": "Candara", "minor": "Candara" },
+      "colors": { "dk1": "#2b2b2b", "lt1": "#ffffff", "dk2": "#264653", "lt2": "#fdf3e7", "accent1": "#e8664f", "accent2": "#2a9d8f", "accent3": "#e9c46a", "accent4": "#264653", "accent5": "#f4a261", "accent6": "#7b9e87", "hlink": "#2a9d8f" },
+      "background": { "type": "solid", "color": "lt2" },
+      "heading": "dk2", "text": "dk1",
+      "decor": [
+        { "on": ["cover"], "shape": "ellipse", "x": 0.74, "y": -0.3, "w": 0.42, "h": 0.75, "fill": "accent1" },
+        { "on": ["cover"], "shape": "ellipse", "x": -0.08, "y": 0.8, "w": 0.2, "h": 0.36, "fill": "accent3", "opacity": 0.85 },
+        { "on": ["content", "other"], "shape": "ellipse", "x": 0.935, "y": -0.07, "w": 0.1, "h": 0.18, "fill": "accent1" }
+      ]
+    },
+    {
+      "id": "forest", "name": "Forest",
+      "fonts": { "major": "Cambria", "minor": "Calibri" },
+      "colors": { "dk1": "#10261d", "lt1": "#ffffff", "dk2": "#1b3a2f", "lt2": "#dfe9d8", "accent1": "#8fc93a", "accent2": "#e4b363", "accent3": "#4fb0a5", "accent4": "#e07a5f", "accent5": "#c5d86d", "accent6": "#a0c4ff", "hlink": "#c5e384" },
+      "background": { "type": "solid", "color": "dk2" },
+      "heading": "lt2", "text": "lt1",
+      "groups": { "cover": { "background": { "type": "solid", "color": "dk1" } } },
+      "decor": [
+        { "on": ["all"], "shape": "rect", "x": 0, "y": 0.975, "w": 1, "h": 0.025, "fill": "accent1" },
+        { "on": ["title"], "shape": "rect", "x": 0.4, "y": 0.5185, "w": 0.2, "h": 0.004, "fill": "accent2" }
+      ]
+    },
+    {
+      "id": "ink", "name": "Ink",
+      "fonts": { "major": "Arial Black", "minor": "Arial" },
+      "colors": { "dk1": "#111111", "lt1": "#ffffff", "dk2": "#222222", "lt2": "#e6e6e6", "accent1": "#111111", "accent2": "#e63946", "accent3": "#457b9d", "accent4": "#a8dadc", "accent5": "#f4a261", "accent6": "#2a9d8f", "hlink": "#457b9d" },
+      "background": { "type": "solid", "color": "lt1" },
+      "heading": "dk1", "text": "dk1",
+      "groups": { "cover": { "background": { "type": "solid", "color": "dk1" }, "heading": "lt1", "text": "lt2" } },
+      "decor": [
+        { "on": ["content"], "shape": "rect", "x": 0.9, "y": 0.06, "w": 0.03, "h": 0.0533, "fill": "accent2" },
+        { "on": ["title"], "shape": "rect", "x": 0.475, "y": 0.53, "w": 0.05, "h": 0.0089, "fill": "accent2" },
+        { "on": ["section"], "shape": "rect", "x": 0.0682, "y": 0.6625, "w": 0.05, "h": 0.0089, "fill": "accent2" }
+      ]
+    },
+    {
+      "id": "prism", "name": "Prism",
+      "fonts": { "major": "Segoe UI Semibold", "minor": "Segoe UI" },
+      "colors": { "dk1": "#1e2330", "lt1": "#ffffff", "dk2": "#2d3436", "lt2": "#f4f6f9", "accent1": "#6c5ce7", "accent2": "#00b894", "accent3": "#fd79a8", "accent4": "#0984e3", "accent5": "#fdcb6e", "accent6": "#e17055", "hlink": "#0984e3" },
+      "background": { "type": "solid", "color": "lt2" },
+      "heading": "dk2", "text": "dk1",
+      "decor": [
+        { "on": ["cover"], "shape": "rtTriangle", "x": 0.7, "y": 0.45, "w": 0.3, "h": 0.55, "fill": "accent1", "flipH": true, "opacity": 0.9 },
+        { "on": ["cover"], "shape": "rtTriangle", "x": 0.82, "y": 0.2, "w": 0.18, "h": 0.8, "fill": "accent2", "flipH": true, "opacity": 0.55 },
+        { "on": ["cover"], "shape": "rtTriangle", "x": 0, "y": 0, "w": 0.16, "h": 0.3, "fill": "accent3", "flipV": true, "opacity": 0.6 },
+        { "on": ["content", "other"], "shape": "rtTriangle", "x": 0.93, "y": 0.78, "w": 0.07, "h": 0.22, "fill": "accent1", "flipH": true, "opacity": 0.9 },
+        { "on": ["content", "other"], "shape": "rtTriangle", "x": 0.96, "y": 0.62, "w": 0.04, "h": 0.38, "fill": "accent2", "flipH": true, "opacity": 0.55 }
+      ]
+    },
+    {
+      "id": "sunrise", "name": "Sunrise",
+      "fonts": { "major": "Constantia", "minor": "Corbel" },
+      "colors": { "dk1": "#2d2433", "lt1": "#ffffff", "dk2": "#3d2c5f", "lt2": "#fff4ec", "accent1": "#f28c38", "accent2": "#e85d75", "accent3": "#5b8def", "accent4": "#f6c445", "accent5": "#7cc6a4", "accent6": "#9b6dd6", "hlink": "#5b8def" },
+      "background": { "type": "gradient", "from": "#fff4ec", "to": "#e4f0fb", "angle": 160 },
+      "heading": "dk2", "text": "dk1",
+      "decor": [
+        { "on": ["title"], "shape": "ellipse", "x": 0.445, "y": 0.035, "w": 0.11, "h": 0.1956, "fill": "accent1", "opacity": 0.9 },
+        { "on": ["content", "other"], "shape": "rect", "x": 0, "y": 0.99, "w": 1, "h": 0.01, "fill": "accent1" }
+      ]
+    }
+  ],
+  "variants": [
+    { "id": "ocean", "accent1": "#0f6cbd", "accent2": "#00a3a3", "accent3": "#6bb6ff", "accent4": "#004e8c", "accent5": "#8ad1c2", "accent6": "#ffb900" },
+    { "id": "grove", "accent1": "#2e7d32", "accent2": "#8bc34a", "accent3": "#c0ca33", "accent4": "#00897b", "accent5": "#6d4c41", "accent6": "#ffb300" },
+    { "id": "ember", "accent1": "#c2410c", "accent2": "#f97316", "accent3": "#ca8a04", "accent4": "#b91c1c", "accent5": "#8d6e63", "accent6": "#eab308" },
+    { "id": "orchid", "accent1": "#7b1fa2", "accent2": "#c2185b", "accent3": "#5e35b1", "accent4": "#f06292", "accent5": "#9575cd", "accent6": "#26a69a" }
+  ]
+}
