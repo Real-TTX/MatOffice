@@ -708,15 +708,18 @@ class SheetsApp {
 
 const app = new SheetsApp();
 // for the browser tests (tests/js and the scripts of the handoff): the editor of the page
-Object.defineProperty(window, '__sheets', { value: app });
+Object.defineProperty(window, '__sheets', { value: app, configurable: true });
 
-startEditor({
-  mount: ctx => app.mount(ctx),
-  getContent: () => app.getContent(),
-  setContent: content => app.setContent(content),
-  thumbnail: () => app.thumbnail(),
-  print: () => app.print(),
-  info: () => app.info(),
-});
+// on the page of an editor (the tests in node load this module without one and mount the app with a context of their own)
+if (document.getElementById('mo-editor')) {
+  startEditor({
+    mount: ctx => app.mount(ctx),
+    getContent: () => app.getContent(),
+    setContent: content => app.setContent(content),
+    thumbnail: () => app.thumbnail(),
+    print: () => app.print(),
+    info: () => app.info(),
+  });
+}
 
-export { app, FormulaError, errorOf, sizeLabel };
+export { app, SheetsApp, FormulaError, errorOf, sizeLabel };

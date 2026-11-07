@@ -18,7 +18,12 @@ import { absoluteRefOf } from './commands.js';
 const input = (attrs = {}) => el('input', { class: 'mat-input', autocomplete: 'off', id: uid('f'), ...attrs });
 const select = (options, value, attrs = {}) => el('select', { class: 'mat-input mat-select', id: uid('f'), ...attrs },
   ...options.map(o => el('option', { value: o.value, text: o.label, selected: String(o.value) === String(value ?? '') ? true : null })));
-const field = (label, control, hint) => el('div', { class: 'mat-field' }, el('label', { class: 'mat-label', for: control.id || null, text: label }), control, hint ? el('div', { class: 'mat-hint', text: hint }) : null);
+const field = (label, control, hint) => {
+  const caption = el('label', { class: 'mat-label', for: control.id || null, text: label });
+  const node = el('div', { class: 'mat-field' }, caption, control, hint ? el('div', { class: 'mat-hint', text: hint }) : null);
+  node.caption = caption;
+  return node;
+};
 const check = (label, checked, attrs = {}) => {
   const box = el('input', { type: 'checkbox', checked: checked ? true : null, ...attrs });
   const node = el('label', { class: 'mat-check' }, box, el('span', { class: 'mat-check__text', text: label }));
@@ -31,7 +36,7 @@ const radio = (name, value, label, checked) => {
   node.box = r;
   return node;
 };
-const row = (...items) => el('div', { class: 'mo-sheets-form__row' }, ...items);
+const formRow = (...items) => el('div', { class: 'mo-sheets-form__row' }, ...items);
 const OK = () => ({ label: t('Sheets.Ok'), value: 'ok', kind: 'primary' });
 const CANCEL = () => ({ label: t('Sheets.Cancel'), value: 'cancel' });
 
@@ -164,7 +169,7 @@ export class Dialogs {
     const wrap = check(t('Sheets.WrapText'), style.wrap);
     const merged = !!this.sheet.mergeAt(app.sel.active.row, app.sel.active.col);
     const merge = check(t('Sheets.MergeCells'), merged);
-    const alignPanel = panel('alignment', row(field(t('Sheets.Align.Horizontal'), ha), field(t('Sheets.Align.Vertical'), va)), field(t('Sheets.Indent'), indent), wrap, merge);
+    const alignPanel = panel('alignment', formRow(field(t('Sheets.Align.Horizontal'), ha), field(t('Sheets.Align.Vertical'), va)), field(t('Sheets.Indent'), indent), wrap, merge);
 
     // font
     const font = select(FONTS.map(f => ({ value: f, label: f })), style.font || 'Calibri');
@@ -187,8 +192,8 @@ export class Dialogs {
     };
     for (const x of [font, size, bold.box, italic.box, underline.box, strike.box, autoColor.box]) x.addEventListener('input', fontPreview);
     fontPreview();
-    const fontPanel = panel('font', row(field(t('Sheets.Font'), font), field(t('Sheets.Size'), size)), el('div', { class: 'mat-checks mat-checks--inline' }, bold, italic, underline, strike),
-      row(field(t('Sheets.FontColor'), color), autoColor), field(t('Sheets.Format.Sample'), fontSample));
+    const fontPanel = panel('font', formRow(field(t('Sheets.Font'), font), field(t('Sheets.Size'), size)), el('div', { class: 'mat-checks mat-checks--inline' }, bold, italic, underline, strike),
+      formRow(field(t('Sheets.FontColor'), color), autoColor), field(t('Sheets.Format.Sample'), fontSample));
 
     // border
     const edges = { bt: check(t('Sheets.Border.Top'), !!style.bt), bb: check(t('Sheets.Border.Bottom'), !!style.bb), bl: check(t('Sheets.Border.Left'), !!style.bl), br: check(t('Sheets.Border.Right'), !!style.br) };
@@ -202,7 +207,7 @@ export class Dialogs {
         presetBtn(t('Sheets.Border.Outline'), 'sheets-border-outside', () => { for (const e of Object.values(edges)) e.box.checked = true; }),
         presetBtn(t('Sheets.Border.InsideButton'), 'sheets-border-inside', () => { inside.box.checked = true; })),
       el('div', { class: 'mat-checks mat-checks--inline' }, edges.bt, edges.bb, edges.bl, edges.br, inside),
-      row(field(t('Sheets.Border.Style'), lineStyle), field(t('Sheets.Border.Color'), lineColor)));
+      formRow(field(t('Sheets.Border.Style'), lineStyle), field(t('Sheets.Border.Color'), lineColor)));
 
     // fill
     let fill = style.fill || null;
@@ -317,7 +322,7 @@ export class Dialogs {
     const replaceRow = field(t('Sheets.Find.With'), withText);
     replaceRow.hidden = !replace;
     const body = el('div', { class: 'mo-sheets-find' }, field(t('Sheets.Find.What'), what), replaceRow,
-      row(field(t('Sheets.Find.Within'), within), field(t('Sheets.Find.LookIn'), lookIn)), el('div', { class: 'mat-checks mat-checks--inline' }, matchCase, whole), status, results);
+      formRow(field(t('Sheets.Find.Within'), within), field(t('Sheets.Find.LookIn'), lookIn)), el('div', { class: 'mat-checks mat-checks--inline' }, matchCase, whole), status, results);
     const matcher = () => {
       const q = what.value;
       if (!q) return null;
@@ -539,15 +544,15 @@ export class Dialogs {
       fop.hidden = ['any', 'list', 'custom'].includes(tp);
       f1.hidden = tp === 'any';
       f2.hidden = fop.hidden || !range;
-      f1.querySelector('label').textContent = tp === 'list' ? t('Sheets.Valid.Source') : tp === 'custom' ? t('Sheets.Valid.Formula') : range ? t('Sheets.Valid.Minimum') : t('Sheets.Valid.Value');
+      f1.caption.textContent = tp === 'list' ? t('Sheets.Valid.Source') : tp === 'custom' ? t('Sheets.Valid.Formula') : range ? t('Sheets.Valid.Minimum') : t('Sheets.Valid.Value');
       dropdown.hidden = tp !== 'list';
     };
     type.addEventListener('change', update);
     op.addEventListener('change', update);
     update();
-    const body = el('div', { class: 'mo-sheets-form' }, row(field(t('Sheets.Valid.Allow'), type), fop), row(f1, f2), el('div', { class: 'mat-checks' }, blank, dropdown),
+    const body = el('div', { class: 'mo-sheets-form' }, formRow(field(t('Sheets.Valid.Allow'), type), fop), formRow(f1, f2), el('div', { class: 'mat-checks' }, blank, dropdown),
       el('h3', { class: 'mo-sheets-form__head', text: t('Sheets.Valid.Input') }), field(t('Sheets.Valid.Prompt'), prompt),
-      el('h3', { class: 'mo-sheets-form__head', text: t('Sheets.Valid.Error') }), row(field(t('Sheets.Valid.ErrorStyle'), errorStyle), field(t('Sheets.Valid.ErrorTitle'), errorTitle)), field(t('Sheets.Valid.ErrorText'), error));
+      el('h3', { class: 'mo-sheets-form__head', text: t('Sheets.Valid.Error') }), formRow(field(t('Sheets.Valid.ErrorStyle'), errorStyle), field(t('Sheets.Valid.ErrorTitle'), errorTitle)), field(t('Sheets.Valid.ErrorText'), error));
     const r = await this.open({ title: t('Sheets.Validation'), icon: 'sheets-validation', body, size: 'lg', buttons: [OK(), { label: t('Sheets.Valid.Clear'), value: 'clear' }, CANCEL()] });
     if (r !== 'ok' && r !== 'clear') return;
     const area = app.commands.clip(app.sel.range);
@@ -580,16 +585,16 @@ export class Dialogs {
     const n = input({ type: 'number', min: 1, max: 1000, value: 10 });
     let body;
     const prefix = el('p', { text: t('Sheets.Cf.Prompt.' + kind) });
-    if (['gt', 'lt', 'eq', 'text'].includes(kind)) body = el('div', {}, prefix, row(v1, field(t('Sheets.Cf.With'), presetSel)));
-    else if (kind === 'between') body = el('div', {}, prefix, row(v1, el('span', { text: t('Sheets.Cf.And') }), v2), field(t('Sheets.Cf.With'), presetSel));
-    else if (['top', 'bottom', 'topPercent', 'bottomPercent'].includes(kind)) body = el('div', {}, prefix, row(n, field(t('Sheets.Cf.With'), presetSel)));
+    if (['gt', 'lt', 'eq', 'text'].includes(kind)) body = el('div', {}, prefix, formRow(v1, field(t('Sheets.Cf.With'), presetSel)));
+    else if (kind === 'between') body = el('div', {}, prefix, formRow(v1, el('span', { text: t('Sheets.Cf.And') }), v2), field(t('Sheets.Cf.With'), presetSel));
+    else if (['top', 'bottom', 'topPercent', 'bottomPercent'].includes(kind)) body = el('div', {}, prefix, formRow(n, field(t('Sheets.Cf.With'), presetSel)));
     else body = el('div', {}, prefix, field(t('Sheets.Cf.With'), presetSel));
     // a sensible proposal: the average of the selection
     const nums = app.look.numbersIn(this.sheet, app.commands.clip(app.sel.range));
     if (nums.length) { const avg = nums.reduce((a, b) => a + b, 0) / nums.length; v1.value = numberToText(Math.round(avg * 100) / 100); v2.value = numberToText(Math.max(...nums)); }
     const r = await this.open({ title: t('Sheets.Cf.Title.' + kind), icon: 'sheets-cf', body, buttons: [OK(), CANCEL()], onOpen: () => (v1.isConnected ? v1 : presetSel).focus() });
     if (r !== 'ok') return;
-    const style = CF_PRESETS.find(p => p.id === presetSel.value).style;
+    const style = (CF_PRESETS.find(p => p.id === presetSel.value) || CF_PRESETS[0]).style;
     const range = areaName(app.commands.clip(app.sel.range));
     const value = v => { const s = String(v).trim(); return s.startsWith('=') ? '=' + toCanonical(s.slice(1), app.locale) : (parseNumber(s) !== null ? numberToText(parseNumber(s)).replace(',', '.') : s); };
     let rule;
@@ -625,7 +630,7 @@ export class Dialogs {
     const useColor = check(t('Sheets.FontColor'), existing ? !!existing.style?.color : true);
     const bold = check(t('Sheets.Bold'), !!existing?.style?.b);
     const body = el('div', { class: 'mo-sheets-form' }, el('p', { text: t('Sheets.Cf.FormulaText') }), field(t('Sheets.Cf.Formula'), formula),
-      row(useFill, fill), row(useColor, color), bold);
+      formRow(useFill, fill), formRow(useColor, color), bold);
     const r = await this.open({ title: t('Sheets.Cf.NewRule'), icon: 'sheets-cf', body, buttons: [OK(), CANCEL()], onOpen: () => formula.focus() });
     if (r !== 'ok') return;
     const text = formula.value.trim().replace(/^=/, '');
@@ -796,7 +801,7 @@ export class Dialogs {
     const web = radio('kind', 'web', t('Sheets.Link.Web'), !inside);
     const place = radio('kind', 'place', t('Sheets.Link.Place'), inside);
     const webBox = el('div', {}, field(t('Sheets.Link.Address'), address));
-    const placeBox = el('div', {}, row(field(t('Sheets.Link.Sheet'), target), field(t('Sheets.Link.Cell'), cellRef)));
+    const placeBox = el('div', {}, formRow(field(t('Sheets.Link.Sheet'), target), field(t('Sheets.Link.Cell'), cellRef)));
     const sync = () => { webBox.hidden = !web.box.checked; placeBox.hidden = web.box.checked; };
     web.box.addEventListener('change', sync);
     place.box.addEventListener('change', sync);
@@ -846,8 +851,8 @@ export class Dialogs {
     const labels = check(t('Sheets.Chart.Labels'), chart.labels);
     const byRows = check(t('Sheets.Chart.ByRows'), chart.byRows);
     const colors = (chart.colors?.length ? chart.colors : CHART_COLORS).slice(0, 6).map(c => input({ type: 'color', value: c, class: 'mo-sheets-fmt__color' }));
-    const body = el('div', { class: 'mo-sheets-form' }, row(field(t('Sheets.Chart.Type'), type), field(t('Sheets.Chart.Range'), range)), field(t('Sheets.Chart.Title'), title),
-      row(field(t('Sheets.Chart.Legend'), legend), field(t('Sheets.Chart.XTitle'), xTitle), field(t('Sheets.Chart.YTitle'), yTitle)),
+    const body = el('div', { class: 'mo-sheets-form' }, formRow(field(t('Sheets.Chart.Type'), type), field(t('Sheets.Chart.Range'), range)), field(t('Sheets.Chart.Title'), title),
+      formRow(field(t('Sheets.Chart.Legend'), legend), field(t('Sheets.Chart.XTitle'), xTitle), field(t('Sheets.Chart.YTitle'), yTitle)),
       el('div', { class: 'mat-checks mat-checks--inline' }, stacked, labels, byRows), field(t('Sheets.Chart.Colors'), el('div', { class: 'mo-sheets-colors' }, ...colors)));
     const r = await this.open({ title: t('Sheets.Chart.Edit'), icon: 'sheets-chart-column', body, size: 'lg', buttons: [OK(), CANCEL()] });
     if (r !== 'ok') return;

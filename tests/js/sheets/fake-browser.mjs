@@ -6,7 +6,7 @@ class FakeNode {
     this.attrs = {};
     this.children = [];
     this.listeners = {};
-    this.style = {};
+    this.style = { setProperty(k, v) { this[k] = v; } };
     this.dataset = {};
     this.textContent = '';
     this.hidden = false;
@@ -32,6 +32,7 @@ class FakeNode {
   dispatch(type, event = {}) { for (const fn of this.listeners[type] || []) fn({ preventDefault() {}, stopPropagation() {}, target: this, ...event }); }
   append(...nodes) { this.children.push(...nodes); }
   appendChild(node) { this.children.push(node); return node; }
+  insertBefore(node, before) { const i = this.children.indexOf(before); if (i < 0) this.children.push(node); else this.children.splice(i, 0, node); return node; }
   replaceChildren(...nodes) { this.children = nodes; }
   replaceWith() {}
   remove() {}
@@ -66,8 +67,18 @@ class FakeCanvas extends FakeNode {
   toBlob(cb) { cb(null); }
 }
 
+Object.assign(FakeNode.prototype, {
+  setPointerCapture() {}, releasePointerCapture() {}, scrollIntoView() {}, requestSubmit() {}, click() {},
+  get isContentEditable() { return false; },
+});
+
 globalThis.Node = FakeNode;
 globalThis.window = globalThis;
+globalThis.addEventListener = () => {};
+globalThis.removeEventListener = () => {};
+Object.defineProperty(globalThis, 'localStorage', { value: { getItem: () => null, setItem() {}, removeItem() {} }, configurable: true });
+globalThis.MatUi = { dialog: { open() {}, close() {} }, confirm: async () => false, toast() {} };
+globalThis.DOMParser = class { parseFromString() { return { querySelector: () => null, querySelectorAll: () => [] }; } };
 globalThis.devicePixelRatio = 1;
 globalThis.matchMedia = () => ({ matches: false, addEventListener() {} });
 globalThis.ResizeObserver = class { observe() {} };
