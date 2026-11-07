@@ -301,7 +301,7 @@
 /* ---- find and replace ---- */
 .mo-docs-find {
   position: absolute; z-index: 30; top: 8px; right: 18px; display: flex; flex-direction: column; gap: 6px; width: min(380px, calc(100% - 24px)); box-sizing: border-box; padding: 10px;
-  border: 1px solid var(--mat-border); border-radius: 8px; background: var(--mat-surface); color: var(--mat-text); box-shadow: var(--mat-shadow-lg, 0 8px 24px rgba(0, 0, 0, .2));
+  border: 1px solid var(--mat-border); border-radius: 8px; background: var(--mat-surface); color: var(--mat-text); box-shadow: var(--mat-shadow-3);
   font-size: 13px;
 }
 .mo-docs-find[hidden] { display: none; }

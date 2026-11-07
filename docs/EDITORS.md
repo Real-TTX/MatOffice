@@ -257,7 +257,7 @@ second line, as the browser shows it. A list level whose kind changes (numbers, 
   several paragraphs, paste, drop, formatting, styles and lists read the blocks into the model (`model.js`, `htmlio.js`), change them, render them
   again and put the selection back by character offsets. Undo/redo are snapshots whose unchanged blocks share their strings (pictures kept once).
 - **Print**: `@page` with the size and margins of the document; header and footer as margin boxes (their text, page fields as counters).
-- **Tests**: the modules without the DOM are tested in Node: `node --test tests/js/`.
+- **Tests**: the modules without the DOM are tested in Node: `node --test "tests/js/docs/*.test.mjs"`.
 
 ## Base content
 

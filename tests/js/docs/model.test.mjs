@@ -1,4 +1,4 @@
-// The model of MatOffice Docs without a browser: node --test tests/js/
+// The model of MatOffice Docs without a browser: node --test "tests/js/docs/*.test.mjs"
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -7,7 +7,7 @@ import {
   deleteRuns, insertRuns, formatRuns, formatAt, runsText, rangeHas, rangeValue, splitBlock, mergeBlocks, textBlocks, writeRuns, writeBlocks, newTable,
   tableGrid, columnCount, changeCase, countWords, statistics, findAll, newId, tocBlocks, fieldText, safeHref, linkFromInput, safeImage, isId, isItemId,
   textRun, runsLength,
-} from '../../src/MatOffice/wwwroot/js/docs/model.js';
+} from '../../../src/MatOffice/wwwroot/js/docs/model.js';
 
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 const p = (runs, props = {}) => ({ type: 'p', css: {}, runs, ...props });
