@@ -134,3 +134,66 @@ Two endpoints convert without reading or writing a document (a signed-in person,
 - `POST /live/convert/<slug>/write?ext=.xlsx&name=…` – body: content JSON → the file (`Export`), e.g. the state on the screen, or one table of a database.
 
 The secret of a host session is the last part of `ctx.doc.api` (`/live/host/<secret>`).
+
+## Docs content
+
+The content of a Docs document (`Services/Formats/Docs/DocsHandler.cs` checks it, `wwwroot/js/docs/` edits it). Lengths of the page are millimetres.
+
+```json
+{
+  "version": 1,
+  "page": { "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+            "margins": { "top": 25, "right": 25, "bottom": 20, "left": 25 }, "header": 12.5, "footer": 12.5,
+            "columns": 1, "differentFirst": false },
+  "html": "<h1 id=\"h-intro\">Introduction</h1><p>Text …</p>",
+  "header": "<p>…</p>", "footer": "<p style=\"text-align: center\"><span data-field=\"page\"></span></p>",
+  "firstHeader": "", "firstFooter": "",
+  "notes": [ { "id": "n1", "html": "<p>The text of the note</p>" } ],
+  "comments": [ { "id": "c1", "author": "Ada", "date": "2026-11-07T10:00:00Z", "text": "Check this", "done": false,
+                  "replies": [ { "id": "r1", "author": "Bob", "date": "2026-11-07T11:00:00Z", "text": "Done" } ] } ],
+  "settings": { "language": "en", "spellcheck": true }
+}
+```
+
+- `page.size`: `A4`, `A5`, `A3`, `Letter`, `Legal` or `Custom`; `width`/`height` are the portrait size in mm (they decide for `Custom`, the named sizes
+  have their own). `orientation`: `portrait`/`landscape` (landscape swaps width and height). `margins` from the edges of the paper; `header`/`footer` = the
+  distance of the header from the top edge and of the footer from the bottom edge. `columns`: 1, 2 or 3. `differentFirst`: the first page uses
+  `firstHeader`/`firstFooter`.
+- `html` (the body), `header`, `footer`, `firstHeader`, `firstFooter` and `notes[].html` are **Docs HTML** (below), always sanitized by the server.
+- `notes`: footnotes/endnotes, referenced in the text by `<sup data-fn="n1"></sup>` (the number is the position of the first reference; the editor shows
+  them at the end of the document). Notes without a reference are dropped.
+- `comments`: comments on text, anchored by `<span data-comment="c1">` (several ids separated by spaces when comments overlap; a comment over several
+  paragraphs has one span in each). `text` is plain text. `done` = resolved.
+- `settings.language`: the language of the text (spelling, `lang`), `en`, `de`, `en-US` …; `spellcheck`: the browser underlines spelling mistakes.
+
+### Docs HTML
+
+A flat list of blocks (no `div`, `ul`, `ol`, `section` …); lists are paragraphs with list attributes, so a block is never inside another block
+(except the paragraphs inside table cells).
+
+| Block | Meaning |
+|---|---|
+| `<p>` | a paragraph of the style Normal; `data-style` names another paragraph style: `NoSpacing`, `Title`, `Subtitle`, `ListParagraph`, `Caption`, `TOCHeading`, `TOC1`, `TOC2`, `TOC3` |
+| `<h1>` … `<h6>` | Heading 1 … 6 (they carry an `id` like `h-xxxxxx` when the table of contents or a link points to them) |
+| `<blockquote>` | Quote; `data-style="IntenseQuote"` Intense Quote (phrasing content only, like a paragraph) |
+| `<pre>` | Code (phrasing content, spaces and line breaks kept) |
+| `data-list` on `p`/`h1`–`h6` | a list item: `bullet`, `circle`, `square`, `dash`, `check`, `arrow` (bullets), `decimal`, `lower-alpha`, `upper-alpha`, `lower-roman`, `upper-roman`, `outline` (1., 1.1., 1.1.1.). `data-level` 0 … 8 (deeper levels: bullets • ◦ ▪, numbers 1. a. i.), `data-start="5"` starts the numbering anew at 5. Consecutive list paragraphs form one list; any other block ends it. |
+| `<table>` | `data-table-style` = `grid`, `plain`, `light`, `striped`, `accent1`, `accent2`, `accent6`; `style="width: 100%"`; `<colgroup><col style="width: 30%">…`; `<thead>` with `<th>` cells = the header row; `<tbody>`/`<tr>`/`<td>` with `colspan`/`rowspan`, cell styles `background-color`, `vertical-align`, `border-*`; a cell holds paragraphs (and lists, rarely a table) |
+| `<hr>` | a horizontal line |
+| `<div data-break="page"></div>` | a manual page break (`data-break="column"`: a column break) |
+
+Paragraph formatting is inline CSS on the block: `text-align` (left, center, right, justify), `line-height` (a number L = Word's "multiple" × 1.2:
+1.2 = single, 1.38 = 1.15, 1.8 = 1.5 lines, 2.4 = double; or `pt` for "exactly"), `margin-top`/`margin-bottom` (space before/after, pt),
+`margin-left`/`margin-right` (indents, pt), `text-indent` (first line, pt; negative = hanging), `background-color`, `border*`, `padding*`.
+The styles themselves (Normal: Calibri 11 pt, line 1.3, 8 pt after; Heading 1: Calibri Light 16 pt #2f5496, 12 pt before …) are defined once in
+`wwwroot/css/docs.css` (class `mo-docs-content`) and in the converters (`Services/Formats/Docs`).
+
+Inline content: text (spaces and tabs are kept: `white-space: pre-wrap`; a tab is `\t`), `<strong>`, `<em>`, `<u>`, `<s>`, `<sub>`, `<sup>`,
+`<span style="…">` with `font-family`, `font-size` (pt), `color`, `background-color` (highlight), `<a href>` (`http:`, `https:`, `mailto:` or `#id`),
+`<br>`, `<img src="data:image/png|jpeg|gif|webp;base64,…" alt style="width: …px; height: …px" data-align="left|right|center">` (no `data-align`:
+inline with the text), `<sup data-fn="n1"></sup>` (a note reference), `<span data-comment="c1"></span>` (a comment anchor around text),
+`<span data-field="page|pages|date|time|title"></span>` (fields, mostly in header and footer). The editor writes the formatting in this canonical
+nesting: `a` › `span[data-comment]` › `span[style]` › `strong` › `em` › `u` › `s` › `sub`/`sup` › text.
+
+The server keeps only this allowlist (HtmlSanitizer): no `class`, no other `data-*`, no `script`/`style`/`iframe`/`object`/`form`/event attributes,
+no `url(…)` in styles, links only `http(s):`/`mailto:`/`#`, images only `data:image/(png|jpeg|gif|webp)`.
