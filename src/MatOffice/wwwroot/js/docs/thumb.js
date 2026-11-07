@@ -48,8 +48,9 @@ async function rendered(app, g, blocks, outW, outH, scale) {
     + `<div class="mo-docs-content" style="position:absolute;top:${px(g.top)};left:${px(g.left)};width:${px(g.textWidth)};height:${px(g.textHeight)};overflow:hidden;${columns}">${body}</div>`
     + `<div class="mo-docs-ftr mo-docs-content">${part('.mo-docs-ftr')}</div></div>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.ceil(g.paperWidth)}" height="${Math.ceil(g.paperHeight)}"><foreignObject x="0" y="0" width="100%" height="100%">${page}</foreignObject></svg>`;
-  const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-  try {
+  // a data: address (a blob: address would taint the canvas in Chromium)
+  const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  {
     const img = await new Promise((resolve, reject) => { const i = new Image(); i.onload = () => resolve(i); i.onerror = reject; i.src = url; });
     const canvas = document.createElement('canvas');
     canvas.width = outW;
@@ -60,8 +61,6 @@ async function rendered(app, g, blocks, outW, outH, scale) {
     const w = g.paperWidth * scale, h = g.paperHeight * scale;
     c.drawImage(img, (outW - w) / 2, (outH - h) / 2, w, h);
     return await new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('blob'))), 'image/png'));
-  } finally {
-    URL.revokeObjectURL(url);
   }
 }
 

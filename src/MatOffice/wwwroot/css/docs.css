@@ -381,4 +381,6 @@
   .mo-docs-content span[data-field], .mo-docs-body table[data-table-style="plain"] :is(td, th) { background: none !important; outline: 0 !important; }
   .mo-marks .mo-docs-content :is(p, h1, h2, h3, h4, h5, h6, blockquote, pre)::after { content: none !important; }
   .mo-docs-stack.is-hf .mo-docs-body, .mo-docs-stack.is-hf .mo-docs-notes { opacity: 1; }
+  .mo-docs-shell [data-mo-host] { caret-color: transparent; }
+  .mo-docs-body img.is-selected { outline: 0; }
 }

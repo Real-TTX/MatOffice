@@ -17,8 +17,8 @@ const BLOCKISH = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote',
 const FONT_SIZES = { 1: 8, 2: 10, 3: 12, 4: 14, 5: 18, 6: 24, 7: 36 };
 const MONO = fontStack('Consolas');
 
-/** The tag name of an element in lower case without a namespace prefix (Word writes o:p, v:shape …). */
-const tagOf = el => (el.localName || el.nodeName || '').toLowerCase().replace(/^.*:/, '');
+/** The tag name of an element in lower case; Word's o:p, v:shape … keep their prefix (unknown inline elements, never a paragraph). */
+const tagOf = el => (el.localName || el.nodeName || '').toLowerCase();
 
 const isPlaceholderBr = (block, br) => {
   // the last <br> of a block (nothing visible after it) is not content
