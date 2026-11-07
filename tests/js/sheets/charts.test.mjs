@@ -1,5 +1,6 @@
 // MatOffice Sheets – charts: the data read like Excel (series names, categories) and every chart type drawn without an error
 // (a tiny stand-in for the SVG elements of the browser).
+import './fake-dom.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Workbook } from '../../../src/MatOffice/wwwroot/js/sheets/model.js';
@@ -9,15 +10,9 @@ import { Look } from '../../../src/MatOffice/wwwroot/js/sheets/look.js';
 import { Commands } from '../../../src/MatOffice/wwwroot/js/sheets/commands.js';
 import { chartData, renderChart, niceScale, CHART_TYPES } from '../../../src/MatOffice/wwwroot/js/sheets/charts.js';
 import { key } from '../../../src/MatOffice/wwwroot/js/sheets/engine/address.js';
+import { Filters } from '../../../src/MatOffice/wwwroot/js/sheets/filter.js';
 
-class FakeNode {
-  constructor(tag) { this.tag = tag; this.attrs = {}; this.children = []; this.textContent = ''; }
-  setAttribute(k, v) { this.attrs[k] = v; }
-  append(...nodes) { this.children.push(...nodes); }
-  insertBefore(node) { this.children.unshift(node); }
-  count(tag) { return (this.tag === tag ? 1 : 0) + this.children.reduce((n, c) => n + c.count(tag), 0); }
-}
-globalThis.document = { createElementNS: (ns, tag) => new FakeNode(tag) };
+
 
 function makeApp(cells) {
   const sheetCells = {};
@@ -62,6 +57,24 @@ test('every type of chart is drawn', () => {
   }
   const empty = renderChart({ type: 'pie', range: 'Z1:Z2' }, { categories: [], series: [] }, { width: 200, height: 100 });
   assert.equal(empty.tag, 'svg');
+});
+
+test('the AutoFilter hides the rows that do not match (values, conditions, data typed below)', () => {
+  const app = makeApp({ ...sales, A5: 'East', B5: 20, C5: 1 });
+  const sheet = app.sheet;
+  const filters = new Filters(app);
+  sheet.filter = { range: 'A1:C4', cols: { A: { values: ['North', 'East'] } } };
+  filters.apply(sheet);
+  assert.deepEqual([...sheet.rows.filtered].sort(), [2, 3]); // South, West hidden; East (typed below) is in the range
+  sheet.filter = { range: 'A1:C5', cols: { B: { cond: { op: 'gt', v: '8' } } } };
+  filters.apply(sheet);
+  assert.deepEqual([...sheet.rows.filtered].sort(), [2, 3]);
+  sheet.filter = { range: 'A1:C5', cols: { A: { cond: { op: 'begins', v: 's', op2: 'ends', v2: 't', or: true } } } };
+  filters.apply(sheet);
+  assert.deepEqual([...sheet.rows.filtered].sort(), [1]);
+  sheet.filter = { range: 'A1:C5' };
+  filters.apply(sheet);
+  assert.equal(sheet.rows.filtered.size, 0);
 });
 
 test('nice scales of the value axis', () => {
