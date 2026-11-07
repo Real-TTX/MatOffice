@@ -1,0 +1,95 @@
+{
+  "en": {
+    "version": 1,
+    "page": {
+      "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+      "margins": { "top": 45, "right": 20, "bottom": 25, "left": 25 }, "header": 12.5, "footer": 10, "columns": 1, "differentFirst": true
+    },
+    "html": [
+      "<p data-style=\"NoSpacing\">Ms Emma Taylor</p>",
+      "<p data-style=\"NoSpacing\">Head of Operations</p>",
+      "<p data-style=\"NoSpacing\">Contoso Ltd</p>",
+      "<p data-style=\"NoSpacing\">45 Deansgate</p>",
+      "<p data-style=\"NoSpacing\">Manchester M3 2AY</p>",
+      "<p style=\"text-align: right; margin-top: 24pt\">12 November 2026</p>",
+      "<p style=\"margin-top: 12pt\"><strong>Your enquiry about the redesign of your customer portal</strong></p>",
+      "<p>Dear Ms Taylor,</p>",
+      "<p>Thank you for your enquiry of 28 October and for taking the time to show us your current portal last week. We were impressed by how much your customers already do online, and we can see clear ways to make it simpler and faster for them.</p>",
+      "<p>Please find enclosed our proposal for the redesign. We suggest working in three phases – discovery, design and development – so that you can review the results after each phase and decide how to continue. We could start the discovery phase as early as 1 December 2026.</p>",
+      "<p>Our proposal is valid until 15 December 2026. If you have any questions, or would like to talk through the details in person, please call me on +44 20 7946 0158 or write to <a href=\"mailto:jane.doe@example.com\">jane.doe@example.com</a>.</p>",
+      "<p>We look forward to working with you.</p>",
+      "<p>Yours sincerely,</p>",
+      "<p data-style=\"NoSpacing\" style=\"margin-top: 36pt\">Jane Doe</p>",
+      "<p data-style=\"NoSpacing\">Head of Client Services</p>",
+      "<p style=\"margin-top: 18pt\">Enclosure: Proposal NC-2026-117</p>"
+    ],
+    "header": "",
+    "footer": [
+      "<p style=\"text-align: right\"><span style=\"font-size: 9pt; color: #595959\">Page <span data-field=\"page\"></span> of <span data-field=\"pages\"></span></span></p>"
+    ],
+    "firstHeader": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 20pt; color: #185abd\"><strong>Northwind Consulting</strong></span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 9pt; color: #595959\">12 High Street · London EC1A 1BB · +44 20 7946 0123 · hello@example.com</span></p>"
+    ],
+    "firstFooter": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Northwind Consulting Ltd · Registered in England and Wales, company no. 01234567 · VAT reg. no. GB 123 4567 89</span></p>"
+    ],
+    "notes": [],
+    "comments": [],
+    "settings": { "language": "en-GB", "spellcheck": true }
+  },
+  "de": {
+    "version": 1,
+    "page": {
+      "size": "A4", "width": 210, "height": 297, "orientation": "portrait",
+      "margins": { "top": 45, "right": 20, "bottom": 25, "left": 25 }, "header": 12.5, "footer": 10, "columns": 1, "differentFirst": true
+    },
+    "html": [
+      "<table data-table-style=\"plain\" style=\"width: 100%\"><colgroup><col style=\"width: 61%\"><col style=\"width: 39%\"></colgroup><tbody><tr>",
+      "<td>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 8pt\">Muster GmbH · Musterstraße 12 · 12345 Musterstadt</span></p>",
+      "<p data-style=\"NoSpacing\"></p>",
+      "<p data-style=\"NoSpacing\">Beispiel AG</p>",
+      "<p data-style=\"NoSpacing\">Frau Erika Beispiel</p>",
+      "<p data-style=\"NoSpacing\">Hauptstraße 5</p>",
+      "<p data-style=\"NoSpacing\">54321 Beispielstadt</p>",
+      "</td>",
+      "<td>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Ihr Zeichen: EB-114</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Ihre Nachricht vom: 28.10.2026</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Unser Zeichen: MM-VT</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Name: Max Mustermann</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Telefon: 030 1234567-12</span></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">E-Mail: max.mustermann@example.com</span></p>",
+      "<p data-style=\"NoSpacing\"></p>",
+      "<p data-style=\"NoSpacing\"><span style=\"font-size: 9pt\">Datum: 12.11.2026</span></p>",
+      "</td>",
+      "</tr></tbody></table>",
+      "<p style=\"margin-top: 24pt\"><strong>Ihre Anfrage zur Neugestaltung des Kundenportals</strong></p>",
+      "<p style=\"margin-top: 12pt\">Sehr geehrte Frau Beispiel,</p>",
+      "<p>vielen Dank für Ihre Anfrage vom 28. Oktober 2026 und für das freundliche Gespräch in der vergangenen Woche. Gern senden wir Ihnen unser Angebot für die Neugestaltung Ihres Kundenportals.</p>",
+      "<p>Wir schlagen vor, das Projekt in drei Phasen durchzuführen: Analyse, Gestaltung und Umsetzung. So können Sie nach jeder Phase die Ergebnisse prüfen und über das weitere Vorgehen entscheiden. Mit der Analyse könnten wir bereits am 1. Dezember 2026 beginnen.</p>",
+      "<p>Unser Angebot gilt bis zum 15. Dezember 2026. Wenn Sie Fragen haben oder die Einzelheiten gern persönlich besprechen möchten, erreichen Sie mich unter der oben genannten Telefonnummer oder per E-Mail.</p>",
+      "<p>Wir freuen uns auf die Zusammenarbeit mit Ihnen.</p>",
+      "<p>Mit freundlichen Grüßen</p>",
+      "<p data-style=\"NoSpacing\" style=\"margin-top: 36pt\">Max Mustermann</p>",
+      "<p data-style=\"NoSpacing\">Vertriebsleitung</p>",
+      "<p style=\"margin-top: 18pt\">Anlage<br>Angebot Nr. 2026-117</p>"
+    ],
+    "header": "",
+    "footer": [
+      "<p style=\"text-align: right\"><span style=\"font-size: 9pt; color: #595959\">Seite <span data-field=\"page\"></span> von <span data-field=\"pages\"></span></span></p>"
+    ],
+    "firstHeader": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 20pt; color: #185abd\"><strong>Muster GmbH</strong></span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: right\"><span style=\"font-size: 9pt; color: #595959\">Musterstraße 12 · 12345 Musterstadt · Telefon 030 1234567-0 · info@example.com</span></p>"
+    ],
+    "firstFooter": [
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Muster GmbH · Sitz: Musterstadt · Amtsgericht Musterstadt HRB 12345 · Geschäftsführer: Max Mustermann</span></p>",
+      "<p data-style=\"NoSpacing\" style=\"text-align: center\"><span style=\"font-size: 8pt; color: #595959\">Musterbank · IBAN DE12 3456 7890 1234 5678 90 · BIC MUSTDEM1XXX · USt-IdNr. DE123456789</span></p>"
+    ],
+    "notes": [],
+    "comments": [],
+    "settings": { "language": "de-DE", "spellcheck": true }
+  }
+}

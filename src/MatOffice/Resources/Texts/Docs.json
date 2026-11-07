@@ -1,0 +1,22 @@
+{
+  "Docs.Format.Docx": { "en": "Word document", "de": "Word-Dokument" },
+  "Docs.Format.Html": { "en": "Web page (HTML)", "de": "Webseite (HTML)" },
+  "Docs.Format.Markdown": { "en": "Markdown", "de": "Markdown" },
+  "Docs.Format.Text": { "en": "Plain text", "de": "Nur Text" },
+
+  "Docs.Import.Damaged": { "en": "The Word file could not be read. Is it damaged, protected with a password or an old .doc file?", "de": "Die Word-Datei ließ sich nicht lesen. Ist sie beschädigt, mit einem Kennwort geschützt oder eine alte .doc-Datei?" },
+  "Docs.Export.Failed": { "en": "The document could not be written in this format.", "de": "Das Dokument ließ sich nicht in diesem Format schreiben." },
+
+  "Docs.Template.Letter": { "en": "Business letter", "de": "Geschäftsbrief" },
+  "Docs.Template.Letter.Text": { "en": "Sender, recipient, date, subject and a closing – ready to print and send", "de": "Absender, Empfänger, Datum, Betreff und Grußformel – nach DIN 5008, bereit zum Drucken" },
+  "Docs.Template.Report": { "en": "Report", "de": "Bericht" },
+  "Docs.Template.Report.Text": { "en": "Title page, table of contents, chapters, a table and page numbers", "de": "Titel, Inhaltsverzeichnis, Kapitel, eine Tabelle und Seitenzahlen" },
+  "Docs.Template.Meeting": { "en": "Meeting notes", "de": "Besprechungsprotokoll" },
+  "Docs.Template.Meeting.Text": { "en": "Details, agenda, decisions and action items with owners and dates", "de": "Eckdaten, Tagesordnung, Beschlüsse und Aufgaben mit Verantwortlichen und Terminen" },
+  "Docs.Template.Resume": { "en": "Résumé", "de": "Lebenslauf" },
+  "Docs.Template.Resume.Text": { "en": "Profile, experience, education and skills on one clear page", "de": "Profil, Berufserfahrung, Ausbildung und Kenntnisse auf einer klaren Seite" },
+  "Docs.Template.Proposal": { "en": "Project proposal", "de": "Projektvorschlag" },
+  "Docs.Template.Proposal.Text": { "en": "Goals, scope, timeline, budget and risks of a project", "de": "Ziele, Umfang, Zeitplan, Budget und Risiken eines Projekts" },
+  "Docs.Template.Invoice": { "en": "Invoice", "de": "Rechnung" },
+  "Docs.Template.Invoice.Text": { "en": "Items, totals with tax and payment details", "de": "Positionen, Summen mit Steuer und Zahlungsangaben" }
+}
