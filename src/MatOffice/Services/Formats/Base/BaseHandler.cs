@@ -72,6 +72,9 @@ public sealed class BaseHandler : IKindHandler
 
     public string NativeExtension => ".matbase";
 
+    /// <summary>Excel holds only the tables of a database (no queries, forms, reports, relationships): a new database is the own format.</summary>
+    public string NewFileExtension => NativeExtension;
+
     public IReadOnlyList<FileFormat> Formats { get; } =
     [
         new(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Excel", CanImport: true, CanExport: true),

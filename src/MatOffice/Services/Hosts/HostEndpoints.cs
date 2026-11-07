@@ -42,7 +42,7 @@ public static class HostEndpoints
                     ["name"] = Text.T("Kinds." + h.Kind),
                     ["colour"] = h.Colour,
                     ["native"] = h.NativeExtension,
-                    ["newFormat"] = h.Formats.FirstOrDefault(f => f.CanImport && f.CanExport)?.Extension ?? h.NativeExtension,
+                    ["newFormat"] = h.NewFileExtension,
                     ["formats"] = formats,
                 });
             }

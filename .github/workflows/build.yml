@@ -72,6 +72,14 @@ jobs:
       - name: Test
         run: dotnet test MatOffice.slnx -c Release --no-build --verbosity normal --logger GitHubActions
 
+      # the pure modules of the editors (formula engine, expressions, content models, layout) are tested in Node, without a browser
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test the modules of the editors
+        run: node --test "tests/js/**/*.test.mjs"
+
       - name: Resolve version string
         id: appver
         shell: bash
