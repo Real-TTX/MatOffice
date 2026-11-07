@@ -1,0 +1,25 @@
+{
+  "Sheets.SheetName": { "en": "Sheet{0}", "de": "Tabelle{0}" },
+
+  "Sheets.Format.Xlsx": { "en": "Excel workbook (.xlsx)", "de": "Excel-Arbeitsmappe (.xlsx)" },
+  "Sheets.Format.Csv": { "en": "CSV, comma-separated (.csv)", "de": "CSV, durch Kommas getrennt (.csv)" },
+  "Sheets.Format.Tsv": { "en": "Text, tab-separated (.tsv)", "de": "Text, durch Tabstopps getrennt (.tsv)" },
+
+  "Sheets.Invalid.NoSheets": { "en": "The workbook has no sheets.", "de": "Die Arbeitsmappe hat keine Tabellenblätter." },
+  "Sheets.Invalid.TooManySheets": { "en": "A workbook can have at most 200 sheets.", "de": "Eine Arbeitsmappe kann höchstens 200 Tabellenblätter haben." },
+  "Sheets.Invalid.TooManyCells": { "en": "A workbook can have at most 2,000,000 filled cells.", "de": "Eine Arbeitsmappe kann höchstens 2.000.000 gefüllte Zellen haben." },
+  "Sheets.Export.Failed": { "en": "The workbook could not be written as a file.", "de": "Die Arbeitsmappe ließ sich nicht als Datei schreiben." },
+
+  "Sheets.Template.Budget": { "en": "Monthly budget", "de": "Monatsbudget" },
+  "Sheets.Template.Budget.Text": { "en": "Income and expenses of a month with totals, differences and shares", "de": "Einnahmen und Ausgaben eines Monats mit Summen, Differenzen und Anteilen" },
+  "Sheets.Template.Invoice": { "en": "Invoice", "de": "Rechnung" },
+  "Sheets.Template.Invoice.Text": { "en": "Items with quantity and price, net amount, VAT, total and due date", "de": "Positionen mit Menge und Preis, Nettobetrag, Umsatzsteuer, Gesamtbetrag und Fälligkeit" },
+  "Sheets.Template.Tasks": { "en": "Task tracker", "de": "Aufgabenliste" },
+  "Sheets.Template.Tasks.Text": { "en": "Tasks with owner, status and due date; overdue ones are marked", "de": "Aufgaben mit Verantwortlichen, Status und Fälligkeit; überfällige werden markiert" },
+  "Sheets.Template.Schedule": { "en": "Weekly schedule", "de": "Wochenplan" },
+  "Sheets.Template.Schedule.Text": { "en": "Monday to Sunday in half-hour steps", "de": "Montag bis Sonntag in halbstündigen Schritten" },
+  "Sheets.Template.Loan": { "en": "Loan calculator", "de": "Kreditrechner" },
+  "Sheets.Template.Loan.Text": { "en": "Monthly payment, total interest and a repayment schedule", "de": "Monatliche Rate, Zinsen insgesamt und ein Tilgungsplan" },
+  "Sheets.Template.Sales": { "en": "Sales report", "de": "Umsatzbericht" },
+  "Sheets.Template.Sales.Text": { "en": "Sales per region and quarter with totals and a chart", "de": "Umsätze nach Region und Quartal mit Summen und Diagramm" }
+}
