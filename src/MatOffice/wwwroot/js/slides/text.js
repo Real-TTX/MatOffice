@@ -244,11 +244,11 @@ export class TextEditor {
       bodyEl.classList.remove('mo-slides-editing');
     }
     document.removeEventListener('selectionchange', this.onSel);
-    const id = this.active.id;
+    const { id, cell } = this.active;
     this.active = null;
     this.bodyEl = null;
     if (getSelection().rangeCount && bodyEl?.contains(getSelection().anchorNode)) getSelection().removeAllRanges();
-    this.app.editingStopped(id);
+    this.app.editingStopped(id, cell);
   }
 
   // ---- reading the DOM back -------------------------------------------------------------------------------------------------------
@@ -385,7 +385,9 @@ export class TextEditor {
 
   /** The range to act on: the selection, else the last one known (a ribbon control may have the focus). */
   range() {
-    return this.getRange() || this.active?.last || { start: { p: 0, o: 0 }, end: { p: 0, o: 0 } };
+    const live = this.getRange();
+    if (live && this.active) this.active.last = live;
+    return live || this.active?.last || { start: { p: 0, o: 0 }, end: { p: 0, o: 0 } };
   }
 
   selectionChanged() {
@@ -398,10 +400,13 @@ export class TextEditor {
     this.app.selectionChanged(true);
   }
 
+  /** Gives the focus back to the text (after a ribbon control had it); the caret stays where it is, or comes back where it was. */
   refocus() {
     if (!this.bodyEl) return;
+    const live = this.getRange();
     this.bodyEl.focus({ preventScroll: true });
-    if (this.active?.last) this.setRange(this.active.last);
+    if (live) this.setRange(live);
+    else if (this.active?.last) this.setRange(this.active.last);
   }
 
   // ---- changes on the model --------------------------------------------------------------------------------------------------------

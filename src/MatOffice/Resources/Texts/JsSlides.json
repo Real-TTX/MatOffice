@@ -289,6 +289,7 @@
   "Js.Slides.Footer.ApplyAll": { "en": "Apply to all", "de": "Für alle übernehmen" },
 
   "Js.Slides.Themes": { "en": "Themes", "de": "Designs" },
+  "Js.Slides.Themes.More": { "en": "All themes", "de": "Alle Designs" },
   "Js.Slides.Theme.paper": { "en": "Paper", "de": "Papier" },
   "Js.Slides.Theme.slate": { "en": "Slate", "de": "Schiefer" },
   "Js.Slides.Theme.horizon": { "en": "Horizon", "de": "Horizont" },

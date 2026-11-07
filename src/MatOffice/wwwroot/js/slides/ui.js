@@ -199,7 +199,7 @@ export function themePreview(content, themeId, variant = 0, width = 116) {
   const theme = makeTheme(themeId, variant);
   const fake = { ...content, theme, footer: null, size: content.size };
   const slide = newSlide(fake, 'title');
-  slide.elements[0].text = { paras: [{ runs: [{ t: 'Aa' }] }], autofit: 'none' };
+  slide.elements[0].text = { paras: [{ runs: [{ t: 'Aa', size: 140 }] }], autofit: 'none' };
   slide.elements.length = 1;
   const node = renderSlide(fake, slide, { mode: 'view' });
   const scale = width / content.size.w;

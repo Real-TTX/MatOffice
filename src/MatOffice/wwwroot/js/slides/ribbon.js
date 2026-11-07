@@ -1,6 +1,7 @@
 /* MatOffice Slides – the ribbon: Home, Insert, Design, Transitions, Animations, Slide Show, View and the contextual tabs Shape Format,
    Picture Format and Table (shown while such an object is selected), laid out like the office suites. Items: see frame.js (Ribbon). */
 import { t, el, icon } from '../editor/util.js';
+import { openPopover } from '../editor/frame.js';
 import { THEMES, VARIANTS, isNumbering, NUMBERINGS, BULLETS } from './model.js';
 import { colorButton, shapeGallery, quickStyles, tableGrid, symbolPicker, themePreview, variantPreview, layoutGallery } from './ui.js';
 import { tableLook, resolveColor } from './model.js';
@@ -152,7 +153,7 @@ export function buildRibbon(app) {
   // ---- Design ---------------------------------------------------------------------------------------------------------------------------
 
   const design = [
-    { label: t('Slides.Group.Themes'), items: [{ type: 'gallery', label: t('Slides.Themes'), items: THEMES.map(th => ({ label: t('Slides.Theme.' + th.id), render: () => themePreview(app.content, th.id, 0, 96), active: () => app.content.theme.id === th.id, run: () => app.setTheme(th.id) })) }] },
+    { label: t('Slides.Group.Themes'), items: [themeGallery(app)] },
     { label: t('Slides.Group.Variants'), items: [{ type: 'gallery', label: t('Slides.Variants'), items: [0, ...VARIANTS.map((v, i) => i + 1)].map(v => ({ label: v === 0 ? t('Slides.Variant.Own') : t('Slides.Variant.' + VARIANTS[v - 1].id), render: () => variantPreview(app.content, v, 58), active: () => (app.content.theme.variant || 0) === v, run: () => app.setVariant(v) })) }] },
     { label: t('Slides.Group.Customize'), items: [
       { type: 'menu', size: 'large', label: t('Slides.SlideSize'), icon: 'slides-slide-size', items: () => [
@@ -394,6 +395,43 @@ function tablePic(app, kind, accent) {
     box.append(row);
   }
   return box;
+}
+
+/** The designs: a strip in the ribbon and, like the office suites, an arrow that opens all of them as a grid. */
+function themeGallery(app) {
+  const tile = (th, width, close) => {
+    const label = t('Slides.Theme.' + th.id);
+    const b = el('button', { type: 'button', class: 'mo-rgallery__item', role: 'option', 'aria-label': label, 'data-tip': label, 'data-theme': th.id },
+      themePreview(app.content, th.id, 0, width));
+    b.addEventListener('click', () => { if (app.readOnly) return; close?.(); app.setTheme(th.id); });
+    return b;
+  };
+  return {
+    type: 'custom',
+    render: () => {
+      const strip = el('div', { class: 'mo-rgallery mo-slides-themestrip', role: 'listbox', 'aria-label': t('Slides.Themes') }, ...THEMES.map(th => tile(th, 96)));
+      const more = el('button', { type: 'button', class: 'mo-rbtn mo-slides-gallerymore', 'aria-label': t('Slides.Themes.More'), 'data-tip': t('Slides.Themes.More'), 'aria-haspopup': 'true' }, icon('chevron-down'));
+      more.addEventListener('click', () => openPopover(more, close => el('div', { class: 'mo-slides-gallery' },
+        el('div', { class: 'mo-menu__heading', text: t('Slides.Themes') }),
+        el('div', { class: 'mo-slides-gallery__themes', role: 'listbox', 'aria-label': t('Slides.Themes') }, ...THEMES.map(th => {
+          const b = tile(th, 116, close);
+          b.setAttribute('aria-selected', app.content.theme.id === th.id ? 'true' : 'false');
+          return b;
+        })))));
+      const node = el('div', { class: 'mo-slides-galwrap' }, strip, more);
+      node.refresh = () => {
+        for (const b of strip.children) {
+          const on = app.content.theme.id === b.dataset.theme;
+          b.disabled = app.readOnly;
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+          if (on && (b.offsetLeft < strip.scrollLeft || b.offsetLeft + b.offsetWidth > strip.scrollLeft + strip.clientWidth)) strip.scrollLeft = b.offsetLeft - 4;
+        }
+        more.disabled = app.readOnly;
+      };
+      return node;
+    },
+    refresh: node => node.refresh(),
+  };
 }
 
 /** A large button that opens a popover at itself (shapes, table, styles). */

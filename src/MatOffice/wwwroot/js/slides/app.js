@@ -73,7 +73,7 @@ class SlidesApp {
     this.updateRibbon(true);
     this.statusBar();
     this.render();
-    requestAnimationFrame(() => this.canvas.fitZoom());
+    requestAnimationFrame(() => { this.canvas.fitZoom(); if (document.activeElement === document.body) this.canvas.focus(); });
     this.bindDocument();
     matchMedia('(max-width: 719px)').addEventListener('change', e => { this.phone = e.matches; this.layoutChanged(); this.thumbs.invalidate(); this.render(); });
   }
@@ -213,7 +213,8 @@ class SlidesApp {
 
   ribbonLater = debounce(() => this.updateRibbon(), 80);
 
-  editingStopped() {
+  editingStopped(id, cell) {
+    if (cell) this.lastCell = { id, cell };
     this.canvas.render();
     if (this.slide) this.thumbs.invalidate(this.slide.id);
     this.thumbs.render();
@@ -529,7 +530,7 @@ class SlidesApp {
     });
   }
 
-  /** The empty placeholder a picture or table goes into: the selected one, else the first that takes it. */
+  /** The empty placeholder a picture or table goes into (like the office suites): the selected one, else a picture placeholder, else the first content placeholder. */
   emptyPlaceholder(kind) {
     const slide = this.slide;
     const takes = e => {
@@ -538,7 +539,9 @@ class SlidesApp {
       return kind === 'picture' ? slot.role === 'picture' || slot.content : slot.content;
     };
     const sel = slide.elements.find(e => this.selection.includes(e.id) && takes(e));
-    return sel || slide.elements.find(e => takes(e) && slotOf(slide, e.ph)?.role === (kind === 'picture' ? 'picture' : 'body')) || null;
+    if (sel) return sel;
+    if (kind === 'picture') { const pic = slide.elements.find(e => takes(e) && slotOf(slide, e.ph)?.role === 'picture'); if (pic) return pic; }
+    return slide.elements.find(takes) || null;
   }
 
   /** The buttons in an empty placeholder. */
@@ -722,6 +725,7 @@ class SlidesApp {
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && this.drawing) { this.cancelDrawing(); e.preventDefault(); }
       if (e.key === 'Escape' && this.painter) { this.cancelPainter(); }
+      if (e.target === document.body) this.canvas.key(e);
     });
   }
 
@@ -965,12 +969,17 @@ class SlidesApp {
 
   table() { const sel = this.canvas.selected(); return sel.length === 1 && sel[0].type === 'table' ? sel[0] : null; }
 
-  cell() { return this.text.active?.cell || [0, 0]; }
+  /** The cell a table command works on: the one being edited, else the last one edited in this table, else the fallback (e.g. the last row). */
+  cell(tb, fallback) {
+    if (this.text.active?.cell) return this.text.active.cell;
+    if (tb && this.lastCell?.id === tb.id) return [Math.min(this.lastCell.cell[0], tb.rows.length - 1), Math.min(this.lastCell.cell[1], tb.cols.length - 1)];
+    return fallback ? fallback(tb) : [0, 0];
+  }
 
-  tableEdit(fn) {
+  tableEdit(fn, fallback) {
     const tb = this.table();
     if (!tb || this.readOnly) return;
-    const cell = this.cell();
+    const cell = this.cell(tb, fallback);
     if (this.text.active) this.text.stop();
     this.edit(() => {
       fn(tb, cell);
@@ -980,13 +989,22 @@ class SlidesApp {
     });
   }
 
-  insertRow(below) { this.tableEdit((tb, [r]) => { const h = tb.rows[r]?.h || 40; tb.rows.splice(below ? r + 1 : r, 0, { h, cells: tb.cols.map(() => ({ text: emptyBody() })) }); }); }
+  insertRow(below) {
+    this.tableEdit((tb, [r]) => { const h = tb.rows[r]?.h || 40; tb.rows.splice(below ? r + 1 : r, 0, { h, cells: tb.cols.map(() => ({ text: emptyBody() })) }); }, tb => [below ? tb.rows.length - 1 : 0, 0]);
+  }
 
-  insertCol(right) { this.tableEdit((tb, [, c]) => { const w = tb.cols[c] || 100; const at = right ? c + 1 : c; tb.cols.splice(at, 0, w); for (const row of tb.rows) row.cells.splice(at, 0, { text: emptyBody() }); }); }
+  insertCol(right) {
+    this.tableEdit((tb, [, c]) => {
+      const w = tb.cols[c] || 100;
+      const at = right ? c + 1 : c;
+      tb.cols.splice(at, 0, w);
+      for (const row of tb.rows) row.cells.splice(at, 0, { text: emptyBody() });
+    }, tb => [0, right ? tb.cols.length - 1 : 0]);
+  }
 
-  deleteRow() { this.tableEdit((tb, [r]) => { tb.rows.splice(r, 1); }); }
+  deleteRow() { this.tableEdit((tb, [r]) => { tb.rows.splice(r, 1); }, tb => [tb.rows.length - 1, 0]); }
 
-  deleteCol() { this.tableEdit((tb, [, c]) => { tb.cols.splice(c, 1); for (const row of tb.rows) row.cells.splice(c, 1); }); }
+  deleteCol() { this.tableEdit((tb, [, c]) => { tb.cols.splice(c, 1); for (const row of tb.rows) row.cells.splice(c, 1); }, tb => [0, tb.cols.length - 1]); }
 
   deleteTable() { if (this.table()) { if (this.text.active) this.text.stop(); this.deleteSelection(); } }
 

@@ -65,6 +65,7 @@ export class Show {
       document.addEventListener('fullscreenchange', this.onFs);
     }
     this.root.focus({ preventScroll: true });
+    this.layout();
     this.enter(false);
     if (presenter) this.openPresenter();
   }

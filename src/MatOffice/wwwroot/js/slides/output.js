@@ -19,21 +19,17 @@ export async function slidePng(content, slide, number, width) {
     const xhtml = new XMLSerializer().serializeToString(node);
     const css = RENDER_CSS.replace(/&/g, '&amp;').replace(/</g, '&lt;');
     const svgText = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${w} ${h}"><foreignObject x="0" y="0" width="${w}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${w}px;height:${h}px"><style>${css}</style>${xhtml}</div></foreignObject></svg>`;
-    const url = URL.createObjectURL(new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' }));
-    try {
-      const img = new Image();
-      img.decoding = 'sync';
-      img.src = url;
-      await img.decode();
-      const canvas = el('canvas', { width, height });
-      const g = canvas.getContext('2d');
-      g.fillStyle = '#ffffff';
-      g.fillRect(0, 0, width, height);
-      g.drawImage(img, 0, 0, width, height);
-      return await new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('png'))), 'image/png'));
-    } finally {
-      URL.revokeObjectURL(url);
-    }
+    // a data: address (a blob: address with a foreignObject taints the canvas in Chromium, so it could not be read back)
+    const img = new Image();
+    img.decoding = 'sync';
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+    await img.decode();
+    const canvas = el('canvas', { width, height });
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, width, height);
+    g.drawImage(img, 0, 0, width, height);
+    return await new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('png'))), 'image/png'));
   } finally {
     host.remove();
   }

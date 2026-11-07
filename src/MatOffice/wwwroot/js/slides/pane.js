@@ -226,13 +226,15 @@ export class Pane {
         ...['click', 'with', 'after'].map(v => el('option', { value: v, text: t('Slides.Anim.' + v), selected: a.trigger === v ? true : null })));
       trig.addEventListener('change', () => app.editAnimation(i, x => { x.trigger = trig.value; }));
       const dur = this.number(a.duration ?? 0.5, v => app.editAnimation(i, x => { x.duration = Math.max(0.05, v); }), { min: 0.05, max: 20, step: 0.05, unit: 's' });
+      const small = (label, name, run, off) => el('button', { type: 'button', class: 'mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm', 'aria-label': label, 'data-tip': label, disabled: off || app.readOnly ? true : null, onclick: run }, icon(name));
       const li = el('li', { class: 'mo-slides-animlist__item' + (selected ? ' is-selected' : '') },
-        el('button', { type: 'button', class: 'mo-slides-animlist__name', onclick: () => app.select([a.el]) },
-          el('span', { class: 'mo-slides-animlist__step', text: a.trigger === 'click' ? String(step) : '' }), icon('slides-anim-' + a.effect), el('span', { text: `${t('Slides.Effect.' + a.effect)} · ${name}` })),
-        el('div', { class: 'mo-slides-animlist__ctrl' }, trig, dur,
-          el('button', { type: 'button', class: 'mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm', 'aria-label': t('Slides.Anim.Earlier'), 'data-tip': t('Slides.Anim.Earlier'), disabled: i === 0 || app.readOnly ? true : null, onclick: () => app.moveAnimation(i, -1) }, icon('arrow-up')),
-          el('button', { type: 'button', class: 'mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm', 'aria-label': t('Slides.Anim.Later'), 'data-tip': t('Slides.Anim.Later'), disabled: i === list.length - 1 || app.readOnly ? true : null, onclick: () => app.moveAnimation(i, 1) }, icon('arrow-down')),
-          el('button', { type: 'button', class: 'mat-btn mat-btn--ghost mat-btn--icon mat-btn--sm', 'aria-label': t('Slides.Anim.Remove'), 'data-tip': t('Slides.Anim.Remove'), disabled: app.readOnly ? true : null, onclick: () => app.removeAnimation(i) }, icon('trash'))));
+        el('div', { class: 'mo-slides-animlist__head' },
+          el('button', { type: 'button', class: 'mo-slides-animlist__name', onclick: () => app.select([a.el]) },
+            el('span', { class: 'mo-slides-animlist__step', text: a.trigger === 'click' ? String(step) : '' }), icon('slides-anim-' + a.effect), el('span', { class: 'mo-slides-animlist__label', text: `${t('Slides.Effect.' + a.effect)} · ${name}` })),
+          small(t('Slides.Anim.Earlier'), 'arrow-up', () => app.moveAnimation(i, -1), i === 0),
+          small(t('Slides.Anim.Later'), 'arrow-down', () => app.moveAnimation(i, 1), i === list.length - 1),
+          small(t('Slides.Anim.Remove'), 'trash', () => app.removeAnimation(i), false)),
+        el('div', { class: 'mo-slides-animlist__ctrl' }, trig, dur));
       ol.append(li);
     });
     body.append(ol, el('button', { type: 'button', class: 'mat-btn mat-btn--secondary mat-btn--sm', onclick: () => app.previewAnimations() }, icon('play'), el('span', { text: t('Slides.Anim.Play') })));

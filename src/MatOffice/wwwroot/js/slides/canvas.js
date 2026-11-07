@@ -608,11 +608,14 @@ export class Canvas {
 
   // ---- keyboard, menus, drop ---------------------------------------------------------------------------------------------------
 
+  /** Keys of the slide; also the keys pressed while nothing has the focus (the page was just opened, a menu closed). */
   key(e) {
     const app = this.app;
-    if (app.text.active || e.target !== this.stage) return;
+    if (app.text.active || (e.target !== this.stage && e.target !== document.body) || e.defaultPrevented) return;
+    if (e.target === document.body && (app.view.mode !== 'normal' || app.show.running || document.querySelector('dialog[open]') || !document.getElementById('mo-backstage').hidden)) return;
     const sel = this.selected();
     const k = e.key;
+    if (e.target === document.body && (k === 'Tab' || k === 'Escape')) return;
     if (k === 'Escape') { if (app.painter) app.cancelPainter(); else app.select([]); e.preventDefault(); return; }
     if (k === 'PageDown' || k === 'PageUp') { e.preventDefault(); app.goTo(app.index + (k === 'PageDown' ? 1 : -1)); return; }
     if (k === 'Tab') {

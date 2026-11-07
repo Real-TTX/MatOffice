@@ -242,16 +242,22 @@ public static class SlidesTemplates
     {
         var d = new Deck("slate");
         string L(string en, string ge) => de ? ge : en;
-        d.Slide("title").Ph("title", L("Summer party 2026", "Sommerfest 2026")).Ph("subtitle", L("Pictures of a great evening", "Bilder eines schönen Abends"));
-        d.Slide("pictureCaption").Ph("title", L("Arrival", "Ankunft")).Ph("caption", L("Guests arriving at the boathouse at sunset.", "Die Gäste kommen bei Sonnenuntergang am Bootshaus an."));
-        d.Slide("pictureCaption").Ph("title", L("The barbecue", "Das Grillen")).Ph("caption", L("Our kitchen team grilled for 140 people.", "Unser Küchenteam hat für 140 Personen gegrillt."));
-        d.Slide("pictureCaption").Ph("title", L("The band", "Die Band")).Ph("caption", L("Live music by The Riverside Five until midnight.", "Livemusik von The Riverside Five bis Mitternacht."));
+        const int pw = SlidesPictures.Width, ph = SlidesPictures.Height;
+        d.Slide("title").Ph("title", L("Summer party 2026", "Sommerfest 2026")).Ph("subtitle", L("Pictures of a great evening", "Bilder eines schönen Abends"))
+            .Background(SlidesPictures.Cover);
+        d.Slide("pictureCaption").Ph("title", L("Arrival", "Ankunft")).Ph("caption", L("Guests arriving at the boathouse at sunset.", "Die Gäste kommen bei Sonnenuntergang am Bootshaus an."))
+            .Picture("picture", SlidesPictures.Boathouse, pw, ph, L("The boathouse at sunset", "Das Bootshaus bei Sonnenuntergang"));
+        d.Slide("pictureCaption").Ph("title", L("The barbecue", "Das Grillen")).Ph("caption", L("Our kitchen team grilled for 140 people.", "Unser Küchenteam hat für 140 Personen gegrillt."))
+            .Picture("picture", SlidesPictures.Barbecue, pw, ph, L("Lights over the barbecue tables", "Lichter über den Grilltischen"));
+        d.Slide("pictureCaption").Ph("title", L("The band", "Die Band")).Ph("caption", L("Live music by The Riverside Five until midnight.", "Livemusik von The Riverside Five bis Mitternacht."))
+            .Picture("picture", SlidesPictures.Band, pw, ph, L("The band on stage", "Die Band auf der Bühne"));
         d.Slide("titleContent").Ph("title", L("Thank you to", "Danke an")).Ph("body",
             L("The organising team", "Das Organisationsteam"),
             L("Our kitchen crew", "Unsere Küchencrew"),
             L("The Riverside Boat Club for the venue", "Den Riverside Bootsclub für den Ort"),
             L("Everyone who brought a dessert", "Alle, die einen Nachtisch mitgebracht haben"));
-        d.Slide("title").Ph("title", L("See you next year!", "Bis nächstes Jahr!")).Ph("subtitle", L("Summer party 2027 · save the date: 3 July", "Sommerfest 2027 · schon vormerken: 3. Juli"));
+        d.Slide("title").Ph("title", L("See you next year!", "Bis nächstes Jahr!")).Ph("subtitle", L("Summer party 2027 · save the date: 3 July", "Sommerfest 2027 · schon vormerken: 3. Juli"))
+            .Background(SlidesPictures.Cover);
         d.AllTransitions("zoom");
         return d.Root;
     }
@@ -393,6 +399,36 @@ public sealed class SlideBuilder(JsonObject slide, string prefix)
     public SlideBuilder Notes(string text)
     {
         slide["notes"] = text;
+        return this;
+    }
+
+    /// <summary>Puts a picture into a placeholder; like the office suites it fills the placeholder and is cropped to its shape.</summary>
+    public SlideBuilder Picture(string ph, string src, int width, int height, string alt)
+    {
+        var e = Elements.OfType<JsonObject>().First(x => x["ph"]?.GetValue<string>() == ph);
+        double w = e["w"]!.GetValue<double>(), h = e["h"]!.GetValue<double>();
+        double picture = (double)width / height, box = w / h;
+        var image = new JsonObject
+        {
+            ["id"] = e["id"]!.GetValue<string>(), ["type"] = "image", ["ph"] = ph, ["x"] = e["x"]!.GetValue<double>(), ["y"] = e["y"]!.GetValue<double>(), ["w"] = w, ["h"] = h,
+            ["src"] = src, ["alt"] = alt,
+        };
+        if (Math.Abs(picture - box) > 0.01)
+        {
+            var cut = picture > box ? Math.Round((1 - box / picture) / 2, 4) : Math.Round((1 - picture / box) / 2, 4);
+            image["crop"] = picture > box
+                ? new JsonObject { ["l"] = cut, ["t"] = 0, ["r"] = cut, ["b"] = 0 }
+                : new JsonObject { ["l"] = 0, ["t"] = cut, ["r"] = 0, ["b"] = cut };
+        }
+
+        Elements[Elements.IndexOf(e)] = image;
+        return this;
+    }
+
+    /// <summary>A picture as the background of the slide.</summary>
+    public SlideBuilder Background(string src)
+    {
+        slide["background"] = new JsonObject { ["type"] = "image", ["src"] = src };
         return this;
     }
 
