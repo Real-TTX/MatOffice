@@ -57,6 +57,7 @@
 .mo-slides-stage.is-moving .mo-sr-el { cursor: move !important; }
 .mo-slides-stage.is-drawing, .mo-slides-stage.is-drawing .mo-sr-el { cursor: crosshair !important; }
 .mo-slides-stage.is-painting, .mo-slides-stage.is-painting .mo-sr-el { cursor: copy !important; }
+.mo-slides-stage.is-colresize, .mo-slides-stage.is-colresize .mo-sr-el, .mo-slides-stage.is-colresize .mo-sr-el * { cursor: col-resize !important; }
 .mo-readonly .mo-slides-slide .mo-sr-el { cursor: default !important; }
 .mo-slides-noslide { display: grid; place-items: center; width: 100%; height: 100%; color: #777; font-size: 28px; }
 .mo-slides-editing { cursor: text; caret-color: auto; }

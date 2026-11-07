@@ -22,6 +22,7 @@ export class Canvas {
     this.stage.append(this.sheet);
     this.guides = [];
     this.stage.addEventListener('pointerdown', e => this.down(e));
+    this.stage.addEventListener('pointermove', e => this.hover(e), { passive: true });
     this.stage.addEventListener('dblclick', e => this.dblclick(e));
     this.stage.addEventListener('keydown', e => this.key(e));
     this.stage.addEventListener('contextmenu', e => this.context(e));
@@ -262,6 +263,15 @@ export class Canvas {
     const handle = e.target.closest?.('[data-handle]');
     if (handle && !app.readOnly) { e.preventDefault(); this.dragHandle(e, handle.dataset.handle); return; }
     const hitEl = this.hit(e.target);
+    // the border between two columns of a table: drag it to make one wider and the other narrower
+    const border = hitEl?.type === 'table' && !app.readOnly ? this.columnBorderAt(hitEl, this.toSlide(e.clientX, e.clientY)) : -1;
+    if (border >= 0) {
+      e.preventDefault();
+      if (editing) app.text.stop();
+      app.select([hitEl.id]);
+      this.dragColumn(e, hitEl.id, border);
+      return;
+    }
     if (editing) app.text.stop();
     if (app.painter && hitEl) { e.preventDefault(); app.paintFormat(hitEl.id); return; }
     if (!hitEl) {
@@ -286,6 +296,54 @@ export class Canvas {
     if (wasOnly && unit.length > 1 && hitEl.group) { app.select([hitEl.id]); }
     else if (!wasSelected) app.select(unit);
     this.dragMove(e, hitEl, wasOnly);
+  }
+
+  /** The inner column border of a table near a point (slide px): the index of the column left of it, or -1. */
+  columnBorderAt(tb, p) {
+    if (tb.rot || p.y < tb.y || p.y > tb.y + tb.h) return -1;
+    const tol = 4 / this.zoom;
+    let x = tb.x;
+    for (let i = 0; i < tb.cols.length - 1; i++) {
+      x += tb.cols[i];
+      if (Math.abs(p.x - x) <= tol) return i;
+    }
+    return -1;
+  }
+
+  dragColumn(e, id, i) {
+    const app = this.app;
+    const tb = this.slide.elements.find(x => x.id === id);
+    const start = this.toSlide(e.clientX, e.clientY);
+    const a0 = tb.cols[i], b0 = tb.cols[i + 1];
+    let changed = false;
+    this.stage.setPointerCapture?.(e.pointerId);
+    this.stage.classList.add('is-colresize');
+    const move = ev => {
+      const d = Math.max(8 - a0, Math.min(b0 - 8, this.toSlide(ev.clientX, ev.clientY).x - start.x));
+      if (!changed && Math.abs(d) * this.zoom < 1) return;
+      if (!changed) { changed = true; app.checkpoint(); }
+      tb.cols[i] = round(a0 + d);
+      tb.cols[i + 1] = round(b0 - d);
+      this.renderLive([tb]);
+      this.drawSelection();
+    };
+    const up = () => {
+      this.stage.removeEventListener('pointermove', move);
+      this.stage.removeEventListener('pointerup', up);
+      this.stage.removeEventListener('pointercancel', up);
+      this.stage.classList.remove('is-colresize');
+      if (changed) app.changed();
+    };
+    this.stage.addEventListener('pointermove', move);
+    this.stage.addEventListener('pointerup', up);
+    this.stage.addEventListener('pointercancel', up);
+  }
+
+  /** The cursor over the border of two table columns. */
+  hover(e) {
+    if (e.buttons || this.app.readOnly || this.app.drawing) return;
+    const el = this.hit(e.target);
+    this.stage.classList.toggle('is-colresize', el?.type === 'table' && this.columnBorderAt(el, this.toSlide(e.clientX, e.clientY)) >= 0);
   }
 
   /** Insert mode: a drag draws the box of the new shape (Shift keeps it square), a click puts it there in its default size. */
