@@ -1,0 +1,70 @@
+{
+  "//": "The slide layouts of MatOffice Slides (like the layouts of a slide master). Geometry in fractions of the slide (works for 16:9 and 4:3). The same data is in wwwroot/js/slides/layouts.js (a test compares them).",
+  "layouts": [
+    {
+      "id": "title", "group": "cover", "pptx": "title",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "ctrTitle", "idx": 0, "x": 0.125, "y": 0.1637, "w": 0.75, "h": 0.3481, "size": 60, "align": "center", "anchor": "bottom" },
+        { "ph": "subtitle", "role": "body", "pptx": "subTitle", "idx": 1, "x": 0.125, "y": 0.5252, "w": 0.75, "h": 0.2414, "size": 24, "align": "center", "anchor": "top", "bullet": false }
+      ]
+    },
+    {
+      "id": "titleContent", "group": "content", "pptx": "obj",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "title", "idx": 0, "x": 0.06875, "y": 0.0532, "w": 0.8625, "h": 0.1933, "size": 44, "align": "left", "anchor": "middle" },
+        { "ph": "body", "role": "body", "pptx": "obj", "idx": 1, "x": 0.06875, "y": 0.2662, "w": 0.8625, "h": 0.6345, "content": true }
+      ]
+    },
+    {
+      "id": "section", "group": "cover", "pptx": "secHead",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "title", "idx": 0, "x": 0.0682, "y": 0.2493, "w": 0.8625, "h": 0.416, "size": 60, "align": "left", "anchor": "bottom" },
+        { "ph": "body", "role": "body", "pptx": "body", "idx": 1, "x": 0.0682, "y": 0.6692, "w": 0.8625, "h": 0.2188, "size": 24, "align": "left", "anchor": "top", "bullet": false, "muted": true }
+      ]
+    },
+    {
+      "id": "twoContent", "group": "content", "pptx": "twoObj",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "title", "idx": 0, "x": 0.06875, "y": 0.0532, "w": 0.8625, "h": 0.1933, "size": 44, "align": "left", "anchor": "middle" },
+        { "ph": "left", "role": "body", "pptx": "obj", "idx": 1, "x": 0.06875, "y": 0.2662, "w": 0.425, "h": 0.6345, "content": true },
+        { "ph": "right", "role": "body", "pptx": "obj", "idx": 2, "x": 0.50625, "y": 0.2662, "w": 0.425, "h": 0.6345, "content": true }
+      ]
+    },
+    {
+      "id": "comparison", "group": "content", "pptx": "twoTxTwoObj",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "title", "idx": 0, "x": 0.06875, "y": 0.0532, "w": 0.8625, "h": 0.1933, "size": 44, "align": "left", "anchor": "middle" },
+        { "ph": "leftHead", "role": "body", "pptx": "body", "idx": 1, "x": 0.06875, "y": 0.2451, "w": 0.4231, "h": 0.1201, "size": 24, "bold": true, "align": "left", "anchor": "bottom", "bullet": false },
+        { "ph": "left", "role": "body", "pptx": "obj", "idx": 2, "x": 0.06875, "y": 0.3653, "w": 0.4231, "h": 0.5373, "content": true },
+        { "ph": "rightHead", "role": "body", "pptx": "body", "idx": 3, "x": 0.50625, "y": 0.2451, "w": 0.4251, "h": 0.1201, "size": 24, "bold": true, "align": "left", "anchor": "bottom", "bullet": false },
+        { "ph": "right", "role": "body", "pptx": "obj", "idx": 4, "x": 0.50625, "y": 0.3653, "w": 0.4251, "h": 0.5373, "content": true }
+      ]
+    },
+    {
+      "id": "titleOnly", "group": "content", "pptx": "titleOnly",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "title", "idx": 0, "x": 0.06875, "y": 0.0532, "w": 0.8625, "h": 0.1933, "size": 44, "align": "left", "anchor": "middle" }
+      ]
+    },
+    {
+      "id": "blank", "group": "other", "pptx": "blank",
+      "slots": []
+    },
+    {
+      "id": "pictureCaption", "group": "other", "pptx": "picTx",
+      "slots": [
+        { "ph": "title", "role": "title", "pptx": "title", "idx": 0, "x": 0.0689, "y": 0.0667, "w": 0.3225, "h": 0.2333, "size": 32, "align": "left", "anchor": "bottom" },
+        { "ph": "picture", "role": "picture", "pptx": "pic", "idx": 1, "x": 0.4251, "y": 0.144, "w": 0.5063, "h": 0.7107 },
+        { "ph": "caption", "role": "body", "pptx": "body", "idx": 2, "x": 0.0689, "y": 0.3, "w": 0.3225, "h": 0.5558, "size": 16, "align": "left", "anchor": "top", "bullet": false }
+      ]
+    }
+  ],
+  "footer": {
+    "date": { "x": 0.06875, "y": 0.9269, "w": 0.225, "h": 0.0532, "align": "left" },
+    "text": { "x": 0.33125, "y": 0.9269, "w": 0.3375, "h": 0.0532, "align": "center" },
+    "number": { "x": 0.70625, "y": 0.9269, "w": 0.225, "h": 0.0532, "align": "right" },
+    "size": 12
+  },
+  "body": { "sizes": [28, 24, 20, 18, 18, 18, 18, 18, 18], "spaceBefore": [10, 5, 5, 5, 5, 5, 5, 5, 5], "indent": 24, "step": 48 },
+  "titleLineSpacing": 0.9
+}
