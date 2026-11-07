@@ -179,3 +179,37 @@ The layouts and the designs are data shared by both sides: `Resources/Templates/
 `wwwroot/js/slides/layouts-data.js` + `themes-data.js` in the editor (`SlidesFormatTests` checks that they agree). `SlidesNormalizer` copies only what it
 knows (unknown fields are dropped, numbers clamped, colours and fonts checked, control characters removed, pictures only as PNG/JPEG/GIF/WebP data
 addresses); `PptxWriter`/`PptxReader` convert to and from PowerPoint, `.pdf` is printing in the browser.
+
+## Base content
+
+The content of a database (`.matbase`), checked by `BaseNormalizer` (`Services/Formats/Base`, documented in `BaseHandler`), edited by `wwwroot/js/base` (entry
+`app.js`). The engine – `values.js`, `expr.js`, `criteria.js`, `sql.js`, `engine.js`, `qbe.js`, `model.js`, `layout.js` – has no DOM and is tested with
+`node --test "tests/js/base/*.test.mjs"`.
+
+```
+{ version: 1, settings: { currency: "EUR" },
+  tables: [{ id: "t1", name, description,
+             fields: [{ id: "f1", name, type: text|memo|number|currency|datetime|yesno|autonumber|hyperlink, size (text), numberSize (number: byte|integer|long|
+                        single|double|decimal), next (autonumber), description, format (Access names: Currency, Short Date, Yes/No …), decimals, default (an
+                        expression), required, indexed: no|dup|unique, caption, validationRule, validationText, inputMask,
+                        lookup: null | { kind: "table", table, bound, display } | { kind: "values", values: [], limit } }],
+             primaryKey: [field ids], rows: [{ id, v: { fieldId: value } }], nextId,
+             datasheet: { sort, filter, filterOn, frozen, totals, totalsOn, hidden, widths, order } }],
+  relationships: [{ id, parent: { table, field }, child: { table, field }, integrity, cascadeUpdate, cascadeDelete, join: 1|2|3 }],
+  queries: [{ id, name, description, sql (Access SQL; the design grid is read from it), layout: { tables: [{ name, x, y, w, h }], grid }, datasheet }],
+  forms: [{ id, name, source (a table or query id, "" = unbound), caption, kind: single|continuous|datasheet|split, width, allowEdits, allowAdditions,
+            allowDeletions, sections: { header, detail, footer } }],
+  reports: [{ id, name, source, caption, orientation: portrait|landscape, paper: a4|letter, width, grouping: [{ field, header, footer, desc, keepTogether }],
+              sorting: [{ field, desc }], sections: { reportHeader, pageHeader, groupHeaders: [], detail, groupFooters: [], pageFooter, reportFooter } }],
+  ui: { nav: { collapsed: [], width, hidden }, relationships: { tableId: { x, y } } } }
+Section = { height, visible, back, controls: [Control] }
+Control = { id, type: label|textbox|combobox|checkbox|button|subform|line|rect, x, y, w, h, name, caption, source (a field, or "=expression"), format,
+            decimals, fontSize (pt), bold, italic, align, color, back, border, locked, visible, hideDuplicates, runningSum: no|group|all,
+            action: first|previous|next|last|new|save|delete|undo|close|print, rowSource (combo box), subform: { source, linkMaster, linkChild } }
+```
+
+Dates are ISO text, Yes/No is true/false, numbers and currency are JSON numbers; empty values are left out of `v`. The server checks the shape, the values of the
+records against their types and sizes, unique primary keys and indexes, required fields, enforced referential integrity and at most 200,000 records, and it
+removes markup. Records are saved one by one (like Access); design changes can be undone (snapshots without the records). Excel: `read` makes every sheet a
+table (the first row gives the field names, the types are guessed), `write` every table a sheet; to export one table or one query result the editor sends a
+content with only that table. The tabs that are open are kept per device (`localStorage`, `mo.base.tabs.<api>`), not in the content.
