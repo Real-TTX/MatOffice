@@ -1,0 +1,121 @@
+{
+  // Contacts: companies, the people there and the calls with them (see BaseTemplates.cs for the format)
+  "de": {
+    "Companies": "Firmen", "CompanyID": "FirmenNr", "Company": "Firma", "Industry": "Branche", "City": "Ort", "Country": "Land", "Website": "Website", "Phone": "Telefon",
+    "Contacts": "Kontakte", "ContactID": "KontaktNr", "FirstName": "Vorname", "LastName": "Nachname", "JobTitle": "Position", "Category": "Kategorie", "Email": "E-Mail",
+    "Birthday": "Geburtstag", "Active": "Aktiv", "Notes": "Notizen",
+    "Calls": "Anrufe", "CallID": "AnrufNr", "CallDate": "Datum", "Subject": "Betreff", "Outcome": "Ergebnis", "FollowUp": "Wiedervorlage",
+    "Customer": "Kunde", "Supplier": "Lieferant", "Partner": "Partner", "Private": "Privat",
+    "Software": "Software", "Trade": "Handel", "Manufacturing": "Industrie", "Services": "Dienstleistung", "Logistics": "Logistik",
+    "Done": "Erledigt", "Call back": "Rückruf", "Meeting planned": "Termin geplant", "No answer": "Nicht erreicht",
+    "Germany": "Deutschland", "Austria": "Österreich", "Switzerland": "Schweiz", "Netherlands": "Niederlande",
+    "Munich": "München", "Cologne": "Köln", "Vienna": "Wien", "Zurich": "Zürich",
+    "Active Customers": "Aktive Kunden", "Contacts by City": "Kontakte nach Ort", "Which city?": "Welcher Ort?", "Calls to Follow Up": "Wiedervorlagen",
+    "Contacts per Company": "Kontakte je Firma", "NumberOfContacts": "AnzahlKontakte",
+    "Contact List": "Kontaktliste", "Contacts by Category": "Kontakte nach Kategorie", "Phone List": "Telefonliste",
+    "People at companies you work with": "Personen bei Firmen, mit denen du arbeitest", "Companies you work with": "Firmen, mit denen du arbeitest",
+    "Every call with a contact": "Jeder Anruf mit einem Kontakt",
+    "Head of Purchasing": "Leitung Einkauf", "Managing Director": "Geschäftsführung", "Sales Manager": "Vertriebsleitung", "Project Lead": "Projektleitung",
+    "Office Manager": "Büroleitung", "Developer": "Entwicklung", "Account Manager": "Kundenbetreuung", "Accountant": "Buchhaltung",
+    "Offer for the new year": "Angebot für das neue Jahr", "Delivery dates": "Liefertermine", "Annual meeting": "Jahresgespräch", "Invoice question": "Rückfrage zur Rechnung",
+    "New price list": "Neue Preisliste", "Birthday wishes": "Glückwünsche zum Geburtstag", "Workshop next month": "Workshop nächsten Monat", "Contract renewal": "Vertragsverlängerung",
+    "Met at the trade fair in Hanover.": "Auf der Messe in Hannover kennengelernt.", "Prefers e-mail.": "Bevorzugt E-Mail.", "Wants a call before ten.": "Möchte vor zehn Uhr angerufen werden.",
+    "Asked for a discount of 5 %.": "Hat nach 5 % Rabatt gefragt.", "Sends the dates by Friday.": "Schickt die Termine bis Freitag.",
+    "The last name is required.": "Der Nachname ist erforderlich."
+  },
+  "tables": [
+    {
+      "name": "Companies", "description": "Companies you work with",
+      "fields": [
+        ["CompanyID", "autonumber", { "pk": true }],
+        ["Company", "text", { "size": 80, "required": true, "indexed": true }],
+        ["Industry", "text", { "size": 40, "values": ["Software", "Trade", "Manufacturing", "Services", "Logistics"] }],
+        ["City", "text", { "size": 50 }],
+        ["Country", "text", { "size": 50, "default": "\"Germany\"" }],
+        ["Website", "hyperlink"],
+        ["Phone", "text", { "size": 30 }]
+      ],
+      "rows": [
+        [1, "Nordlicht Software GmbH", "Software", "Hamburg", "Germany", "https://nordlicht.example.com", "+49 40 5550101"],
+        [2, "Bergmann Handel KG", "Trade", "Munich", "Germany", "https://bergmann.example.com", "+49 89 5550202"],
+        [3, "Rheinwerk Maschinenbau AG", "Manufacturing", "Cologne", "Germany", "https://rheinwerk.example.com", "+49 221 5550303"],
+        [4, "Donau Consulting", "Services", "Vienna", "Austria", "https://donau.example.com", "+43 1 5550404"],
+        [5, "Alpen Logistik AG", "Logistics", "Zurich", "Switzerland", "https://alpen.example.com", "+41 44 5550505"],
+        [6, "Grachten Trading B.V.", "Trade", "Amsterdam", "Netherlands", "https://grachten.example.com", "+31 20 5550606"]
+      ]
+    },
+    {
+      "name": "Contacts", "description": "People at companies you work with",
+      "fields": [
+        ["ContactID", "autonumber", { "pk": true }],
+        ["FirstName", "text", { "size": 50 }],
+        ["LastName", "text", { "size": 50, "required": true, "indexed": true, "rule": "Is Not Null", "ruleText": "The last name is required." }],
+        ["CompanyID", "number", { "lookup": "Companies.CompanyID.Company", "caption": "Company" }],
+        ["JobTitle", "text", { "size": 60 }],
+        ["Category", "text", { "size": 20, "values": ["Customer", "Supplier", "Partner", "Private"], "default": "\"Customer\"" }],
+        ["Email", "hyperlink"],
+        ["Phone", "text", { "size": 30 }],
+        ["Birthday", "datetime", { "format": "Short Date" }],
+        ["City", "text", { "size": 50 }],
+        ["Active", "yesno", { "default": "Yes" }],
+        ["Notes", "memo"]
+      ],
+      "rows": [
+        [1, "Anna", "Schmidt", 1, "Head of Purchasing", "Customer", "mailto:anna.schmidt@nordlicht.example.com", "+49 40 5550111", "1984-03-14", "Hamburg", true, "Met at the trade fair in Hanover."],
+        [2, "Jonas", "Becker", 1, "Developer", "Customer", "mailto:jonas.becker@nordlicht.example.com", "+49 40 5550112", "1991-07-02", "Hamburg", true, null],
+        [3, "Maria", "Huber", 2, "Managing Director", "Customer", "mailto:maria.huber@bergmann.example.com", "+49 89 5550211", "1976-11-23", "Munich", true, "Prefers e-mail."],
+        [4, "Lukas", "Wagner", 3, "Sales Manager", "Supplier", "mailto:lukas.wagner@rheinwerk.example.com", "+49 221 5550311", "1988-01-30", "Cologne", true, "Wants a call before ten."],
+        [5, "Sophie", "Gruber", 4, "Project Lead", "Partner", "mailto:sophie.gruber@donau.example.com", "+43 1 5550411", "1990-05-17", "Vienna", true, null],
+        [6, "Felix", "Meier", 5, "Account Manager", "Supplier", "mailto:felix.meier@alpen.example.com", "+41 44 5550511", "1982-09-09", "Zurich", true, "Sends the dates by Friday."],
+        [7, "Lea", "Fischer", 2, "Accountant", "Customer", "mailto:lea.fischer@bergmann.example.com", "+49 89 5550212", "1995-12-01", "Munich", true, "Asked for a discount of 5 %."],
+        [8, "Daan", "de Vries", 6, "Managing Director", "Customer", "mailto:daan@grachten.example.com", "+31 20 5550611", "1979-04-12", "Amsterdam", true, null],
+        [9, "Clara", "Weber", null, null, "Private", "mailto:clara.weber@example.com", "+49 30 5550999", "1987-08-21", "Berlin", true, null],
+        [10, "Paul", "Schneider", 3, "Office Manager", "Supplier", "mailto:paul.schneider@rheinwerk.example.com", "+49 221 5550312", "1969-02-28", "Cologne", false, null],
+        [11, "Emma", "Hoffmann", 4, "Developer", "Partner", "mailto:emma.hoffmann@donau.example.com", "+43 1 5550412", "1993-10-05", "Vienna", true, null],
+        [12, "Ben", "Koch", null, null, "Private", null, "+49 30 5550888", "1990-06-15", "Berlin", true, null]
+      ]
+    },
+    {
+      "name": "Calls", "description": "Every call with a contact",
+      "fields": [
+        ["CallID", "autonumber", { "pk": true }],
+        ["ContactID", "number", { "lookup": "Contacts.ContactID.LastName", "required": true, "caption": "Contact" }],
+        ["CallDate", "datetime", { "default": "Now()", "format": "General Date" }],
+        ["Subject", "text", { "size": 100, "required": true }],
+        ["Outcome", "text", { "size": 30, "values": ["Done", "Call back", "Meeting planned", "No answer"] }],
+        ["FollowUp", "datetime", { "format": "Short Date" }],
+        ["Notes", "memo"]
+      ],
+      "rows": [
+        [1, 1, "@-40T09:30:00", "Offer for the new year", "Meeting planned", "@5", null],
+        [2, 3, "@-21T14:00:00", "Annual meeting", "Done", null, null],
+        [3, 4, "@-14T10:15:00", "Delivery dates", "Call back", "@2", "Sends the dates by Friday."],
+        [4, 7, "@-9T11:00:00", "Invoice question", "Done", null, null],
+        [5, 5, "@-7T16:30:00", "Workshop next month", "Meeting planned", "@12", null],
+        [6, 1, "@-3T09:00:00", "New price list", "No answer", "@1", null],
+        [7, 8, "@-2T15:45:00", "Contract renewal", "Call back", "@7", null],
+        [8, 9, "@-1T18:00:00", "Birthday wishes", "Done", null, null]
+      ]
+    }
+  ],
+  "relationships": [
+    ["Companies.CompanyID", "Contacts.CompanyID", "integrity"],
+    ["Contacts.ContactID", "Calls.ContactID", "cascade"]
+  ],
+  "queries": [
+    { "name": "Active Customers", "sql": "SELECT {Contacts}.{FirstName}, {Contacts}.{LastName}, {Companies}.{Company}, {Contacts}.{Email}, {Contacts}.{Phone}\nFROM {Companies} INNER JOIN {Contacts} ON {Companies}.{CompanyID}={Contacts}.{CompanyID}\nWHERE (({Contacts}.{Category}=\"Customer\") AND ({Contacts}.{Active}=True))\nORDER BY {Contacts}.{LastName};" },
+    { "name": "Contacts by City", "sql": "SELECT {Contacts}.{FirstName}, {Contacts}.{LastName}, {Contacts}.{City}, {Contacts}.{Phone}\nFROM {Contacts}\nWHERE ({Contacts}.{City}={Which city?})\nORDER BY {Contacts}.{LastName};" },
+    { "name": "Calls to Follow Up", "sql": "SELECT {Contacts}.{LastName}, {Calls}.{CallDate}, {Calls}.{Subject}, {Calls}.{Outcome}, {Calls}.{FollowUp}\nFROM {Contacts} INNER JOIN {Calls} ON {Contacts}.{ContactID}={Calls}.{ContactID}\nWHERE ({Calls}.{FollowUp} Is Not Null)\nORDER BY {Calls}.{FollowUp};" },
+    { "name": "Contacts per Company", "sql": "SELECT {Companies}.{Company}, Count({Contacts}.{ContactID}) AS {NumberOfContacts}\nFROM {Companies} LEFT JOIN {Contacts} ON {Companies}.{CompanyID}={Contacts}.{CompanyID}\nGROUP BY {Companies}.{Company}\nORDER BY {Companies}.{Company};" }
+  ],
+  "forms": [
+    { "name": "Contacts", "source": "Contacts", "fields": ["FirstName", "LastName", "CompanyID", "JobTitle", "Category", "Email", "Phone", "Birthday", "Active"], "subform": { "source": "Calls", "link": "ContactID" } },
+    { "name": "Companies", "source": "Companies", "subform": { "source": "Contacts", "link": "CompanyID" } },
+    { "name": "Contact List", "source": "Contacts", "kind": "continuous", "fields": ["FirstName", "LastName", "Category", "Phone", "City", "Active"] }
+  ],
+  "reports": [
+    { "name": "Contacts by Category", "source": "Contacts", "fields": ["Category", "LastName", "FirstName", "Phone", "City"], "group": ["Category"], "sort": ["LastName"] },
+    { "name": "Phone List", "source": "Contacts", "fields": ["LastName", "FirstName", "Phone", "City"], "sort": ["LastName"] }
+  ],
+  "layout": { "Companies": [40, 40], "Contacts": [300, 40], "Calls": [560, 80] }
+}

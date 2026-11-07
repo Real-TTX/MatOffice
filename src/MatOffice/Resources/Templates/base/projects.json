@@ -1,0 +1,111 @@
+{
+  // Projects & Tasks: people, projects and the tasks of each project (see BaseTemplates.cs for the format)
+  "de": {
+    "People": "Personen", "PersonID": "PersonNr", "Name": "Name", "Role": "Rolle", "Email": "E-Mail", "HourlyRate": "Stundensatz",
+    "Projects": "Projekte", "ProjectID": "ProjektNr", "Project": "Projekt", "Client": "Auftraggeber", "Manager": "Leitung", "StartDate": "Beginn", "DueDate": "Fällig", "Budget": "Budget", "Status": "Status",
+    "Tasks": "Aufgaben", "TaskID": "AufgabeNr", "Task": "Aufgabe", "AssignedTo": "ZugewiesenAn", "Priority": "Priorität", "Hours": "Stunden", "Done": "Erledigt",
+    "Project Manager": "Projektleitung", "Developer": "Entwicklung", "Designer": "Gestaltung", "Tester": "Test", "Consultant": "Beratung",
+    "Planned": "Geplant", "Active": "Aktiv", "On Hold": "Pausiert", "Finished": "Abgeschlossen",
+    "High": "Hoch", "Normal": "Normal", "Low": "Niedrig",
+    "Website relaunch": "Relaunch der Website", "Customer portal": "Kundenportal", "Office move": "Büroumzug", "Annual report": "Jahresbericht",
+    "City of Hamburg": "Stadt Hamburg", "Nordlicht Software": "Nordlicht Software", "Internal": "Intern", "Board": "Vorstand",
+    "Collect requirements": "Anforderungen sammeln", "Design the start page": "Startseite gestalten", "Write the texts": "Texte schreiben", "Build the templates": "Vorlagen bauen",
+    "Test on phones": "Auf Telefonen testen", "Go live": "Livegang", "Sign-in with MatIdentity": "Anmeldung mit MatIdentity", "Invoice list": "Rechnungsliste",
+    "Load tests": "Lasttests", "Find movers": "Umzugsfirma finden", "Plan the seating": "Sitzplan erstellen", "Order furniture": "Möbel bestellen",
+    "Collect figures": "Zahlen sammeln", "Write the report": "Bericht schreiben", "Layout and print": "Satz und Druck",
+    "Open Tasks": "Offene Aufgaben", "Overdue Tasks": "Überfällige Aufgaben", "Hours per Project": "Stunden je Projekt", "NumberOfTasks": "AnzahlAufgaben", "TotalHours": "SummeStunden",
+    "Project Costs": "Projektkosten", "Cost": "Kosten", "Task List": "Aufgabenliste", "Tasks by Project": "Aufgaben nach Projekt", "DaysLate": "TageÜberfällig",
+    "Who works on the projects": "Wer an den Projekten arbeitet", "The projects": "Die Projekte", "What has to be done": "Was zu tun ist",
+    "The due date cannot be before the start.": "Das Fälligkeitsdatum darf nicht vor dem Beginn liegen.", "Hours cannot be negative.": "Stunden dürfen nicht negativ sein."
+  },
+  "tables": [
+    {
+      "name": "People", "description": "Who works on the projects",
+      "fields": [
+        ["PersonID", "autonumber", { "pk": true }],
+        ["Name", "text", { "size": 60, "required": true, "unique": true }],
+        ["Role", "text", { "size": 40, "values": ["Project Manager", "Developer", "Designer", "Tester", "Consultant"] }],
+        ["Email", "hyperlink"],
+        ["HourlyRate", "currency", { "default": "0", "rule": ">=0" }]
+      ],
+      "rows": [
+        [1, "Anna Schmidt", "Project Manager", "mailto:anna@example.com", 95],
+        [2, "Jonas Becker", "Developer", "mailto:jonas@example.com", 85],
+        [3, "Lea Fischer", "Designer", "mailto:lea@example.com", 80],
+        [4, "Paul Schneider", "Tester", "mailto:paul@example.com", 70],
+        [5, "Sophie Gruber", "Consultant", "mailto:sophie@example.com", 110],
+        [6, "Ben Koch", "Developer", "mailto:ben@example.com", 85]
+      ]
+    },
+    {
+      "name": "Projects", "description": "The projects",
+      "fields": [
+        ["ProjectID", "autonumber", { "pk": true }],
+        ["Project", "text", { "size": 80, "required": true, "unique": true }],
+        ["Client", "text", { "size": 80 }],
+        ["Manager", "number", { "lookup": "People.PersonID.Name" }],
+        ["StartDate", "datetime", { "format": "Short Date", "default": "Date()" }],
+        ["DueDate", "datetime", { "format": "Short Date" }],
+        ["Budget", "currency"],
+        ["Status", "text", { "size": 20, "values": ["Planned", "Active", "On Hold", "Finished"], "default": "\"Planned\"" }]
+      ],
+      "rows": [
+        [1, "Website relaunch", "City of Hamburg", 1, "@-60", "@30", 48000, "Active"],
+        [2, "Customer portal", "Nordlicht Software", 1, "@-20", "@90", 120000, "Active"],
+        [3, "Office move", "Internal", 5, "@-10", "@20", 15000, "Planned"],
+        [4, "Annual report", "Board", 5, "@-90", "@-5", 8000, "Finished"]
+      ]
+    },
+    {
+      "name": "Tasks", "description": "What has to be done",
+      "fields": [
+        ["TaskID", "autonumber", { "pk": true }],
+        ["ProjectID", "number", { "lookup": "Projects.ProjectID.Project", "required": true, "caption": "Project" }],
+        ["Task", "text", { "size": 120, "required": true }],
+        ["AssignedTo", "number", { "lookup": "People.PersonID.Name", "caption": "Assigned to" }],
+        ["Priority", "text", { "size": 10, "values": ["High", "Normal", "Low"], "default": "\"Normal\"" }],
+        ["DueDate", "datetime", { "format": "Short Date" }],
+        ["Hours", "number", { "numberSize": "double", "default": "0", "rule": ">=0", "ruleText": "Hours cannot be negative." }],
+        ["Done", "yesno"]
+      ],
+      "rows": [
+        [1, 1, "Collect requirements", 1, "High", "@-50", 16, true],
+        [2, 1, "Design the start page", 3, "High", "@-20", 32, true],
+        [3, 1, "Write the texts", 5, "Normal", "@-3", 20, false],
+        [4, 1, "Build the templates", 2, "High", "@6", 40, false],
+        [5, 1, "Test on phones", 4, "Normal", "@20", 12, false],
+        [6, 1, "Go live", 1, "High", "@30", 4, false],
+        [7, 2, "Sign-in with MatIdentity", 6, "High", "@14", 24, false],
+        [8, 2, "Invoice list", 2, "Normal", "@40", 30, false],
+        [9, 2, "Load tests", 4, "Low", "@75", 16, false],
+        [10, 3, "Find movers", 5, "High", "@-2", 3, false],
+        [11, 3, "Plan the seating", 3, "Normal", "@10", 6, false],
+        [12, 3, "Order furniture", 5, "Normal", "@15", 2, false],
+        [13, 4, "Collect figures", 5, "High", "@-60", 10, true],
+        [14, 4, "Write the report", 5, "High", "@-30", 24, true],
+        [15, 4, "Layout and print", 3, "Normal", "@-10", 12, true]
+      ]
+    }
+  ],
+  "relationships": [
+    ["People.PersonID", "Projects.Manager", "integrity"],
+    ["Projects.ProjectID", "Tasks.ProjectID", "cascade"],
+    ["People.PersonID", "Tasks.AssignedTo", "integrity"]
+  ],
+  "queries": [
+    { "name": "Open Tasks", "sql": "SELECT {Projects}.{Project}, {Tasks}.{Task}, {People}.{Name}, {Tasks}.{Priority}, {Tasks}.{DueDate}\nFROM ({Projects} INNER JOIN {Tasks} ON {Projects}.{ProjectID}={Tasks}.{ProjectID}) LEFT JOIN {People} ON {Tasks}.{AssignedTo}={People}.{PersonID}\nWHERE ({Tasks}.{Done}=False)\nORDER BY {Tasks}.{DueDate};" },
+    { "name": "Overdue Tasks", "sql": "SELECT {Projects}.{Project}, {Tasks}.{Task}, {Tasks}.{DueDate}, DateDiff(\"d\",{Tasks}.{DueDate},Date()) AS {DaysLate}\nFROM {Projects} INNER JOIN {Tasks} ON {Projects}.{ProjectID}={Tasks}.{ProjectID}\nWHERE (({Tasks}.{DueDate}<Date()) AND ({Tasks}.{Done}=False))\nORDER BY {Tasks}.{DueDate};" },
+    { "name": "Hours per Project", "sql": "SELECT {Projects}.{Project}, Count({Tasks}.{TaskID}) AS {NumberOfTasks}, Sum({Tasks}.{Hours}) AS {TotalHours}\nFROM {Projects} LEFT JOIN {Tasks} ON {Projects}.{ProjectID}={Tasks}.{ProjectID}\nGROUP BY {Projects}.{Project}\nORDER BY {Projects}.{Project};" },
+    { "name": "Project Costs", "sql": "SELECT {Projects}.{Project}, {Projects}.{Budget}, Sum(CCur([{Hours}]*[{HourlyRate}])) AS {Cost}\nFROM ({Projects} INNER JOIN {Tasks} ON {Projects}.{ProjectID}={Tasks}.{ProjectID}) INNER JOIN {People} ON {Tasks}.{AssignedTo}={People}.{PersonID}\nGROUP BY {Projects}.{Project}, {Projects}.{Budget}\nORDER BY {Projects}.{Project};" },
+    { "name": "Task List", "sql": "SELECT {Projects}.{Project}, {Tasks}.{Task}, {People}.{Name} AS {AssignedTo}, {Tasks}.{DueDate}, {Tasks}.{Hours}, {Tasks}.{Done}\nFROM ({Projects} INNER JOIN {Tasks} ON {Projects}.{ProjectID}={Tasks}.{ProjectID}) LEFT JOIN {People} ON {Tasks}.{AssignedTo}={People}.{PersonID}\nORDER BY {Projects}.{Project}, {Tasks}.{DueDate};" }
+  ],
+  "forms": [
+    { "name": "Projects", "source": "Projects", "subform": { "source": "Tasks", "link": "ProjectID" } },
+    { "name": "Tasks", "source": "Tasks", "kind": "continuous", "fields": ["ProjectID", "Task", "AssignedTo", "Priority", "DueDate", "Hours", "Done"] },
+    { "name": "People", "source": "People", "kind": "split" }
+  ],
+  "reports": [
+    { "name": "Tasks by Project", "source": "Task List", "fields": ["Project", "Task", "AssignedTo:text", "DueDate:datetime", "Hours", "Done"], "group": ["Project"], "sort": ["DueDate"], "sums": ["Hours"] }
+  ],
+  "layout": { "People": [40, 60], "Projects": [300, 30], "Tasks": [560, 80] }
+}

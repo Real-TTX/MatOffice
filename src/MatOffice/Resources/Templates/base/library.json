@@ -1,0 +1,107 @@
+{
+  // Library: books, members and loans (see BaseTemplates.cs for the format)
+  "de": {
+    "Books": "Bücher", "BookID": "BuchNr", "Title": "Titel", "Author": "Autor", "ISBN": "ISBN", "Genre": "Genre", "Published": "Erscheinungsjahr", "Shelf": "Regal", "Available": "Verfügbar",
+    "Members": "Mitglieder", "MemberID": "MitgliedNr", "Name": "Name", "Email": "E-Mail", "Phone": "Telefon", "JoinedOn": "Beitritt", "Active": "Aktiv",
+    "Loans": "Ausleihen", "LoanID": "AusleiheNr", "LoanDate": "Ausleihdatum", "DueDate": "Rückgabe bis", "ReturnedOn": "Zurückgegeben", "DaysOverdue": "TageÜberfällig",
+    "Novel": "Roman", "Crime": "Krimi", "Science": "Wissenschaft", "History": "Geschichte", "Children": "Kinderbuch", "Cooking": "Kochen",
+    "The Silent River": "Der stille Fluss", "Murder at the Harbour": "Mord am Hafen", "A Short History of Everything": "Eine kurze Geschichte von allem", "Stars and Atoms": "Sterne und Atome",
+    "The Little Fox": "Der kleine Fuchs", "Bread Baking at Home": "Brot backen zu Hause", "Winter in Vienna": "Winter in Wien", "The Last Witness": "Der letzte Zeuge",
+    "Empires of the North": "Reiche des Nordens", "Databases Made Easy": "Datenbanken leicht gemacht", "The Garden Cookbook": "Das Gartenkochbuch", "Moon Tales": "Mondgeschichten",
+    "Books on Loan": "Ausgeliehene Bücher", "Overdue Loans": "Überfällige Ausleihen", "Loans per Member": "Ausleihen je Mitglied", "NumberOfLoans": "AnzahlAusleihen",
+    "Books per Genre": "Bücher je Genre", "NumberOfBooks": "AnzahlBücher", "Loan History": "Ausleihhistorie", "Book Catalog": "Bücherkatalog", "Loans by Member": "Ausleihen nach Mitglied",
+    "Mark Returned": "Als zurückgegeben markieren",
+    "Every book of the library": "Jedes Buch der Bibliothek", "The members who borrow books": "Die Mitglieder, die Bücher ausleihen", "Who borrowed which book": "Wer welches Buch ausgeliehen hat",
+    "The due date must be after the loan date.": "Das Rückgabedatum muss nach dem Ausleihdatum liegen."
+  },
+  "tables": [
+    {
+      "name": "Books", "description": "Every book of the library",
+      "fields": [
+        ["BookID", "autonumber", { "pk": true }],
+        ["Title", "text", { "size": 150, "required": true, "indexed": true }],
+        ["Author", "text", { "size": 100, "indexed": true }],
+        ["ISBN", "text", { "size": 20, "unique": true }],
+        ["Genre", "text", { "size": 30, "values": ["Novel", "Crime", "Science", "History", "Children", "Cooking"] }],
+        ["Published", "number", { "numberSize": "integer", "rule": "Between 1450 And 2100" }],
+        ["Shelf", "text", { "size": 10 }],
+        ["Available", "yesno", { "default": "Yes" }]
+      ],
+      "rows": [
+        [1, "The Silent River", "Marie Lindqvist", "978-3-16-148410-0", "Novel", 2019, "A1", true],
+        [2, "Murder at the Harbour", "Hans Kröger", "978-3-16-148411-7", "Crime", 2021, "B2", false],
+        [3, "A Short History of Everything", "Clara Weiss", "978-3-16-148412-4", "Science", 2015, "C1", true],
+        [4, "Stars and Atoms", "Peter Nolan", "978-3-16-148413-1", "Science", 2022, "C1", false],
+        [5, "The Little Fox", "Ella Brook", "978-3-16-148414-8", "Children", 2018, "D3", true],
+        [6, "Bread Baking at Home", "Tom Becker", "978-3-16-148415-5", "Cooking", 2020, "E1", false],
+        [7, "Winter in Vienna", "Marie Lindqvist", "978-3-16-148416-2", "Novel", 2023, "A1", true],
+        [8, "The Last Witness", "Hans Kröger", "978-3-16-148417-9", "Crime", 2024, "B2", false],
+        [9, "Empires of the North", "Sven Olsen", "978-3-16-148418-6", "History", 2017, "F2", true],
+        [10, "Databases Made Easy", "Anna Schmidt", "978-3-16-148419-3", "Science", 2025, "C2", true],
+        [11, "The Garden Cookbook", "Lea Fischer", "978-3-16-148420-9", "Cooking", 2016, "E1", true],
+        [12, "Moon Tales", "Ella Brook", "978-3-16-148421-6", "Children", 2021, "D3", true]
+      ]
+    },
+    {
+      "name": "Members", "description": "The members who borrow books",
+      "fields": [
+        ["MemberID", "autonumber", { "pk": true }],
+        ["Name", "text", { "size": 80, "required": true, "indexed": true }],
+        ["Email", "hyperlink"],
+        ["Phone", "text", { "size": 30 }],
+        ["JoinedOn", "datetime", { "format": "Short Date", "default": "Date()" }],
+        ["Active", "yesno", { "default": "Yes" }]
+      ],
+      "rows": [
+        [1, "Jonas Becker", "mailto:jonas@example.com", "+49 40 5553001", "@-700", true],
+        [2, "Maria Huber", "mailto:maria@example.com", null, "@-500", true],
+        [3, "Lukas Wagner", "mailto:lukas@example.com", "+49 221 5553003", "@-400", true],
+        [4, "Sophie Gruber", "mailto:sophie@example.com", null, "@-200", true],
+        [5, "Ben Koch", "mailto:ben@example.com", "+49 30 5553005", "@-90", true],
+        [6, "Emma Hoffmann", "mailto:emma@example.com", null, "@-30", false]
+      ]
+    },
+    {
+      "name": "Loans", "description": "Who borrowed which book",
+      "fields": [
+        ["LoanID", "autonumber", { "pk": true }],
+        ["BookID", "number", { "lookup": "Books.BookID.Title", "required": true, "caption": "Book" }],
+        ["MemberID", "number", { "lookup": "Members.MemberID.Name", "required": true, "caption": "Member" }],
+        ["LoanDate", "datetime", { "format": "Short Date", "default": "Date()", "required": true }],
+        ["DueDate", "datetime", { "format": "Short Date", "default": "Date()+21" }],
+        ["ReturnedOn", "datetime", { "format": "Short Date" }]
+      ],
+      "rows": [
+        [1, 1, 1, "@-120", "@-99", "@-101"],
+        [2, 3, 2, "@-90", "@-69", "@-75"],
+        [3, 2, 3, "@-40", "@-19", null],
+        [4, 4, 1, "@-25", "@-4", null],
+        [5, 6, 4, "@-12", "@9", null],
+        [6, 8, 5, "@-6", "@15", null],
+        [7, 5, 2, "@-60", "@-39", "@-45"],
+        [8, 9, 3, "@-30", "@-9", "@-12"]
+      ]
+    }
+  ],
+  "relationships": [
+    ["Books.BookID", "Loans.BookID", "integrity"],
+    ["Members.MemberID", "Loans.MemberID", "cascade"]
+  ],
+  "queries": [
+    { "name": "Books on Loan", "sql": "SELECT {Books}.{Title}, {Members}.{Name}, {Loans}.{LoanDate}, {Loans}.{DueDate}\nFROM ({Books} INNER JOIN {Loans} ON {Books}.{BookID}={Loans}.{BookID}) INNER JOIN {Members} ON {Members}.{MemberID}={Loans}.{MemberID}\nWHERE ({Loans}.{ReturnedOn} Is Null)\nORDER BY {Loans}.{DueDate};" },
+    { "name": "Overdue Loans", "sql": "SELECT {Members}.{Name}, {Members}.{Email}, {Books}.{Title}, {Loans}.{DueDate}, DateDiff(\"d\",[{DueDate}],Date()) AS {DaysOverdue}\nFROM ({Books} INNER JOIN {Loans} ON {Books}.{BookID}={Loans}.{BookID}) INNER JOIN {Members} ON {Members}.{MemberID}={Loans}.{MemberID}\nWHERE (({Loans}.{DueDate}<Date()) AND ({Loans}.{ReturnedOn} Is Null))\nORDER BY {Loans}.{DueDate};" },
+    { "name": "Loans per Member", "sql": "SELECT {Members}.{Name}, Count({Loans}.{LoanID}) AS {NumberOfLoans}\nFROM {Members} LEFT JOIN {Loans} ON {Members}.{MemberID}={Loans}.{MemberID}\nGROUP BY {Members}.{Name}\nORDER BY Count({Loans}.{LoanID}) DESC;" },
+    { "name": "Books per Genre", "sql": "SELECT {Books}.{Genre}, Count({Books}.{BookID}) AS {NumberOfBooks}\nFROM {Books}\nGROUP BY {Books}.{Genre}\nORDER BY {Books}.{Genre};" },
+    { "name": "Loan History", "sql": "SELECT {Members}.{Name}, {Books}.{Title}, {Loans}.{LoanDate}, {Loans}.{DueDate}, {Loans}.{ReturnedOn}\nFROM ({Books} INNER JOIN {Loans} ON {Books}.{BookID}={Loans}.{BookID}) INNER JOIN {Members} ON {Members}.{MemberID}={Loans}.{MemberID}\nORDER BY {Members}.{Name}, {Loans}.{LoanDate};" }
+  ],
+  "forms": [
+    { "name": "Members", "source": "Members", "subform": { "source": "Loans", "link": "MemberID" } },
+    { "name": "Books", "source": "Books", "kind": "continuous", "fields": ["Title", "Author", "Genre", "Published", "Shelf", "Available"] },
+    { "name": "Loans", "source": "Loans" }
+  ],
+  "reports": [
+    { "name": "Book Catalog", "source": "Books", "fields": ["Genre", "Title", "Author", "Published", "Shelf", "Available"], "group": ["Genre"], "sort": ["Title"] },
+    { "name": "Loans by Member", "source": "Loan History", "fields": ["Name", "Title", "LoanDate:datetime", "DueDate:datetime", "ReturnedOn:datetime"], "group": ["Name"], "sort": ["LoanDate"] }
+  ],
+  "layout": { "Books": [40, 40], "Loans": [300, 80], "Members": [560, 40] }
+}

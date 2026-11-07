@@ -1,0 +1,171 @@
+{
+  // Products & Orders: categories, products, customers, orders and their lines (see BaseTemplates.cs for the format)
+  "de": {
+    "Categories": "Kategorien", "CategoryID": "KategorieNr", "Category": "Kategorie", "Description": "Beschreibung",
+    "Products": "Artikel", "ProductID": "ArtikelNr", "ProductName": "Artikelname", "UnitPrice": "Einzelpreis", "UnitsInStock": "Lagerbestand", "ReorderLevel": "Mindestbestand", "Discontinued": "Ausgelaufen",
+    "Customers": "Kunden", "CustomerID": "KundenNr", "Company": "Firma", "ContactName": "Ansprechpartner", "City": "Ort", "Country": "Land", "Phone": "Telefon", "Email": "E-Mail",
+    "Orders": "Bestellungen", "OrderID": "BestellNr", "OrderDate": "Bestelldatum", "ShippedDate": "Versanddatum", "Status": "Status", "Notes": "Notizen",
+    "Order Details": "Bestelldetails", "DetailID": "PositionNr", "Quantity": "Menge", "Discount": "Rabatt", "LineTotal": "Betrag", "Sales": "Umsatz", "Total": "Summe",
+    "New": "Neu", "Shipped": "Versandt", "Paid": "Bezahlt", "Cancelled": "Storniert",
+    "Beverages": "Getränke", "Bakery": "Backwaren", "Dairy": "Milchprodukte", "Produce": "Obst & Gemüse", "Pantry": "Vorrat",
+    "Coffee, tea, juices and water": "Kaffee, Tee, Säfte und Wasser", "Bread, rolls and cakes": "Brot, Brötchen und Kuchen", "Milk, cheese and yoghurt": "Milch, Käse und Joghurt",
+    "Fresh fruit and vegetables": "Frisches Obst und Gemüse", "Pasta, rice, oil and spices": "Nudeln, Reis, Öl und Gewürze",
+    "Espresso beans 1 kg": "Espressobohnen 1 kg", "Green tea 100 g": "Grüner Tee 100 g", "Apple juice 1 l": "Apfelsaft 1 l", "Sparkling water 12 x 0.75 l": "Mineralwasser 12 x 0,75 l",
+    "Sourdough bread": "Sauerteigbrot", "Butter croissant": "Buttercroissant", "Cheesecake": "Käsekuchen",
+    "Organic milk 1 l": "Bio-Milch 1 l", "Mountain cheese 200 g": "Bergkäse 200 g", "Greek yoghurt 500 g": "Griechischer Joghurt 500 g",
+    "Apples 1 kg": "Äpfel 1 kg", "Tomatoes 500 g": "Tomaten 500 g", "Potatoes 2.5 kg": "Kartoffeln 2,5 kg",
+    "Spaghetti 500 g": "Spaghetti 500 g", "Basmati rice 1 kg": "Basmatireis 1 kg", "Olive oil 0.5 l": "Olivenöl 0,5 l", "Sea salt 250 g": "Meersalz 250 g",
+    "Germany": "Deutschland", "Austria": "Österreich", "Switzerland": "Schweiz", "Munich": "München", "Cologne": "Köln", "Vienna": "Wien", "Zurich": "Zürich", "Nuremberg": "Nürnberg",
+    "Café Sonnenschein": "Café Sonnenschein", "Bistro am Markt": "Bistro am Markt", "Hotel Seeblick": "Hotel Seeblick", "Kantine Nord": "Kantine Nord", "Feinkost Wagner": "Feinkost Wagner",
+    "Deliver before 8 a.m.": "Lieferung vor 8 Uhr", "Call before delivery.": "Vor der Lieferung anrufen.",
+    "The price cannot be negative.": "Der Preis darf nicht negativ sein.", "The stock cannot be negative.": "Der Bestand darf nicht negativ sein.",
+    "Enter a quantity greater than 0.": "Gib eine Menge größer als 0 ein.", "The discount is between 0 % and 100 %.": "Der Rabatt liegt zwischen 0 % und 100 %.",
+    "Order Details Extended": "Bestelldetails erweitert", "Sales by Category": "Umsatz nach Kategorie", "Order Totals": "Bestellsummen", "Products to Reorder": "Nachzubestellende Artikel",
+    "Orders in Period": "Bestellungen im Zeitraum", "Start date": "Startdatum", "End date": "Enddatum", "Sales Details": "Umsatzdetails", "Product List": "Artikelliste",
+    "Raise Prices by 5 %": "Preise um 5 % erhöhen",
+    "The lines of all orders with their amount": "Die Positionen aller Bestellungen mit ihrem Betrag", "Raises the prices of all products that are still sold": "Erhöht die Preise aller Artikel, die noch verkauft werden",
+    "What you sell": "Was du verkaufst", "Who buys": "Wer kauft", "Orders of the customers": "Bestellungen der Kunden", "The products of each order": "Die Artikel jeder Bestellung", "Groups of products": "Gruppen von Artikeln",
+    "Sales Report": "Umsatzbericht"
+  },
+  "tables": [
+    {
+      "name": "Categories", "description": "Groups of products",
+      "fields": [
+        ["CategoryID", "autonumber", { "pk": true }],
+        ["Category", "text", { "size": 50, "required": true, "unique": true }],
+        ["Description", "memo"]
+      ],
+      "rows": [
+        [1, "Beverages", "Coffee, tea, juices and water"],
+        [2, "Bakery", "Bread, rolls and cakes"],
+        [3, "Dairy", "Milk, cheese and yoghurt"],
+        [4, "Produce", "Fresh fruit and vegetables"],
+        [5, "Pantry", "Pasta, rice, oil and spices"]
+      ]
+    },
+    {
+      "name": "Products", "description": "What you sell",
+      "fields": [
+        ["ProductID", "autonumber", { "pk": true }],
+        ["ProductName", "text", { "size": 80, "required": true, "indexed": true }],
+        ["CategoryID", "number", { "lookup": "Categories.CategoryID.Category", "caption": "Category" }],
+        ["UnitPrice", "currency", { "default": "0", "rule": ">=0", "ruleText": "The price cannot be negative." }],
+        ["UnitsInStock", "number", { "numberSize": "integer", "default": "0", "rule": ">=0", "ruleText": "The stock cannot be negative." }],
+        ["ReorderLevel", "number", { "numberSize": "integer", "default": "5" }],
+        ["Discontinued", "yesno"]
+      ],
+      "rows": [
+        [1, "Espresso beans 1 kg", 1, 18.9, 42, 10, false],
+        [2, "Green tea 100 g", 1, 6.5, 8, 10, false],
+        [3, "Apple juice 1 l", 1, 2.49, 120, 30, false],
+        [4, "Sparkling water 12 x 0.75 l", 1, 7.99, 15, 20, false],
+        [5, "Sourdough bread", 2, 4.2, 25, 10, false],
+        [6, "Butter croissant", 2, 1.35, 60, 40, false],
+        [7, "Cheesecake", 2, 22.0, 4, 3, true],
+        [8, "Organic milk 1 l", 3, 1.59, 80, 30, false],
+        [9, "Mountain cheese 200 g", 3, 4.79, 12, 15, false],
+        [10, "Greek yoghurt 500 g", 3, 2.99, 30, 10, false],
+        [11, "Apples 1 kg", 4, 2.99, 55, 20, false],
+        [12, "Tomatoes 500 g", 4, 2.49, 6, 15, false],
+        [13, "Potatoes 2.5 kg", 4, 3.99, 40, 10, false],
+        [14, "Spaghetti 500 g", 5, 1.79, 90, 25, false],
+        [15, "Basmati rice 1 kg", 5, 3.49, 22, 10, false],
+        [16, "Olive oil 0.5 l", 5, 8.99, 18, 8, false],
+        [17, "Sea salt 250 g", 5, 1.99, 2, 5, false]
+      ]
+    },
+    {
+      "name": "Customers", "description": "Who buys",
+      "fields": [
+        ["CustomerID", "autonumber", { "pk": true }],
+        ["Company", "text", { "size": 80, "required": true, "indexed": true }],
+        ["ContactName", "text", { "size": 60 }],
+        ["City", "text", { "size": 50 }],
+        ["Country", "text", { "size": 50, "default": "\"Germany\"" }],
+        ["Phone", "text", { "size": 30 }],
+        ["Email", "hyperlink"]
+      ],
+      "rows": [
+        [1, "Café Sonnenschein", "Anna Schmidt", "Hamburg", "Germany", "+49 40 5551001", "mailto:info@sonnenschein.example.com"],
+        [2, "Bistro am Markt", "Lukas Wagner", "Cologne", "Germany", "+49 221 5551002", "mailto:kontakt@bistro.example.com"],
+        [3, "Hotel Seeblick", "Maria Huber", "Munich", "Germany", "+49 89 5551003", "mailto:empfang@seeblick.example.com"],
+        [4, "Kantine Nord", "Felix Meier", "Zurich", "Switzerland", "+41 44 5551004", "mailto:kantine@nord.example.com"],
+        [5, "Feinkost Wagner", "Sophie Gruber", "Vienna", "Austria", "+43 1 5551005", "mailto:laden@feinkost.example.com"],
+        [6, "Bäckerei Brandt", "Jonas Brandt", "Nuremberg", "Germany", "+49 911 5551006", "mailto:brandt@baeckerei.example.com"]
+      ]
+    },
+    {
+      "name": "Orders", "description": "Orders of the customers",
+      "fields": [
+        ["OrderID", "autonumber", { "pk": true }],
+        ["CustomerID", "number", { "lookup": "Customers.CustomerID.Company", "required": true, "caption": "Customer" }],
+        ["OrderDate", "datetime", { "default": "Date()", "format": "Short Date", "required": true }],
+        ["ShippedDate", "datetime", { "format": "Short Date" }],
+        ["Status", "text", { "size": 20, "values": ["New", "Shipped", "Paid", "Cancelled"], "default": "\"New\"" }],
+        ["Notes", "memo"]
+      ],
+      "rows": [
+        [1, 1, "@-60", "@-58", "Paid", null],
+        [2, 2, "@-52", "@-50", "Paid", "Deliver before 8 a.m."],
+        [3, 3, "@-45", "@-44", "Paid", null],
+        [4, 1, "@-33", "@-31", "Paid", null],
+        [5, 4, "@-27", "@-25", "Shipped", null],
+        [6, 5, "@-20", "@-18", "Shipped", "Call before delivery."],
+        [7, 2, "@-12", "@-11", "Shipped", null],
+        [8, 6, "@-8", null, "New", null],
+        [9, 3, "@-4", null, "New", null],
+        [10, 1, "@-1", null, "New", null]
+      ]
+    },
+    {
+      "name": "Order Details", "description": "The products of each order",
+      "fields": [
+        ["DetailID", "autonumber", { "pk": true }],
+        ["OrderID", "number", { "required": true, "indexed": true }],
+        ["ProductID", "number", { "lookup": "Products.ProductID.ProductName", "required": true, "caption": "Product" }],
+        ["Quantity", "number", { "numberSize": "integer", "default": "1", "rule": ">0", "ruleText": "Enter a quantity greater than 0." }],
+        ["UnitPrice", "currency", { "default": "0" }],
+        ["Discount", "number", { "numberSize": "single", "format": "Percent", "decimals": 0, "default": "0", "rule": "Between 0 And 1", "ruleText": "The discount is between 0 % and 100 %." }]
+      ],
+      "rows": [
+        [1, 1, 1, 4, 18.9, 0], [2, 1, 6, 30, 1.35, 0], [3, 1, 8, 20, 1.59, 0.05],
+        [4, 2, 5, 12, 4.2, 0], [5, 2, 9, 6, 4.79, 0], [6, 2, 11, 10, 2.99, 0],
+        [7, 3, 3, 48, 2.49, 0.1], [8, 3, 4, 10, 7.99, 0.1], [9, 3, 10, 24, 2.99, 0],
+        [10, 4, 1, 2, 18.9, 0], [11, 4, 2, 5, 6.5, 0],
+        [12, 5, 14, 40, 1.79, 0.05], [13, 5, 15, 20, 3.49, 0.05], [14, 5, 16, 6, 8.99, 0], [15, 5, 13, 15, 3.99, 0],
+        [16, 6, 7, 2, 22.0, 0], [17, 6, 9, 10, 4.79, 0], [18, 6, 16, 4, 8.99, 0],
+        [19, 7, 6, 40, 1.35, 0], [20, 7, 5, 8, 4.2, 0],
+        [21, 8, 5, 20, 4.2, 0], [22, 8, 6, 60, 1.35, 0.1],
+        [23, 9, 3, 24, 2.49, 0], [24, 9, 12, 10, 2.49, 0], [25, 9, 17, 6, 1.99, 0],
+        [26, 10, 1, 3, 18.9, 0], [27, 10, 8, 12, 1.59, 0]
+      ]
+    }
+  ],
+  "relationships": [
+    ["Categories.CategoryID", "Products.CategoryID", "integrity"],
+    ["Customers.CustomerID", "Orders.CustomerID", "integrity"],
+    ["Orders.OrderID", "Order Details.OrderID", "cascade"],
+    ["Products.ProductID", "Order Details.ProductID", "integrity"]
+  ],
+  "queries": [
+    { "name": "Order Details Extended", "description": "The lines of all orders with their amount", "sql": "SELECT {Order Details}.{OrderID}, {Products}.{ProductName}, {Order Details}.{Quantity}, {Order Details}.{UnitPrice}, {Order Details}.{Discount}, CCur({Order Details}.{UnitPrice}*[{Quantity}]*(1-[{Discount}])) AS {LineTotal}\nFROM {Products} INNER JOIN {Order Details} ON {Products}.{ProductID}={Order Details}.{ProductID}\nORDER BY {Order Details}.{OrderID};" },
+    { "name": "Sales by Category", "sql": "SELECT {Categories}.{Category}, Sum(CCur({Order Details}.{UnitPrice}*[{Quantity}]*(1-[{Discount}]))) AS {Sales}\nFROM ({Categories} INNER JOIN {Products} ON {Categories}.{CategoryID}={Products}.{CategoryID}) INNER JOIN {Order Details} ON {Products}.{ProductID}={Order Details}.{ProductID}\nGROUP BY {Categories}.{Category}\nORDER BY Sum(CCur({Order Details}.{UnitPrice}*[{Quantity}]*(1-[{Discount}]))) DESC;" },
+    { "name": "Order Totals", "sql": "SELECT {Orders}.{OrderID}, {Customers}.{Company}, {Orders}.{OrderDate}, {Orders}.{Status}, Sum(CCur({Order Details}.{UnitPrice}*[{Quantity}]*(1-[{Discount}]))) AS {Total}\nFROM ({Customers} INNER JOIN {Orders} ON {Customers}.{CustomerID}={Orders}.{CustomerID}) INNER JOIN {Order Details} ON {Orders}.{OrderID}={Order Details}.{OrderID}\nGROUP BY {Orders}.{OrderID}, {Customers}.{Company}, {Orders}.{OrderDate}, {Orders}.{Status}\nORDER BY {Orders}.{OrderDate} DESC;" },
+    { "name": "Products to Reorder", "sql": "SELECT {Products}.{ProductName}, {Products}.{UnitsInStock}, {Products}.{ReorderLevel}\nFROM {Products}\nWHERE (({Products}.{UnitsInStock}<=[{ReorderLevel}]) AND ({Products}.{Discontinued}=False))\nORDER BY {Products}.{UnitsInStock};" },
+    { "name": "Orders in Period", "sql": "SELECT {Orders}.{OrderID}, {Customers}.{Company}, {Orders}.{OrderDate}, {Orders}.{Status}\nFROM {Customers} INNER JOIN {Orders} ON {Customers}.{CustomerID}={Orders}.{CustomerID}\nWHERE ({Orders}.{OrderDate} Between {Start date} And {End date})\nORDER BY {Orders}.{OrderDate};" },
+    { "name": "Sales Details", "sql": "SELECT {Categories}.{Category}, {Products}.{ProductName}, {Orders}.{OrderDate}, {Order Details}.{Quantity}, CCur({Order Details}.{UnitPrice}*[{Quantity}]*(1-[{Discount}])) AS {LineTotal}\nFROM (({Categories} INNER JOIN {Products} ON {Categories}.{CategoryID}={Products}.{CategoryID}) INNER JOIN {Order Details} ON {Products}.{ProductID}={Order Details}.{ProductID}) INNER JOIN {Orders} ON {Orders}.{OrderID}={Order Details}.{OrderID}\nORDER BY {Categories}.{Category}, {Products}.{ProductName};" },
+    { "name": "Product List", "sql": "SELECT {Categories}.{Category}, {Products}.{ProductName}, {Products}.{UnitPrice}, {Products}.{UnitsInStock}\nFROM {Categories} INNER JOIN {Products} ON {Categories}.{CategoryID}={Products}.{CategoryID}\nWHERE ({Products}.{Discontinued}=False)\nORDER BY {Categories}.{Category}, {Products}.{ProductName};" },
+    { "name": "Raise Prices by 5 %", "description": "Raises the prices of all products that are still sold", "sql": "UPDATE {Products}\nSET {Products}.{UnitPrice} = CCur([{UnitPrice}]*1.05)\nWHERE ({Products}.{Discontinued}=False);" }
+  ],
+  "forms": [
+    { "name": "Customers", "source": "Customers", "subform": { "source": "Orders", "link": "CustomerID" } },
+    { "name": "Orders", "source": "Orders", "fields": ["OrderID", "CustomerID", "OrderDate", "ShippedDate", "Status"], "subform": { "source": "Order Details", "link": "OrderID" } },
+    { "name": "Products", "source": "Products", "kind": "continuous", "fields": ["ProductName", "CategoryID", "UnitPrice", "UnitsInStock", "Discontinued"] }
+  ],
+  "reports": [
+    { "name": "Sales by Category", "title": "Sales Report", "source": "Sales Details", "fields": ["Category", "ProductName", "OrderDate:datetime", "Quantity", "LineTotal:currency"], "group": ["Category"], "sort": ["ProductName"], "sums": ["Quantity", "LineTotal"] },
+    { "name": "Product List", "source": "Product List", "fields": ["Category", "ProductName", "UnitPrice", "UnitsInStock"], "group": ["Category"], "sort": ["ProductName"], "sums": ["UnitsInStock"] },
+    { "name": "Order Totals", "source": "Order Totals", "fields": ["Status", "OrderID", "Company", "OrderDate", "Total:currency"], "group": ["Status"], "sort": ["OrderDate"], "sums": ["Total"] }
+  ],
+  "layout": { "Customers": [30, 40], "Orders": [260, 40], "Order Details": [500, 60], "Products": [740, 40], "Categories": [960, 60] }
+}

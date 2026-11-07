@@ -1,0 +1,117 @@
+{
+  // Event management: venues, events, attendees and their registrations (see BaseTemplates.cs for the format)
+  "de": {
+    "Venues": "Veranstaltungsorte", "VenueID": "OrtNr", "Venue": "Veranstaltungsort", "City": "Stadt", "Capacity": "Plätze", "Address": "Adresse",
+    "Events": "Veranstaltungen", "EventID": "VeranstaltungNr", "Event": "Veranstaltung", "EventDate": "Termin", "Fee": "Gebühr", "MaxAttendees": "MaxTeilnehmer", "Description": "Beschreibung",
+    "Attendees": "Teilnehmer", "AttendeeID": "TeilnehmerNr", "FirstName": "Vorname", "LastName": "Nachname", "Company": "Firma", "Email": "E-Mail", "Phone": "Telefon",
+    "Registrations": "Anmeldungen", "RegistrationID": "AnmeldungNr", "RegisteredOn": "AngemeldetAm", "Paid": "Bezahlt", "Ticket": "Ticket",
+    "Standard": "Standard", "VIP": "VIP", "Student": "Studierende",
+    "Conference Center Harbour": "Kongresszentrum am Hafen", "Old Town Hall": "Altes Rathaus", "Riverside Loft": "Loft am Fluss", "University Hall A": "Hörsaal A der Universität",
+    "Munich": "München", "Cologne": "Köln",
+    "Data Day 2026": "Datentag 2026", "Access for Beginners": "Access für Einsteiger", "Summer Party": "Sommerfest", "Reporting Workshop": "Workshop Berichte", "Year-end Meetup": "Jahresabschluss-Treffen",
+    "A day of talks about data and databases.": "Ein Tag mit Vorträgen über Daten und Datenbanken.", "Tables, queries, forms and reports in one afternoon.": "Tabellen, Abfragen, Formulare und Berichte an einem Nachmittag.",
+    "Food, music and good company.": "Essen, Musik und nette Leute.", "Better reports with grouping and totals.": "Bessere Berichte mit Gruppen und Summen.", "Looking back at the year.": "Rückblick auf das Jahr.",
+    "Registrations per Event": "Anmeldungen je Veranstaltung", "Registered": "Angemeldet", "Unpaid Registrations": "Offene Zahlungen", "Upcoming Events": "Kommende Veranstaltungen",
+    "Attendee List": "Teilnehmerliste", "Attendees by Event": "Teilnehmer nach Veranstaltung", "FreeSeats": "FreiePlätze",
+    "Where events take place": "Wo Veranstaltungen stattfinden", "What takes place": "Was stattfindet", "People who take part": "Wer teilnimmt", "Who comes to what": "Wer zu was kommt",
+    "The capacity must be greater than 0.": "Die Zahl der Plätze muss größer als 0 sein."
+  },
+  "tables": [
+    {
+      "name": "Venues", "description": "Where events take place",
+      "fields": [
+        ["VenueID", "autonumber", { "pk": true }],
+        ["Venue", "text", { "size": 80, "required": true, "unique": true }],
+        ["City", "text", { "size": 50 }],
+        ["Address", "text", { "size": 120 }],
+        ["Capacity", "number", { "rule": ">0", "ruleText": "The capacity must be greater than 0." }]
+      ],
+      "rows": [
+        [1, "Conference Center Harbour", "Hamburg", "Am Kai 1", 400],
+        [2, "Old Town Hall", "Cologne", "Rathausplatz 3", 120],
+        [3, "Riverside Loft", "Munich", "Isarweg 12", 80],
+        [4, "University Hall A", "Berlin", "Unter den Linden 6", 250]
+      ]
+    },
+    {
+      "name": "Events", "description": "What takes place",
+      "fields": [
+        ["EventID", "autonumber", { "pk": true }],
+        ["Event", "text", { "size": 100, "required": true }],
+        ["VenueID", "number", { "lookup": "Venues.VenueID.Venue", "caption": "Venue" }],
+        ["EventDate", "datetime", { "format": "General Date", "required": true }],
+        ["Fee", "currency", { "default": "0", "rule": ">=0" }],
+        ["MaxAttendees", "number", { "caption": "Max. attendees" }],
+        ["Description", "memo"]
+      ],
+      "rows": [
+        [1, "Data Day 2026", 1, "@-30T09:00:00", 149, 300, "A day of talks about data and databases."],
+        [2, "Access for Beginners", 2, "@12T13:00:00", 59, 40, "Tables, queries, forms and reports in one afternoon."],
+        [3, "Summer Party", 3, "@25T18:00:00", 0, 80, "Food, music and good company."],
+        [4, "Reporting Workshop", 4, "@40T10:00:00", 89, 30, "Better reports with grouping and totals."],
+        [5, "Year-end Meetup", 1, "@70T17:30:00", 25, 150, "Looking back at the year."]
+      ]
+    },
+    {
+      "name": "Attendees", "description": "People who take part",
+      "fields": [
+        ["AttendeeID", "autonumber", { "pk": true }],
+        ["FirstName", "text", { "size": 50 }],
+        ["LastName", "text", { "size": 50, "required": true, "indexed": true }],
+        ["Company", "text", { "size": 80 }],
+        ["Email", "hyperlink"],
+        ["Phone", "text", { "size": 30 }]
+      ],
+      "rows": [
+        [1, "Anna", "Schmidt", "Nordlicht Software", "mailto:anna@example.com", "+49 40 5552001"],
+        [2, "Jonas", "Becker", "Nordlicht Software", "mailto:jonas@example.com", null],
+        [3, "Maria", "Huber", "Bergmann Handel", "mailto:maria@example.com", "+49 89 5552003"],
+        [4, "Lukas", "Wagner", "Rheinwerk", "mailto:lukas@example.com", null],
+        [5, "Sophie", "Gruber", "Donau Consulting", "mailto:sophie@example.com", "+43 1 5552005"],
+        [6, "Felix", "Meier", "Alpen Logistik", "mailto:felix@example.com", null],
+        [7, "Lea", "Fischer", null, "mailto:lea@example.com", null],
+        [8, "Paul", "Schneider", "Rheinwerk", "mailto:paul@example.com", "+49 221 5552008"],
+        [9, "Emma", "Hoffmann", null, "mailto:emma@example.com", null],
+        [10, "Ben", "Koch", "Universität", "mailto:ben@example.com", null]
+      ]
+    },
+    {
+      "name": "Registrations", "description": "Who comes to what",
+      "fields": [
+        ["RegistrationID", "autonumber", { "pk": true }],
+        ["EventID", "number", { "lookup": "Events.EventID.Event", "required": true, "caption": "Event" }],
+        ["AttendeeID", "number", { "lookup": "Attendees.AttendeeID.LastName", "required": true, "caption": "Attendee" }],
+        ["RegisteredOn", "datetime", { "default": "Date()", "format": "Short Date" }],
+        ["Ticket", "text", { "size": 20, "values": ["Standard", "VIP", "Student"], "default": "\"Standard\"" }],
+        ["Paid", "yesno"]
+      ],
+      "rows": [
+        [1, 1, 1, "@-80", "VIP", true], [2, 1, 2, "@-78", "Standard", true], [3, 1, 3, "@-70", "Standard", true], [4, 1, 8, "@-65", "Standard", true], [5, 1, 10, "@-60", "Student", true],
+        [6, 2, 4, "@-10", "Standard", true], [7, 2, 7, "@-8", "Standard", false], [8, 2, 9, "@-5", "Student", false],
+        [9, 3, 1, "@-6", "Standard", true], [10, 3, 2, "@-6", "Standard", true], [11, 3, 5, "@-4", "VIP", false], [12, 3, 6, "@-3", "Standard", true],
+        [13, 4, 3, "@-2", "Standard", false], [14, 4, 8, "@-1", "Standard", true],
+        [15, 5, 1, "@-1", "Standard", false]
+      ]
+    }
+  ],
+  "relationships": [
+    ["Venues.VenueID", "Events.VenueID", "integrity"],
+    ["Events.EventID", "Registrations.EventID", "cascade"],
+    ["Attendees.AttendeeID", "Registrations.AttendeeID", "cascade"]
+  ],
+  "queries": [
+    { "name": "Registrations per Event", "sql": "SELECT {Events}.{Event}, {Events}.{EventDate}, Count({Registrations}.{RegistrationID}) AS {Registered}, {Events}.{MaxAttendees}, [{MaxAttendees}]-Count({Registrations}.{RegistrationID}) AS {FreeSeats}\nFROM {Events} LEFT JOIN {Registrations} ON {Events}.{EventID}={Registrations}.{EventID}\nGROUP BY {Events}.{Event}, {Events}.{EventDate}, {Events}.{MaxAttendees}\nORDER BY {Events}.{EventDate};" },
+    { "name": "Unpaid Registrations", "sql": "SELECT {Attendees}.{LastName}, {Attendees}.{FirstName}, {Events}.{Event}, {Events}.{Fee}, {Registrations}.{RegisteredOn}\nFROM ({Attendees} INNER JOIN {Registrations} ON {Attendees}.{AttendeeID}={Registrations}.{AttendeeID}) INNER JOIN {Events} ON {Events}.{EventID}={Registrations}.{EventID}\nWHERE (({Registrations}.{Paid}=False) AND ({Events}.{Fee}>0))\nORDER BY {Attendees}.{LastName};" },
+    { "name": "Upcoming Events", "sql": "SELECT {Events}.{Event}, {Events}.{EventDate}, {Venues}.{Venue}, {Venues}.{City}, {Events}.{Fee}\nFROM {Venues} INNER JOIN {Events} ON {Venues}.{VenueID}={Events}.{VenueID}\nWHERE ({Events}.{EventDate}>=Date())\nORDER BY {Events}.{EventDate};" },
+    { "name": "Attendee List", "sql": "SELECT {Events}.{Event}, {Attendees}.{LastName}, {Attendees}.{FirstName}, {Attendees}.{Company}, {Registrations}.{Ticket}, {Registrations}.{Paid}, {Events}.{Fee}\nFROM ({Attendees} INNER JOIN {Registrations} ON {Attendees}.{AttendeeID}={Registrations}.{AttendeeID}) INNER JOIN {Events} ON {Events}.{EventID}={Registrations}.{EventID}\nORDER BY {Events}.{Event}, {Attendees}.{LastName};" }
+  ],
+  "forms": [
+    { "name": "Events", "source": "Events", "subform": { "source": "Registrations", "link": "EventID" } },
+    { "name": "Attendees", "source": "Attendees", "subform": { "source": "Registrations", "link": "AttendeeID" } },
+    { "name": "Venues", "source": "Venues", "kind": "continuous" }
+  ],
+  "reports": [
+    { "name": "Attendees by Event", "source": "Attendee List", "fields": ["Event", "LastName", "FirstName", "Company", "Ticket", "Paid", "Fee"], "group": ["Event"], "sort": ["LastName"], "sums": ["Fee"], "landscape": true }
+  ],
+  "layout": { "Venues": [40, 40], "Events": [290, 40], "Registrations": [540, 80], "Attendees": [790, 40] }
+}
