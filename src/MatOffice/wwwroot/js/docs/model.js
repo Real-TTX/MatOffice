@@ -191,13 +191,15 @@ export function roman(n) {
 /** The numbers of the list items of a block list the way Docs counts them (a list ends at any other block; deeper levels restart). */
 export function listNumbers(blocks) {
   const result = new Map();
-  let counters = null;
+  let counters = null, kinds = null;
   for (const b of blocks) {
-    if (!b || !b.list) { counters = null; continue; }
-    if (!counters) counters = new Array(9).fill(0);
+    if (!b || !b.list) { counters = null; kinds = null; continue; }
+    if (!counters) { counters = new Array(9).fill(0); kinds = new Array(9).fill(null); }
     const level = Math.min(8, Math.max(0, b.level || 0));
+    // a level whose kind changes starts again (like the server and Word)
+    if (kinds[level] !== b.list) { counters[level] = 0; kinds[level] = b.list; }
     counters[level] = b.start ? b.start : counters[level] + 1;
-    for (let i = level + 1; i < 9; i++) counters[i] = 0;
+    for (let i = level + 1; i < 9; i++) { counters[i] = 0; kinds[i] = null; }
     result.set(b, { n: counters[level], path: counters.slice(0, level + 1).map(c => Math.max(1, c)) });
   }
   return result;

@@ -5,7 +5,7 @@ import { startEditor } from '../editor/frame.js';
 import { t, el, icon, mod, debounce, lang as pageLang } from '../editor/util.js';
 import { DocEditor } from './editor.js';
 import { PageView } from './layout.js';
-import { parseHtml, readBlock, readBlocks, readTable, renderBlock, isTextBlockEl } from './htmlio.js';
+import { parseHtml, readBlock, readBlocks, readTable, renderBlock, isTextBlockEl, counterSet } from './htmlio.js';
 import { normalizePage, writeBlock, writeBlocks, countWords, isItemId, runsText, cleanText, languageName as nameOf } from './model.js';
 import { createCommands, LINE_SPACINGS } from './commands.js';
 import { buildRibbon } from './ribbon.js';
@@ -100,6 +100,7 @@ function load(content) {
     app.editor.ensureTail(app.body);
   });
   app.notes.load(Array.isArray(c.notes) ? c.notes : []);
+  app.listPass?.();
   applySettings();
   app.view.setPage(app.page);
   app.view.setHeaders(app.headers);
@@ -180,7 +181,35 @@ function restore(s) {
 
 // ---- changes -------------------------------------------------------------------------------------------------------------------
 
+/**
+ * The numbers of lists that CSS alone cannot know: data-start, and a level whose kind changes (1. 2. then bullets then 1. again) starts anew.
+ * An inline counter-set (only shown, never content: the serializer reads no counter-set).
+ */
+app.listPass = (root = app.body) => {
+  app.editor.quietly(() => {
+    for (const el of root.querySelectorAll('[data-list]')) {
+      const level = Number(el.getAttribute('data-level')) || 0;
+      const start = Number(el.getAttribute('data-start')) || 0;
+      let want = '';
+      if (start) want = counterSet(level, start);
+      else {
+        let p = el.previousElementSibling, kind = null;
+        while (p && p.hasAttribute('data-list')) {
+          const l = Number(p.getAttribute('data-level')) || 0;
+          if (l === level) { kind = p.getAttribute('data-list'); break; }
+          if (l < level) break;
+          p = p.previousElementSibling;
+        }
+        if (kind && kind !== el.getAttribute('data-list')) want = counterSet(level, 1);
+      }
+      if (el.style.counterSet !== want) el.style.counterSet = want;
+      if (!el.getAttribute('style')) el.removeAttribute('style');
+    }
+  });
+};
+
 const later = debounce(() => {
+  app.listPass();
   if (app.findUi && !app.findUi.el.hidden) app.findUi.search(false);
   app.notes.renumber();
   app.view.update();

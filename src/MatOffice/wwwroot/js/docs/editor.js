@@ -103,6 +103,11 @@ export class DocEditor extends EventTarget {
 
   /** Runs fn without telling anybody about the DOM changes it makes (rendering decorations). */
   quietly(fn) {
+    // the changes made before still count: deliver them now, only the ones of fn are dropped
+    for (const h of this.hosts) {
+      const pending = h._moObserver?.takeRecords();
+      if (pending?.length) this.onMutations(pending, h);
+    }
     this.silent = true;
     try { return fn(); } finally {
       // the observer delivers the records later: take them and drop them
@@ -711,7 +716,7 @@ export class DocEditor extends EventTarget {
       const range = word ? wordAt(sel.start.block, sel.start.offset) : null;
       if (!range) {
         const f = typeof patch === 'function' ? patch({ ...this.currentFormat() }) : { ...this.currentFormat(), ...patch };
-        this.setPending(cleanFormat(f));
+        this.setPending(f);
         return;
       }
       this.checkpoint('format');

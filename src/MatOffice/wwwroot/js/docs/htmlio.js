@@ -579,9 +579,17 @@ export function renderBlock(b, options = {}) {
     if (b.start) node.setAttribute('data-start', String(b.start));
   }
   applyBlockCss(node, b.css);
+  if (b.list && b.start) node.style.counterSet = counterSet(b.level || 0, b.start);
   renderRuns(node, b.runs, options);
   if (!b.runs.length || b.runs[b.runs.length - 1].obj === 'br' || (b.type === 'pre' && /\n$/.test(b.runs[b.runs.length - 1].text || ''))) node.append(el('br', {}));
   return node;
+}
+
+/** The counters of a list item that starts its level at n (the deeper levels start anew). */
+export function counterSet(level, n) {
+  let s = 'l' + level + ' ' + n;
+  for (let k = level + 1; k < 9; k++) s += ' l' + k + ' 0';
+  return s;
 }
 
 /** The paragraph CSS of the model on an element: space before (and its padding) go through custom properties, so they add up like in Word. */

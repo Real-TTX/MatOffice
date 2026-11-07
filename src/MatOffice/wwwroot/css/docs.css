@@ -119,18 +119,29 @@
 .mo-marks .mo-docs-content :is(td, th) > :is(p, h1, h2, h3, h4, h5, h6, blockquote, pre):last-child::after { content: "¤"; }
 
 /* ---- lists: paragraphs with data-list, numbered by CSS counters (a list ends at any other block) ---- */
-.mo-docs-content > :not([data-list]), .mo-docs-content :is(td, th) > :not([data-list]) { counter-reset: l0 l1 l2 l3 l4 l5 l6 l7 l8; }
+/* Chrome no longer lets a counter-reset of one paragraph reach the following ones, so everything goes through counter-set (after the increment):
+   every item starts the deeper levels anew, the first item of a list (after any other block) starts every level, data-start and a change of
+   the kind on a level get an inline counter-set from the script (htmlio.renderBlock, app.listPass). */
 .mo-docs-content :is(td, th) { counter-reset: l0 l1 l2 l3 l4 l5 l6 l7 l8; }
 .mo-docs-content [data-list] { margin-left: 36pt; text-indent: -18pt; }
-.mo-docs-content [data-list]:not([data-level]), .mo-docs-content [data-list][data-level="0"] { counter-increment: l0; counter-reset: l1 l2 l3 l4 l5 l6 l7 l8; }
-.mo-docs-content [data-list][data-level="1"] { margin-left: 72pt; counter-increment: l1; counter-reset: l2 l3 l4 l5 l6 l7 l8; }
-.mo-docs-content [data-list][data-level="2"] { margin-left: 108pt; counter-increment: l2; counter-reset: l3 l4 l5 l6 l7 l8; }
-.mo-docs-content [data-list][data-level="3"] { margin-left: 144pt; counter-increment: l3; counter-reset: l4 l5 l6 l7 l8; }
-.mo-docs-content [data-list][data-level="4"] { margin-left: 180pt; counter-increment: l4; counter-reset: l5 l6 l7 l8; }
-.mo-docs-content [data-list][data-level="5"] { margin-left: 216pt; counter-increment: l5; counter-reset: l6 l7 l8; }
-.mo-docs-content [data-list][data-level="6"] { margin-left: 252pt; counter-increment: l6; counter-reset: l7 l8; }
-.mo-docs-content [data-list][data-level="7"] { margin-left: 288pt; counter-increment: l7; counter-reset: l8; }
+.mo-docs-content [data-list]:is(:not([data-level]), [data-level="0"]) { counter-increment: l0; counter-set: l1 0 l2 0 l3 0 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="1"] { margin-left: 72pt; counter-increment: l1; counter-set: l2 0 l3 0 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="2"] { margin-left: 108pt; counter-increment: l2; counter-set: l3 0 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="3"] { margin-left: 144pt; counter-increment: l3; counter-set: l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="4"] { margin-left: 180pt; counter-increment: l4; counter-set: l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="5"] { margin-left: 216pt; counter-increment: l5; counter-set: l6 0 l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="6"] { margin-left: 252pt; counter-increment: l6; counter-set: l7 0 l8 0; }
+.mo-docs-content [data-list][data-level="7"] { margin-left: 288pt; counter-increment: l7; counter-set: l8 0; }
 .mo-docs-content [data-list][data-level="8"] { margin-left: 324pt; counter-increment: l8; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child):is(:not([data-level]), [data-level="0"]) { counter-set: l0 1 l1 0 l2 0 l3 0 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="1"] { counter-set: l0 0 l1 1 l2 0 l3 0 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="2"] { counter-set: l0 0 l1 0 l2 1 l3 0 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="3"] { counter-set: l0 0 l1 0 l2 0 l3 1 l4 0 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="4"] { counter-set: l0 0 l1 0 l2 0 l3 0 l4 1 l5 0 l6 0 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="5"] { counter-set: l0 0 l1 0 l2 0 l3 0 l4 0 l5 1 l6 0 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="6"] { counter-set: l0 0 l1 0 l2 0 l3 0 l4 0 l5 0 l6 1 l7 0 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="7"] { counter-set: l0 0 l1 0 l2 0 l3 0 l4 0 l5 0 l6 0 l7 1 l8 0; }
+.mo-docs-content :is(:not([data-list]) + [data-list], [data-list]:first-child)[data-level="8"] { counter-set: l0 0 l1 0 l2 0 l3 0 l4 0 l5 0 l6 0 l7 0 l8 1; }
 /* consecutive list paragraphs have no space between them (Word's "contextual spacing") */
 .mo-docs-content p[data-list]:has(+ p[data-list]), .mo-docs-content :is(h1, h2, h3, h4, h5, h6)[data-list]:has(+ [data-list]) { margin-bottom: 0; }
 .mo-docs-content [data-list]::before {
