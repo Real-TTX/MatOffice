@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="mat-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <!-- The icons of the ribbon of MatOffice Sheets, drawn like the toolkit's (24 x 24, a line of 2, round ends; the colour is the text colour).
+       Only on the pages of the Sheets editor (Assets.SpriteOf("sheets")). -->
+  <defs>
+    <path id="mo-sheets-faint" d="M4 4h16v16H4zM12 4v16M4 12h16" stroke-width="1.2" stroke-dasharray="1 2.6" stroke-opacity=".6"/>
+    <path id="mo-sheets-clip" d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+  </defs>
+
+  <!-- font -->
+  <symbol id="mat-i-sheets-bold" viewBox="0 0 24 24"><path d="M7 4h6a4 4 0 0 1 0 8H7zM7 12h7.5a4 4 0 0 1 0 8H7z" stroke-width="2.4"/></symbol>
+  <symbol id="mat-i-sheets-italic" viewBox="0 0 24 24"><path d="M19 4h-9M14 20H5M15 4 9 20"/></symbol>
+  <symbol id="mat-i-sheets-underline" viewBox="0 0 24 24"><path d="M6 4v6a6 6 0 0 0 12 0V4M4 20h16"/></symbol>
+  <symbol id="mat-i-sheets-strike" viewBox="0 0 24 24"><path d="M16 4H9a3 3 0 0 0-2.83 4M14 12a4 4 0 0 1 0 8H6M4 12h16"/></symbol>
+  <symbol id="mat-i-sheets-font-grow" viewBox="0 0 24 24"><path d="M3 20 8 6l5 14M4.8 15h6.4M17.5 11V3M15 5.5 17.5 3 20 5.5"/></symbol>
+  <symbol id="mat-i-sheets-font-shrink" viewBox="0 0 24 24"><path d="M3 20 8 6l5 14M4.8 15h6.4M17.5 3v8M15 8.5l2.5 2.5L20 8.5"/></symbol>
+  <symbol id="mat-i-sheets-font-color" viewBox="0 0 24 24"><path d="M6 17 12 3l6 14M8.4 12h7.2"/></symbol>
+  <symbol id="mat-i-sheets-fill" viewBox="0 0 24 24"><path d="M10.5 3.5 3.5 10.5l6 6 7-7zM3.5 10.5h13M20 13.5s-2 2.4-2 3.6a2 2 0 0 0 4 0c0-1.2-2-3.6-2-3.6z"/></symbol>
+
+  <!-- alignment -->
+  <symbol id="mat-i-sheets-align-left" viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></symbol>
+  <symbol id="mat-i-sheets-align-center" viewBox="0 0 24 24"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></symbol>
+  <symbol id="mat-i-sheets-align-right" viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></symbol>
+  <symbol id="mat-i-sheets-align-top" viewBox="0 0 24 24"><path d="M4 4h16M12 8v12M8 12l4-4 4 4"/></symbol>
+  <symbol id="mat-i-sheets-align-middle" viewBox="0 0 24 24"><path d="M4 12h16M12 3v5M9 5.5 12 8l3-2.5M12 21v-5M9 18.5l3-2.5 3 2.5"/></symbol>
+  <symbol id="mat-i-sheets-align-bottom" viewBox="0 0 24 24"><path d="M4 20h16M12 4v12M8 12l4 4 4-4"/></symbol>
+  <symbol id="mat-i-sheets-wrap" viewBox="0 0 24 24"><path d="M4 6h16M4 12h12.5a3 3 0 0 1 0 6H12M14 15.5 11.5 18l2.5 2.5M4 18h4"/></symbol>
+  <symbol id="mat-i-sheets-indent-more" viewBox="0 0 24 24"><path d="m3 8 4 4-4 4M21 12H11M21 6H11M21 18H11"/></symbol>
+  <symbol id="mat-i-sheets-indent-less" viewBox="0 0 24 24"><path d="m7 8-4 4 4 4M21 12H11M21 6H11M21 18H11"/></symbol>
+  <symbol id="mat-i-sheets-merge" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M6.5 12H10M8.5 10l2 2-2 2M17.5 12H14M15.5 10l-2 2 2 2"/></symbol>
+  <symbol id="mat-i-sheets-merge-across" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 12h18M7 8h10M14.5 6.5 17 8l-2.5 1.5M7 16h10M14.5 14.5 17 16l-2.5 1.5"/></symbol>
+  <symbol id="mat-i-sheets-unmerge" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 5v14M9 12H5.5M7 10l-2 2 2 2M15 12h3.5M17 10l2 2-2 2"/></symbol>
+
+  <!-- clipboard -->
+  <symbol id="mat-i-sheets-paste" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><use href="#mo-sheets-clip"/></symbol>
+  <symbol id="mat-i-sheets-paste-values" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><use href="#mo-sheets-clip"/><path d="M10 11v7M14 11v7M8 13.5h8M8 16h8" stroke-width="1.6"/></symbol>
+  <symbol id="mat-i-sheets-paste-special" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><use href="#mo-sheets-clip"/><path d="M12 10.5v7M8.5 14h7"/></symbol>
+  <symbol id="mat-i-sheets-cut" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></symbol>
+  <symbol id="mat-i-sheets-painter" viewBox="0 0 24 24"><rect x="3" y="3" width="14" height="6" rx="1.5"/><path d="M17 6h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-7v3"/><rect x="10" y="14" width="4" height="7" rx="1"/></symbol>
+  <symbol id="mat-i-sheets-transpose" viewBox="0 0 24 24"><path d="M4 7h10a4 4 0 0 1 4 4v9M15 17l3 3 3-3M7 4 4 7l3 3"/></symbol>
+
+  <!-- borders -->
+  <symbol id="mat-i-sheets-border-none" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/></symbol>
+  <symbol id="mat-i-sheets-border-bottom" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4 20h16"/></symbol>
+  <symbol id="mat-i-sheets-border-top" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4 4h16"/></symbol>
+  <symbol id="mat-i-sheets-border-left" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4 4v16"/></symbol>
+  <symbol id="mat-i-sheets-border-right" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M20 4v16"/></symbol>
+  <symbol id="mat-i-sheets-border-all" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM12 4v16M4 12h16"/></symbol>
+  <symbol id="mat-i-sheets-border-outside" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4 4h16v16H4z"/></symbol>
+  <symbol id="mat-i-sheets-border-thick" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4.5 4.5h15v15h-15z" stroke-width="3.2"/></symbol>
+  <symbol id="mat-i-sheets-border-inside" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="mat-i-sheets-border-double" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4 17.5h16M4 21h16" stroke-width="1.6"/></symbol>
+  <symbol id="mat-i-sheets-border-topbottom" viewBox="0 0 24 24"><use href="#mo-sheets-faint"/><path d="M4 4h16M4 20h16"/></symbol>
+
+  <!-- number -->
+  <symbol id="mat-i-sheets-currency" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/></symbol>
+  <symbol id="mat-i-sheets-percent" viewBox="0 0 24 24"><path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+  <symbol id="mat-i-sheets-comma" viewBox="0 0 24 24"><ellipse cx="6.5" cy="11" rx="2.5" ry="4"/><ellipse cx="17.5" cy="11" rx="2.5" ry="4"/><path d="M12 14.5v2.5l-1.2 2.5"/></symbol>
+  <symbol id="mat-i-sheets-dec-more" viewBox="0 0 24 24"><path d="M4 6.5h9M6.5 4 4 6.5 6.5 9M3.5 19.5h.01"/><ellipse cx="9.5" cy="16.5" rx="2.2" ry="3.3"/><ellipse cx="17" cy="16.5" rx="2.2" ry="3.3"/></symbol>
+  <symbol id="mat-i-sheets-dec-less" viewBox="0 0 24 24"><path d="M13 6.5H4M10.5 4 13 6.5 10.5 9M3.5 19.5h.01"/><ellipse cx="9.5" cy="16.5" rx="2.2" ry="3.3"/></symbol>
+
+  <!-- styles -->
+  <symbol id="mat-i-sheets-cf" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/><path d="M10 10h10v4H10z" fill="currentColor" fill-opacity=".35" stroke="none"/></symbol>
+  <symbol id="mat-i-sheets-cf-gt" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 8 6 4-6 4"/></symbol>
+  <symbol id="mat-i-sheets-cf-lt" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m15 8-6 4 6 4"/></symbol>
+  <symbol id="mat-i-sheets-cf-between" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 9 3 3-3 3M17 9l-3 3 3 3"/></symbol>
+  <symbol id="mat-i-sheets-cf-eq" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10h8M8 14h8"/></symbol>
+  <symbol id="mat-i-sheets-cf-text" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8M12 8v9"/></symbol>
+  <symbol id="mat-i-sheets-cf-dup" viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="12" rx="2"/><rect x="9" y="9" width="12" height="12" rx="2"/></symbol>
+  <symbol id="mat-i-sheets-cf-top" viewBox="0 0 24 24"><path d="M4 20h16M12 20v-8M17 20v-4"/><path d="M7 20V5" stroke-width="3.2"/></symbol>
+  <symbol id="mat-i-sheets-cf-bottom" viewBox="0 0 24 24"><path d="M4 20h16M7 20V6M12 20v-9"/><path d="M17 20v-3" stroke-width="3.2"/></symbol>
+  <symbol id="mat-i-sheets-cf-above" viewBox="0 0 24 24"><path d="M3 15h18" stroke-dasharray="2 3"/><path d="M12 11V3M9 6l3-3 3 3M6 21v-2M18 21v-2"/></symbol>
+  <symbol id="mat-i-sheets-cf-below" viewBox="0 0 24 24"><path d="M3 9h18" stroke-dasharray="2 3"/><path d="M12 13v8M9 18l3 3 3-3M6 3v2M18 3v2"/></symbol>
+  <symbol id="mat-i-sheets-cell-styles" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5" fill="currentColor" fill-opacity=".3"/><rect x="3" y="13" width="8" height="8" rx="1.5" fill="currentColor" fill-opacity=".3"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></symbol>
+
+  <!-- cells -->
+  <symbol id="mat-i-sheets-insert-cells" viewBox="0 0 24 24"><path d="M3 3h12v12H3zM9 3v12M3 9h12M18 15v6M15 18h6"/></symbol>
+  <symbol id="mat-i-sheets-delete-cells" viewBox="0 0 24 24"><path d="M3 3h12v12H3zM9 3v12M3 9h12M15.5 15.5l5 5M20.5 15.5l-5 5"/></symbol>
+  <symbol id="mat-i-sheets-insert-row" viewBox="0 0 24 24"><path d="M3 5h18M3 19h18M12 9v6M9 12h6"/></symbol>
+  <symbol id="mat-i-sheets-insert-col" viewBox="0 0 24 24"><path d="M5 3v18M19 3v18M12 9v6M9 12h6"/></symbol>
+  <symbol id="mat-i-sheets-delete-row" viewBox="0 0 24 24"><path d="M3 5h18M3 19h18M9.5 9.5l5 5M14.5 9.5l-5 5"/></symbol>
+  <symbol id="mat-i-sheets-delete-col" viewBox="0 0 24 24"><path d="M5 3v18M19 3v18M9.5 9.5l5 5M14.5 9.5l-5 5"/></symbol>
+  <symbol id="mat-i-sheets-format-cells" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9M13.5 18.5l4.5-4.5"/></symbol>
+  <symbol id="mat-i-sheets-row-height" viewBox="0 0 24 24"><path d="M4 4h16M4 20h16M12 7v10M9 9.5 12 7l3 2.5M9 14.5 12 17l3-2.5"/></symbol>
+  <symbol id="mat-i-sheets-col-width" viewBox="0 0 24 24"><path d="M4 4v16M20 4v16M7 12h10M9.5 9 7 12l2.5 3M14.5 9 17 12l-2.5 3"/></symbol>
+  <symbol id="mat-i-sheets-sheet-add" viewBox="0 0 24 24"><path d="M2 19h4l1.5-3.5h9L18 19h4M12 3v8M8 7h8"/></symbol>
+
+  <!-- editing -->
+  <symbol id="mat-i-sheets-autosum" viewBox="0 0 24 24"><path d="M18 6.5V4H6l6 8-6 8h12v-2.5"/></symbol>
+  <symbol id="mat-i-sheets-fill-down" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="6" rx="1"/><path d="M12 12v8M8.5 16.5 12 20l3.5-3.5"/></symbol>
+  <symbol id="mat-i-sheets-clear" viewBox="0 0 24 24"><path d="M20 20H9l-5.5-5.5a2 2 0 0 1 0-2.8L12 3.2a2 2 0 0 1 2.8 0l5 5a2 2 0 0 1 0 2.8L12 19.8M7.5 9.5l7 7"/></symbol>
+  <symbol id="mat-i-sheets-clear-format" viewBox="0 0 24 24"><path d="M4 18 9 5l3.5 9M6 13h6M15 14l5 5M20 14l-5 5"/></symbol>
+  <symbol id="mat-i-sheets-sort" viewBox="0 0 24 24"><path d="M3 6h10M3 12h7M3 18h4M17 4v16M14 17l3 3 3-3"/></symbol>
+  <symbol id="mat-i-sheets-sort-az" viewBox="0 0 24 24"><path d="M3.5 10.5 6.5 3l3 7.5M4.6 8h3.8M3.5 14h6l-6 7h6M17 4v16M14 17l3 3 3-3"/></symbol>
+  <symbol id="mat-i-sheets-sort-za" viewBox="0 0 24 24"><path d="M3.5 3h6l-6 7h6M3.5 21l3-7.5 3 7.5M4.6 18.5h3.8M17 4v16M14 17l3 3 3-3"/></symbol>
+  <symbol id="mat-i-sheets-filter-clear" viewBox="0 0 24 24"><path d="M3 4h14l-5.5 6.5V17l-3 1.5v-8zM16 14l5 5M21 14l-5 5"/></symbol>
+  <symbol id="mat-i-sheets-replace" viewBox="0 0 24 24"><path d="M3 7h12M12 4l3 3-3 3M21 17H9M12 14l-3 3 3 3"/></symbol>
+  <symbol id="mat-i-sheets-validation" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="m8 10 3 3 5-6M7 21h10"/></symbol>
+  <symbol id="mat-i-sheets-remove-dup" viewBox="0 0 24 24"><rect x="3" y="3" width="11" height="11" rx="2"/><path d="M8 18v1a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1M6.5 6.5l4 4M10.5 6.5l-4 4"/></symbol>
+  <symbol id="mat-i-sheets-text-columns" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
+
+  <!-- charts and functions -->
+  <symbol id="mat-i-sheets-chart-column" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M7 21v-7M12 21V6M17 21V11" stroke-width="3.4" stroke-linecap="butt"/></symbol>
+  <symbol id="mat-i-sheets-chart-bar" viewBox="0 0 24 24"><path d="M3 3v18"/><path d="M3 7h10M3 12h16M3 17h7" stroke-width="3.4" stroke-linecap="butt"/></symbol>
+  <symbol id="mat-i-sheets-chart-line" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-5 3 3 6-7"/></symbol>
+  <symbol id="mat-i-sheets-chart-area" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M4 20v-3l5-7 4 4 7-8v14z" fill="currentColor" fill-opacity=".3"/></symbol>
+  <symbol id="mat-i-sheets-chart-pie" viewBox="0 0 24 24"><path d="M21 13a9 9 0 1 1-10-10v10z"/><path d="M14.5 2.6A9 9 0 0 1 21.4 9.5h-6.9z" fill="currentColor" fill-opacity=".3"/></symbol>
+  <symbol id="mat-i-sheets-chart-doughnut" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M16 12h5"/></symbol>
+  <symbol id="mat-i-sheets-chart-scatter" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M8 15h.01M11 10h.01M15 13h.01M18 7h.01M10 17h.01M16 9h.01" stroke-width="3.2"/></symbol>
+  <symbol id="mat-i-sheets-chart-edit" viewBox="0 0 24 24"><path d="M3 3v18h10"/><path d="M7 21v-6M11 21v-9" stroke-width="3" stroke-linecap="butt"/><path d="M18 9.5l2.5 2.5-6 6H12v-2.5z"/></symbol>
+  <symbol id="mat-i-sheets-function" viewBox="0 0 24 24"><path d="M5 20c2 0 2.6-1.8 3-4.5l1.5-8C10 5 10.8 4 12.5 4M6.5 10h6.5M15 13l5 5M20 13l-5 5"/></symbol>
+  <symbol id="mat-i-sheets-names" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h5M7 14h10"/></symbol>
+  <symbol id="mat-i-sheets-show-formulas" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17c1.2 0 1.6-1.2 1.9-3l.9-4.3c.3-1.5.6-2.4 1.8-2.4M8 11h5.5"/></symbol>
+  <symbol id="mat-i-sheets-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 7h7M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 18h.01M12 18h3.5"/></symbol>
+  <symbol id="mat-i-sheets-cat-financial" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.8 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5V8M12 16v1.5"/></symbol>
+  <symbol id="mat-i-sheets-cat-logical" viewBox="0 0 24 24"><path d="M3 9h5M3 15h5M17 12h4M8 5h4a7 7 0 0 1 0 14H8z"/></symbol>
+  <symbol id="mat-i-sheets-cat-text" viewBox="0 0 24 24"><path d="M3 18 7.5 6 12 18M4.6 14h5.8M15 10h6M15 14h6M15 18h6"/></symbol>
+  <symbol id="mat-i-sheets-cat-date" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></symbol>
+  <symbol id="mat-i-sheets-cat-lookup" viewBox="0 0 24 24"><path d="M3 3h12v12H3zM3 9h12M9 3v12"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="m19 19 2.5 2.5"/></symbol>
+  <symbol id="mat-i-sheets-cat-math" viewBox="0 0 24 24"><path d="M7 4v6M4 7h6M14 7h6M4.5 15l5 5M9.5 15l-5 5M14 17.5h6M17 14.5h.01M17 20.5h.01"/></symbol>
+
+  <!-- page layout, review, view -->
+  <symbol id="mat-i-sheets-orientation" viewBox="0 0 24 24"><rect x="3" y="3" width="10" height="14" rx="1.5"/><rect x="9" y="12" width="12" height="9" rx="1.5"/></symbol>
+  <symbol id="mat-i-sheets-landscape" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M7 10h10M7 14h6"/></symbol>
+  <symbol id="mat-i-sheets-fit" viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1.5"/><path d="M1.5 12H5M3.5 10 5 12l-1.5 2M22.5 12H19M20.5 10 19 12l1.5 2"/></symbol>
+  <symbol id="mat-i-sheets-print-titles" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M4 8h16" stroke-width="3"/><path d="M8 12.5h8M8 16.5h8"/></symbol>
+  <symbol id="mat-i-sheets-gridlines" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></symbol>
+  <symbol id="mat-i-sheets-headings" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 8h18M8 3v18M12.5 5.5h4M5.5 11.5v4"/></symbol>
+  <symbol id="mat-i-sheets-notes" viewBox="0 0 24 24"><path d="M15 3H5a2 2 0 0 0-2 2v12l4-3h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M19 8h0a2 2 0 0 1 2 2v11l-4-3h-6"/></symbol>
+  <symbol id="mat-i-sheets-formula-bar" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M8 7v10M11.5 12h7M4.5 12h1.5"/></symbol>
+  <symbol id="mat-i-sheets-freeze" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18" stroke-width="3"/></symbol>
+  <symbol id="mat-i-sheets-freeze-row" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18" stroke-width="3"/><path d="M9 14h6M9 17.5h6"/></symbol>
+  <symbol id="mat-i-sheets-freeze-col" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18" stroke-width="3"/><path d="M13 9h5M13 13h5"/></symbol>
+  <symbol id="mat-i-sheets-zoom-100" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><path d="m21 21-5.5-5.5M8.5 9 10.5 7.5v6"/></symbol>
+  <symbol id="mat-i-sheets-legend" viewBox="0 0 24 24"><path d="M3 5h4v4H3zM3 15h4v4H3z" fill="currentColor" fill-opacity=".35"/><path d="M11 7h10M11 17h10"/></symbol>
+  <symbol id="mat-i-sheets-labels" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M8 21v-6M16 21v-9" stroke-width="3.2" stroke-linecap="butt"/><path d="M6 10h4M14 6h4"/></symbol>
+  <symbol id="mat-i-sheets-stacked" viewBox="0 0 24 24"><path d="M3 21h18"/><rect x="6" y="10" width="4" height="11"/><path d="M6 15h4"/><rect x="14" y="5" width="4" height="16"/><path d="M14 11h4"/></symbol>
+  <symbol id="mat-i-sheets-bring-front" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="1.5" fill="currentColor" fill-opacity=".25"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+  <symbol id="mat-i-sheets-send-back" viewBox="0 0 24 24"><rect x="3" y="3" width="13" height="13" rx="1.5" fill="currentColor" fill-opacity=".25"/><path d="M8 16v3a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-3"/></symbol>
+</svg>

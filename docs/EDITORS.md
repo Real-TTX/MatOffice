@@ -292,3 +292,78 @@ records against their types and sizes, unique primary keys and indexes, required
 removes markup. Records are saved one by one (like Access); design changes can be undone (snapshots without the records). Excel: `read` makes every sheet a
 table (the first row gives the field names, the types are guessed), `write` every table a sheet; to export one table or one query result the editor sends a
 content with only that table. The tabs that are open are kept per device (`localStorage`, `mo.base.tabs.<api>`), not in the content.
+
+## Sheets content
+
+The content of a spreadsheet (`Services/Formats/Sheets/SheetsHandler.cs` checks it, `wwwroot/js/sheets/model.js` reads and writes it). Everything that is
+not needed is left out (a sparse format): an empty cell is not there, a default is not written. Sizes are pixels at 100 % zoom, font sizes points.
+
+```jsonc
+{
+  "version": 1,
+  "active": 0,                                  // index of the sheet that is shown
+  "styles": [ {}, { "b": true, "fill": "#fff2cc", "nf": "#,##0.00" } ],   // the style table; cells, rows and columns refer to it by index ("s"); 0 is the default ({})
+  "names": [ { "name": "Rate", "ref": "Sheet1!$B$2" } ],                   // defined names: a reference or formula without "="
+  "sheets": [ {
+    "id": "s1", "name": "Sheet1",               // stable id [A-Za-z0-9_-]{1,32}; name 1-31 characters, unique, none of : \ / ? * [ ]
+    "color": "#c00000", "hidden": true,         // tab colour, hidden sheet (optional)
+    "cells": {
+      "A1": { "v": "Text" },                    // v: number | string | boolean
+      "B2": { "v": 46000, "s": 3 },             // a date is a number (Excel serial: 1 = 1900-01-01) with a date format in its style
+      "C2": { "f": "SUM(B2:B9)", "v": 42 },     // f: the formula, canonical (English names, "," between arguments, "." decimals), without "="; v: its last value
+      "D2": { "f": "1/0", "v": "#DIV/0!", "t": "e" },   // t "e": v is an error (#DIV/0! #N/A #NAME? #NULL! #NUM! #REF! #VALUE! #SPILL! #CALC! #CIRC!)
+      "E2": { "s": 2 },                         // an empty cell with a format
+      "F2": { "v": "Site", "link": "https://example.com", "note": "A note" }  // link: http(s), mailto or "#Sheet1!A1"; note: plain text
+    },
+    "cols": { "A": { "w": 120 }, "C": { "hidden": true }, "D": { "s": 2 } },  // width, hidden, style of the whole column
+    "rows": { "1": { "h": 30 }, "5": { "hidden": true }, "7": { "s": 4 } },   // height, hidden, style of the whole row (rows count from 1)
+    "colW": 64, "rowH": 20,                     // default width / height (optional, 64 / 20)
+    "merges": [ "A1:C1" ],
+    "freeze": { "rows": 1, "cols": 0 },          // frozen rows at the top / columns at the left
+    "filter": { "range": "A1:D20", "cols": {    // AutoFilter (the header row is the first row of the range); key = column letter
+      "B": { "values": ["North", "South", ""] }, // only these values are shown ("" = blanks)
+      "C": { "cond": { "op": "gt", "v": "100", "op2": "lt", "v2": "500", "or": false } } } },  // ops: eq ne gt ge lt le begins ends contains notContains
+    "cf": [                                     // conditional formats, in order of priority
+      { "range": "B2:B20", "type": "cell", "op": "gt", "v1": "100", "style": { "color": "#9c0006", "fill": "#ffc7ce" } },  // ops: gt ge lt le eq ne between notBetween (v2)
+      { "range": "A2:A20", "type": "text", "op": "contains", "v1": "late", "style": { "b": true } },   // contains notContains begins ends
+      { "range": "A2:A20", "type": "dup", "style": { … } },        // also "unique"
+      { "range": "C2:C20", "type": "top", "n": 3, "percent": false, "style": { … } },   // also "bottom"
+      { "range": "C2:C20", "type": "above", "style": { … } },      // above / below the average
+      { "range": "A2:D20", "type": "formula", "v1": "$D2>100", "style": { … } },
+      { "range": "C2:C20", "type": "bar", "color": "#638ec6" },    // data bars
+      { "range": "C2:C20", "type": "scale", "colors": ["#f8696b", "#ffeb84", "#63be7b"] }   // 2 or 3 colours, minimum → (midpoint) → maximum
+    ],                                          // style of a rule: color, fill, b, i, u, strike
+    "validations": [ { "range": "C2:C50", "type": "list", "v1": "Open,Done", "blank": true, "dropdown": true,
+                       "error": "…", "errorTitle": "…", "errorStyle": "stop", "prompt": "…" } ],
+                                                // type: list (v1 = items separated by "," or "=$E$1:$E$5"), whole, decimal, date, time, length, custom (v1 = formula);
+                                                // op (not for list/custom): between notBetween eq ne gt ge lt le with v1 / v2; errorStyle: stop warning info
+    "charts": [ { "id": "c1", "type": "column", "range": "A1:C6", "x": 400, "y": 40, "w": 480, "h": 300,   // type: column bar line area pie doughnut scatter
+                  "title": "Sales", "legend": "right", "xTitle": "", "yTitle": "", "colors": ["#4472c4"], "byRows": false, "stacked": false, "labels": false } ],
+    "images": [ { "id": "i1", "src": "data:image/png;base64,…", "x": 10, "y": 10, "w": 200, "h": 150, "alt": "" } ],   // png, jpeg, gif, webp only
+    "grid": false, "headings": false,           // gridlines / row and column headings hidden (shown when left out)
+    "zoom": 1.25,
+    "print": { "landscape": true, "fit": "width", "gridlines": true, "headings": false, "titles": "1:1" },  // fit: width page none; titles: rows repeated on every page
+    "protected": true,                          // locked cells cannot be changed (style "unlocked": true opens a cell)
+    "sel": "B3"                                 // the active cell when it was saved
+  } ]
+}
+```
+
+A style (in `styles` and, as a subset, in conditional formats): `font` (family), `size` (pt), `b`, `i`, `u`, `strike`, `color`, `fill` (`#rrggbb`), `ha`
+(`left center right justify`), `va` (`top middle bottom`), `wrap`, `indent` (0-15), `nf` (an Excel number format code: `0.00`, `#,##0 "€"`, `0%`, `dd.mm.yyyy`,
+`[Red]-#,##0`, `@` …; General when left out), `bt` `bb` `bl` `br` (borders top, bottom, left, right: `"thin|medium|thick|dashed|dotted|double|hair #rrggbb"`),
+`unlocked`. The style of a cell is its own `s`, else the one of its row, else the one of its column.
+
+The server (`Normalize`) keeps only these fields, drops what does not fit (colours, fonts, links other than http/https/mailto/#, pictures other than
+`data:image/png|jpeg|gif|webp`), and limits sizes: 200 sheets, 2,000,000 cells, 1,048,576 rows × 16,384 columns (A1 … XFD1048576), 32,767 characters
+of text, 8,192 of a formula. Formulas are text for the server: it never runs them, the editor calculates (`wwwroot/js/sheets/engine/`).
+Files: `.xlsx` (ClosedXML: values, formulas with their cached values, formats, sizes, merges, frozen panes, hidden rows/columns, tab colours, notes, links;
+charts are not written), `.csv` and `.tsv` (UTF-8 with BOM; the import detects `,` `;` or tab and a decimal comma).
+
+The editor (`wwwroot/js/sheets/`): the pure modules have no DOM and are tested with `node --test "tests/js/sheets/*.test.mjs"` – `engine/` (addresses,
+dates, values, lexer, parser, evaluator, `calc.js` = dependency index, incremental recalculation, circles, spills; `numfmt.js` = number formats and typed
+input; `transform.js` = references after inserted/deleted rows, copies, moves, renamed sheets; `functions/` = the function library, its descriptions in
+`Resources/Texts/JsSheetsFunctions.json`), `model.js` + `axis.js` (the workbook in memory, undo/redo by transactions), `selection.js`, `look.js` (how a
+cell looks: formats, conditional formats, validation), `commands.js` (what the ribbon and the keys do). The screen: `grid.js` (a canvas under a native
+scroll area), `editor.js` (cell editor, formula bar, point mode), `pointer.js`, `keys.js`, `clipboard.js`, `dialogs.js`, `ribbon.js`, `charts.js` (SVG),
+`objects.js`, `tabs.js`, `filter.js`, `notes.js`, `print.js`; `app.js` ties them together. The browser tests reach the editor of a page as `window.__sheets`.
