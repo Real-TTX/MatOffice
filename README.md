@@ -11,6 +11,8 @@ Self-hosted, one container plus PostgreSQL.
 
 </div>
 
+![The start page of MatOffice: start something new in one of the four apps, the documents below](docs/images/home.png)
+
 ---
 
 ## The apps
@@ -26,21 +28,31 @@ All four share one frame: the title bar in the colour of the app, the ribbon wit
 share, version history), autosave with conflict handling, a version history, sharing with people and through a link, the trash, offline use.
 English and German, light and dark, and a phone layout.
 
+<p align="center"><img src="docs/images/phone.png" width="300" alt="The start page on a phone in dark mode" /></p>
+
 **Docs** – pages like Word (size, orientation, margins, columns, headers and footers with page numbers), a gallery of styles, fonts and paragraphs,
 bullets, numbering and multilevel lists, tables (merge, split, styles, column widths), pictures with wrapping, links, a table of contents, footnotes,
 comments with replies, find and replace, word count, print and PDF. Templates: letter, report, meeting notes, résumé, proposal, invoice.
+
+![Docs: the report template with its title, the introduction and the table of contents](docs/images/docs.png)
 
 **Sheets** – a grid like Excel (frozen panes, merged cells, borders, wrapping, conditional formats, notes), a formula engine with 324 functions
 (German `;` and decimal comma are understood), number formats, fill series, sort and filter, data validation, names, charts, pictures, sheet tabs,
 print. Templates: budget, invoice, schedule, sales, tasks, loan.
 
+![Sheets: the sales template with formulas, conditional formats and a column chart](docs/images/sheets.png)
+
 **Slides** – thumbnails, layouts with placeholders, designs and their variants, shapes, pictures and tables, transitions and animations, the slide
 show (F5) with a presenter view, speaker notes, the slide sorter, print (slides, notes pages, handouts) and a slide as PNG. Templates: pitch deck,
 project status, workshop, quarterly review, photo album.
 
+![Slides: the pitch deck template with the thumbnails, the slide and its speaker notes](docs/images/slides.png)
+
 **Base** – the navigation pane, tables in datasheet and design view (field types, validation, lookups), relationships with referential integrity,
 queries in the design grid and in SQL (parameters, totals, action queries), forms (single, continuous, datasheet, split, with subforms), reports with
 grouping, totals and a print preview, the wizards for queries, forms and reports, and Excel and CSV import and export.
+
+![Base: the contacts template, a table in datasheet view next to the navigation pane](docs/images/base.png)
 
 ## Quick start
 
