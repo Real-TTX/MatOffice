@@ -4,10 +4,8 @@
    The frame of the editors is editor.css, each editor has its own file (docs.css, sheets.css, slides.css, base.css).
    ========================================================================== */
 
-/* The accent: the orange of the office suites; white text on it 4.6:1. Links use a darker shade (6.3:1 on white), a lighter one on dark surfaces. */
-[data-app="matoffice"] { --mat-app-accent: #d83b01; --mat-app-accent-text: #b23000; }
-:root[data-theme="dark"][data-app="matoffice"] { --mat-app-accent-text: #ff8a5c; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"])[data-app="matoffice"] { --mat-app-accent-text: #ff8a5c; } }
+/* The accent: a calm office blue, apart from the blue of Docs; white text on it 7.2:1. Links, hover and the dark variant are derived by MatUi (in dark: dark text 4.8:1). */
+[data-app="matoffice"] { --mat-app-accent: #205a8e; }
 
 /* the colours of the four apps (icons, the papers of the start row, the title bar of the editors) */
 :root { --mo-docs: #185abd; --mo-sheets: #107c41; --mo-slides: #c43e1c; --mo-base: #a4373a; }

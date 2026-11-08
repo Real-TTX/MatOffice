@@ -10,8 +10,8 @@ public static partial class Ui
     public const string AppId = "matoffice";
     public const string AppName = "MatOffice";
 
-    /// <summary>The accent: the orange of the office suites (white text on it 4.6:1). The four apps have colours of their own (<c>IKindHandler.Colour</c>).</summary>
-    public const string Accent = "#d83b01";
+    /// <summary>The accent: a calm office blue (white text on it 7.2:1), apart from the blue of Docs. The four apps have colours of their own (<c>IKindHandler.Colour</c>).</summary>
+    public const string Accent = "#205a8e";
 
     [GeneratedRegex("^[a-z0-9-]+$")]
     private static partial Regex NameRegex();

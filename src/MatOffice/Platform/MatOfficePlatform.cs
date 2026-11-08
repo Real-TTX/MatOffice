@@ -16,8 +16,8 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
     /// <summary>The id of MatOffice in the platform (and the default client id at MatIdentity), as in MatDesign <c>AppRegistry.cs</c>.</summary>
     public const string AppId = "matoffice";
 
-    /// <summary>The accent of MatOffice (the orange of the office suites, white text 4.6:1; see <c>wwwroot/css/app.css</c>).</summary>
-    public const string Accent = "#d83b01";
+    /// <summary>The accent of MatOffice (a calm office blue, white text 7.2:1; see <c>wwwroot/css/app.css</c>).</summary>
+    public const string Accent = "#205a8e";
 
     /// <summary>The MatApiDefinition of MatOffice (<c>GET /api</c>); <c>auth</c> and <c>endpoints</c> are set by MatPlatform.</summary>
     public static void Describe(MatPlatformBuilder o)

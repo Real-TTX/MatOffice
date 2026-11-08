@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="MatOffice">
-  <rect width="32" height="32" rx="7" fill="#D83B01"/>
-  <rect x="6.5" y="6.5" width="8.5" height="8.5" rx="2" fill="#fff"/><rect x="17" y="6.5" width="8.5" height="8.5" rx="2" fill="#fff" fill-opacity=".85"/>
-  <rect x="6.5" y="17" width="8.5" height="8.5" rx="2" fill="#fff" fill-opacity=".85"/><rect x="17" y="17" width="8.5" height="8.5" rx="2" fill="#fff"/>
+  <rect width="32" height="32" rx="7" fill="#205A8E"/>
+  <path d="M15.1 15.1H5.1A10 10 0 0 1 15.1 5.1z" fill="#FFFFFF"/><path d="M16.9 15.1V5.1A10 10 0 0 1 26.9 15.1z" fill="#AAC0D4"/><path d="M16.9 16.9H26.9A10 10 0 0 1 16.9 26.9z" fill="#FFFFFF"/><path d="M15.1 16.9V26.9A10 10 0 0 1 5.1 16.9z" fill="#AAC0D4"/>
 </svg>

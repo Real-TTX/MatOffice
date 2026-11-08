@@ -14,7 +14,7 @@ platform contract for **Mattiverse** (all optional, switched on by environment v
 Stack: ASP.NET Core on **.NET 10**, C#, **Razor Pages**, EF Core + **PostgreSQL**, the **MatUi** toolkit of the sister project MatDesign (`wwwroot/matui`,
 release 0.9.3, copied: never edit by hand), plain JavaScript ES modules without a build step. File formats: **DocumentFormat.OpenXml**, **ClosedXML**,
 **HtmlSanitizer**. Docker-first. Web port **4820** (pgAdmin 4821, local Postgres 4822). UI languages: English and German (catalog in `Resources/Texts/*.json`).
-Accent: Office orange `#d83b01` (white text 4.6:1; accent text `#b23000`, dark mode `#ff8a5c`). The apps: Docs `#185abd`, Sheets `#107c41`, Slides `#c43e1c`, Base `#a4373a`.
+Accent: office blue `#205a8e` (white text 7.2:1; links, hover and the dark variant derived by MatUi, dark text on the dark variant 4.8:1). Logo: four quarters of a circle (`docs/logo`). The apps: Docs `#185abd`, Sheets `#107c41`, Slides `#c43e1c`, Base `#a4373a`.
 
 ## Build / run / test
 

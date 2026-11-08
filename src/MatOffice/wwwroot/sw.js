@@ -4,7 +4,7 @@
    - The content of a document (GET /live/documents/{id}) comes from the network and a copy is kept: without a network the last copy is shown
      (changes made then wait in the browser and are sent by the editor when the network is back).
    - The APIs, every change (PUT, POST, DELETE), the files of connected apps (/live/host) and everything else of /live are never touched. */
-const VERSION = 'matoffice-v1';
+const VERSION = 'matoffice-v2';
 const PAGES = 'mo-pages';
 const DOCUMENTS = 'mo-documents';
 const SHELL = [
