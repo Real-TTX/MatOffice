@@ -5,8 +5,10 @@ using MatPlatform;
 namespace MatOffice.Platform;
 
 /// <summary>
-/// MatOffice as an app of the platform contract (MatDesign docs/PLATFORM.md) on the shared package MatPlatform (the folder <c>MatPlatform/</c>, a copy):
-/// how a consumer such as Mattiverse shows MatOffice (<see cref="Describe"/>: tiles, the few settings, buttons), its values and what its buttons do.
+/// MatOffice as an app of the platform contract (MatDesign docs/PLATFORM.md, contract 2) on the shared package MatPlatform (the folder <c>MatPlatform/</c>, a copy):
+/// how a consumer such as Mattiverse shows MatOffice (<see cref="Describe"/>: tiles, the few settings, buttons), what it provides (<c>office.edit</c>: the hosts, see
+/// <see cref="MatOfficeHostBindings"/>) and consumes (MatIdentity, MatSMTP: set by their variables), what it adds to the home screen of a shell (the four apps
+/// with their "New …" and two widgets for administrators), its values and what its buttons do.
 /// The settings are the two of the admin page System (registration, public address), kept in the same place (<see cref="InstanceService"/>).
 /// The values come from the services (no DbContext here: this is the web layer).
 /// </summary>
@@ -20,7 +22,10 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
     public const string Accent = "#205a8e";
 
     /// <summary>The MatApiDefinition of MatOffice (<c>GET /api</c>); <c>auth</c> and <c>endpoints</c> are set by MatPlatform.</summary>
-    public static void Describe(MatPlatformBuilder o)
+    public static void Describe(MatPlatformBuilder o) => Describe(o, null);
+
+    /// <summary>The MatApiDefinition; <paramref name="publicUrl"/> = <c>MAT_PUBLIC_URL</c>: the field of the public address is fixed while it is set.</summary>
+    public static void Describe(MatPlatformBuilder o, string? publicUrl)
     {
         var T = o.T;
 
@@ -28,7 +33,7 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
 
         o.Page("overview", T("Übersicht", "Overview"), "dashboard",
             MatSection.Tiles("users", "documents", "docs", "sheets", "slides", "bases", "sharedDocuments", "linkedDocuments", "versions", "hosts", "openHostFiles", "changedLast7Days", "registration", "lastActivity"),
-            MatSection.Actions("openApp", "openUsers", "openHosts", "openSystem", "cleanUp"));
+            MatSection.Actions("openApp", "openUsers", "openConnections", "openSystem", "cleanUp"));
         o.Page("settings", T("Einstellungen", "Settings"), "settings",
             MatSection.Form(T("Allgemein", "General"), "registrationOpen", "publicUrl"));
 
@@ -41,7 +46,7 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
         o.Tile("sharedDocuments", T("Geteilte Dokumente", "Shared documents"), icon: "users");
         o.Tile("linkedDocuments", T("Dokumente mit Link", "Documents with a link"), icon: "link");
         o.Tile("versions", T("Versionen", "Versions"), icon: "git");
-        o.Tile("hosts", T("Angebundene Apps", "Connected apps"), icon: "plug");
+        o.Tile("hosts", T("Verbundene Apps", "Connected apps"), icon: "plug");
         o.Tile("openHostFiles", T("Offene Dateien von Apps", "Open files of apps"), icon: "external");
         o.Tile("changedLast7Days", T("Geändert in 7 Tagen", "Changed in 7 days"), icon: "activity");
         o.Tile("registration", T("Registrierung", "Sign-up"), "status", icon: "user");
@@ -51,16 +56,21 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
         {
             Hint = T("Aus: nur Administratoren legen Konten an.", "Off: only administrators create accounts."),
         });
-        o.Field(new MatField("publicUrl", T("Öffentliche Adresse", "Public address"), "url")
+        var address = new MatField("publicUrl", T("Öffentliche Adresse", "Public address"), "url")
         {
             Max = 300,
             Placeholder = "https://office.example.com",
             Hint = T("Für die Adressen in E-Mails und für angebundene Apps; leer: die Adresse des Aufrufs.", "For the addresses in mails and for connected apps; empty: the address of the request."),
+        };
+        o.Field(publicUrl is null ? address : address with
+        {
+            Fixed = true,
+            Hint = T("Festgelegt durch MAT_PUBLIC_URL (Mattiverse); hier lässt sie sich nicht ändern.", "Set by MAT_PUBLIC_URL (Mattiverse); it cannot be changed here."),
         });
 
         o.LinkAction("openApp", T("Öffnen", "Open"), "external", "/home");
         o.LinkAction("openUsers", T("Benutzer", "Users"), "users", "/Admin/Users");
-        o.LinkAction("openHosts", T("Angebundene Apps", "Connected apps"), "plug", "/Admin/Hosts");
+        o.LinkAction("openConnections", T("Verbindungen", "Connections"), "plug", "/Admin/Connections");
         o.LinkAction("openSystem", T("System", "System"), "settings", "/Admin/System");
         o.PostAction(
             "cleanUp",
@@ -71,6 +81,42 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
 
         o.Role("admin", T("Administrator", "Administrator"));
         o.Role("user", T("Benutzer", "User"));
+
+        // What MatOffice offers the other apps: its editors for their files (a binding is a host, MatOfficeHostBindings), and what it uses of them. Sign-in and
+        // mail stay set by their variables (MATIDENTITY_*, MATSMTP_*); naming them here shows them in the Connections area.
+        o.Provides(MatCapabilities.OfficeEdit, label: T("Bearbeitet Office-Dateien für", "Edits office files for"));
+        o.Consumes(MatCapabilities.IdentityOidc, optional: true);
+        o.Consumes(MatCapabilities.MailSmtp, optional: true);
+
+        // The home screen of a shell: an icon per app (its list of documents, the picture of its tab), "New …" in the menu of each icon (the page New with the app
+        // chosen), and two widgets for administrators from the values of /api/state.
+        Launcher(o, "docs", T("Texte", "Docs"), T("Neues Dokument", "New document"), "#185abd");
+        Launcher(o, "sheets", T("Tabellen", "Sheets"), T("Neue Tabelle", "New spreadsheet"), "#107c41");
+        Launcher(o, "slides", T("Präsentationen", "Slides"), T("Neue Präsentation", "New presentation"), "#c43e1c");
+        Launcher(o, "base", T("Datenbank", "Base"), T("Neue Datenbank", "New database"), "#a4373a");
+        o.Widget(new MatWidget("documents", T("Dokumente", "Documents"), MatWidgetKinds.Tiles, "medium")
+        {
+            Items = ["docs", "sheets", "slides", "bases"],
+            Icon = "file",
+            Url = "/Admin/System",
+            Refresh = 300,
+            Audience = MatAudience.Admin,
+        });
+        o.Widget(new MatWidget("users", T("Aktive Benutzer", "Active users"), MatWidgetKinds.Stat)
+        {
+            Items = ["users"],
+            Icon = "users",
+            Url = "/Admin/Users",
+            Refresh = 300,
+            Audience = MatAudience.Admin,
+        });
+    }
+
+    /// <summary>The launcher of one app (<c>/docs</c> …: its documents and templates) with its "New …" (<c>/Documents/New?kind=docs</c>: the app chosen).</summary>
+    private static void Launcher(MatPlatformBuilder o, string slug, string label, string newLabel, string accent)
+    {
+        o.Launcher(slug, label, $"/img/logo/{slug}-favicon.svg", "/" + slug, accent: accent);
+        o.QuickAction(slug, newLabel, "plus", url: "/Documents/New?kind=" + slug);
     }
 
     public async Task<IReadOnlyList<MatHealthCheck>> CheckHealthAsync(MatPlatformCall call, CancellationToken ct)
@@ -136,6 +182,9 @@ public sealed class MatOfficePlatform(InstanceService instance, ILogger<MatOffic
             {
                 case "registrationOpen" when value.ValueKind is JsonValueKind.True or JsonValueKind.False:
                     open = value.GetBoolean();
+                    break;
+                case "publicUrl" when instance.PublicUrlFixed:
+                    errors[key] = call.T("Festgelegt durch MAT_PUBLIC_URL.", "Set by MAT_PUBLIC_URL.");
                     break;
                 case "publicUrl" when value.ValueKind is JsonValueKind.String:
                     url = value.GetString()!;

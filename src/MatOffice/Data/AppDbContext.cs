@@ -101,6 +101,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, Current
             e.ToTable("HostClient");
             e.HasIndex(x => x.KeyHash).IsUnique();
             e.Property(x => x.Name).HasMaxLength(120);
+            e.Property(x => x.ConsumerId).HasMaxLength(64);
+            e.Property(x => x.ManagedBy).HasMaxLength(40);
+
+            // one live binding per consumer (a removed host keeps its id for the record)
+            e.HasIndex(x => x.ConsumerId).IsUnique().HasFilter("\"ConsumerId\" IS NOT NULL AND \"UpdateState\" <> 0");
             e.Property(x => x.KeyHash).HasMaxLength(64);
             e.Property(x => x.KeyPrefix).HasMaxLength(16);
             e.Property(x => x.AllowedUrlPrefix).HasMaxLength(300);

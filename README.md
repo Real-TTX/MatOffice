@@ -98,20 +98,43 @@ Open **http://localhost:4820**; the first account that registers is the administ
 | `ghcr.io/real-ttx/matoffice:latest` | `main` (release) |
 | `ghcr.io/real-ttx/matoffice:nightly` | `dev` (development) |
 
-## Connected apps (MatDrive)
+## Connections (MatDrive)
 
-MatDrive opens the files MatOffice can read in it: Word, Excel, PowerPoint, CSV, text, Markdown, HTML and the MatOffice files. In MatOffice: *Administration → Connected apps → Connect an app*
-makes an API key (shown once). In MatDrive: *Administration → Integrations*: switch on MatOffice, enter its address and the key (and, in Docker, the
-internal addresses). *New* in MatDrive then makes a Word document, an Excel workbook, a PowerPoint presentation or a MatOffice database and opens it
-here; every save goes back to MatDrive with the version of the file as condition (a file that changed there meanwhile is not overwritten). The
-access token of MatDrive never reaches a browser. Details in [docs/EDITORS.md](docs/EDITORS.md) and in the `HostEndpoints` (`/api/v1/host/formats`,
-`/api/v1/host/new`, `/api/v1/host/sessions`).
+MatOffice **provides `office.edit`**: other apps open their office files in its editors. MatDrive is the first: Word, Excel, PowerPoint, CSV, text,
+Markdown, HTML and the MatOffice files. *New* in MatDrive makes a Word document, an Excel workbook, a PowerPoint presentation or a MatOffice database and
+opens it here; every save goes back to MatDrive with the version of the file as condition (a file that changed there meanwhile is not overwritten). The
+access token of MatDrive never reaches a browser.
+
+*Administration → Connections* is the same area as in every Mat app: what MatOffice **uses** (sign-in through MatIdentity, mail through MatSMTP: set by
+their variables) and what it **offers** (`office.edit`: the connected apps, who manages each one, since when, last used, *New key* and *Remove*).
+
+- **With Mattiverse** nothing is done by hand: it binds MatDrive and MatOffice by itself and hands MatDrive the address and the key.
+- **Without Mattiverse**, connect MatDrive by hand:
+  1. In MatOffice, *Administration → Connections → Connect an app by hand*, name `MatDrive`. The address and the key (`mo_…`) are shown once.
+  2. In MatDrive, enter them in its Connections area (*Opens office files with*), or set `MAT_OFFICE_EDIT_URL`, `MAT_OFFICE_EDIT_KEY` and, in Docker,
+     `MAT_OFFICE_EDIT_INTERNAL_URL` (the address under which the container of MatDrive reaches MatOffice) in its compose file.
+
+The host calls MatOffice with `Authorization: Bearer mo_…` under `/api/provides/office.edit/` (`formats`, `new`, `sessions`); the old addresses
+`/api/v1/host/…` work the same. A key made under *Connected apps* before keeps working and is listed in the Connections area. Details in
+[docs/EDITORS.md](docs/EDITORS.md) and in the `HostEndpoints`.
 
 ## Mat platform
 
-`/api` (description), `/api/health`, `/api/state`, `/api/configure`, `/api/actions` after the platform contract of MatDesign (`MAT_API_KEY` or a token of
-MatIdentity); sign-in through MatIdentity (`MATIDENTITY_AUTHORITY`, `MATIDENTITY_CLIENT_ID`, `MATIDENTITY_CLIENT_SECRET`, `MATIDENTITY_INTERNAL_URL`),
-mail through MatSMTP (`MATSMTP_HOST` …). All optional, set by Mattiverse.
+MatOffice follows the platform contract 2 of MatDesign (the package **MatPlatform 2.2**): `/api` (description), `/api/health`, `/api/state`,
+`/api/configure`, `/api/actions`, `/api/bindings` (a broker makes and removes the bindings of `office.edit`), `/api/connections` (`MAT_API_KEY` or a token
+of MatIdentity). It contributes to the home screen of a shell such as Mattiverse: the icons **Docs**, **Sheets**, **Slides** and **Base** (each opens
+the documents of its app, with *New …* in its menu) and, for administrators, the widgets *Documents* and *Active users*.
+
+All variables are optional and set by Mattiverse; MatOffice does its whole job without them:
+
+| Variable | What it does |
+|---|---|
+| `MAT_API_KEY` | the key of `/api` for a broker (Mattiverse) |
+| `MATIDENTITY_AUTHORITY`, `_CLIENT_ID`, `_CLIENT_SECRET`, `_INTERNAL_URL` | sign-in through MatIdentity |
+| `MATSMTP_HOST`, `_PORT`, `_USERNAME`, `_PASSWORD`, `_FROM`, `_TLS` | mail through MatSMTP |
+| `MAT_PUBLIC_URL` | the public address of MatOffice, handed to the apps it connects (else the address the page was opened at) |
+| `MAT_INTERNAL_URL` | the address of MatOffice on the shared Docker network, handed to the apps it connects |
+| `MAT_FRAME_ANCESTORS` | the origins that may show MatOffice in a frame (the window of Mattiverse) |
 
 ## Development
 

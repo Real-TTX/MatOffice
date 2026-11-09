@@ -11,7 +11,6 @@
   "Common.CreatedNamed": { "en": "“{0}” created.", "de": "„{0}“ angelegt." },
   "Common.Delete": { "en": "Delete", "de": "Löschen" },
   "Common.DeleteConfirm": { "en": "Delete this? This cannot be undone.", "de": "Wirklich löschen? Das kann nicht rückgängig gemacht werden." },
-  "Common.DeletedNamed": { "en": "“{0}” deleted.", "de": "„{0}“ gelöscht." },
   "Common.Edit": { "en": "Edit", "de": "Bearbeiten" },
   "Common.EditNamed": { "en": "Edit {0}", "de": "{0} bearbeiten" },
   "Common.Favorite": { "en": "Favourite", "de": "Favorit" },

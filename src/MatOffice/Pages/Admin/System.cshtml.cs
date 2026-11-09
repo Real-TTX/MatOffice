@@ -12,6 +12,9 @@ public sealed class SystemModel(InstanceService instance, MailService mail) : Ap
 
     [BindProperty] public string PublicUrl { get; set; } = string.Empty;
 
+    /// <summary>True while MAT_PUBLIC_URL sets the public address (it is shown, not changed here).</summary>
+    public bool PublicUrlFixed => instance.PublicUrlFixed;
+
     public InstanceSnapshot Counts { get; private set; } = null!;
 
     public string Database { get; private set; } = string.Empty;

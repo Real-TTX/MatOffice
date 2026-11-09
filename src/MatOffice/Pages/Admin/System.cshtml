@@ -13,7 +13,7 @@
                 <div class="mat-card__head"><h2 class="mat-card__title">@Ui.Icon("settings")@L["System.Settings"]</h2></div>
                 <div class="mat-card__body mat-form">
                     <mo-field name="RegistrationOpen" kind="switch" label="@L["System.RegistrationOpen"]" value="@Model.RegistrationOpen.ToString()" hint="@L["System.RegistrationOpen.Hint"]" />
-                    <mo-field name="PublicUrl" kind="url" label="@L["System.PublicUrl"]" value="@Model.PublicUrl" placeholder="https://office.example.com" optional hint="@L["System.PublicUrl.Hint"]" />
+                    <mo-field name="PublicUrl" kind="url" label="@L["System.PublicUrl"]" value="@Model.PublicUrl" placeholder="https://office.example.com" optional disabled="@Model.PublicUrlFixed" hint="@L[Model.PublicUrlFixed ? "System.PublicUrl.Fixed" : "System.PublicUrl.Hint"]" />
                 </div>
             </div>
             <mo-buttons save="@L["Common.Save"]" back="/home" />
@@ -35,7 +35,7 @@
                     <dt>@L["System.SharedDocuments"]</dt><dd>@Model.Counts.SharedDocuments</dd>
                     <dt>@L["System.LinkedDocuments"]</dt><dd>@Model.Counts.LinkedDocuments</dd>
                     <dt>@L["System.Versions"]</dt><dd>@Model.Counts.Versions</dd>
-                    <dt>@L["Hosts.Title"]</dt><dd>@Model.Counts.Hosts</dd>
+                    <dt>@L["System.Hosts"]</dt><dd>@Model.Counts.Hosts</dd>
                     <dt>@L["System.Mail"]</dt><dd>@(Model.MailText ?? L["System.Mail.Off"].Value)</dd>
                 </dl>
             </div>

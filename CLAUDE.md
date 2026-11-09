@@ -7,9 +7,10 @@ Guidance for working in this repository. Keep it in sync with the code: update i
 An office suite in the browser, four apps in one: **Docs** (text documents, like Word), **Sheets** (spreadsheets, like Excel), **Slides** (presentations,
 like PowerPoint) and **Base** (desktop databases, like Access). Documents live in MatOffice (start page `/home` like the office suites, per app `/docs`,
 `/sheets`, `/slides`, `/base`), are shared with people (viewer/editor) or through a link, keep a version history (snapshots + named versions), can be starred,
-copied and lie 30 days in the trash. Word/Excel/PowerPoint/CSV files are imported and exported. **Connected apps** (hosts, MatDrive first) open their own
-files in the editors with an API key (WOPI-like, `Services/Hosts`). Part of the Mat family: sign-in through **MatIdentity**, mail through **MatSMTP**, the
-platform contract for **Mattiverse** (all optional, switched on by environment variables).
+copied and lie 30 days in the trash. Word/Excel/PowerPoint/CSV files are imported and exported. MatOffice **provides `office.edit`**: connected apps (hosts,
+MatDrive first) open their own files in the editors with an API key (WOPI-like, `Services/Hosts`); a host is the binding of the capability, made by Mattiverse or by hand
+in the **Connections** area (`/Admin/Connections`). Part of the Mat family: sign-in through **MatIdentity**, mail through **MatSMTP**, the platform contract 2 for
+**Mattiverse** (MatPlatform 2.2: bindings, Connections, launchers and widgets for its home screen; all optional, switched on by environment variables).
 
 Stack: ASP.NET Core on **.NET 10**, C#, **Razor Pages**, EF Core + **PostgreSQL**, the **MatUi** toolkit of the sister project MatDesign (`wwwroot/matui`,
 release 0.9.3, copied: never edit by hand), plain JavaScript ES modules without a build step. File formats: **DocumentFormat.OpenXml**, **ClosedXML**,
@@ -39,7 +40,8 @@ src/MatOffice
   Program.cs                 composition root: services, cookie auth (+ MatIdentity), antiforgery header, razor conventions (/docs … = Documents/Index), rate limit, static files, endpoints
   Infrastructure.cs          HealthCheck (--healthcheck), Database.MigrateWithRetry, SecurityHeaders (CSP; editor pages /docs/ /sheets/ /slides/ /base/ /h/ /s/ also allow inline STYLES),
                              MaintenanceService (InstanceService.CleanUpAsync every 6 h), EmptyStringBinderProvider
-  Data/                      Entities.cs (User, UserSession, Document, DocumentMember, DocumentVisit, DocumentVersion, HostClient, HostSession, SystemSetting), AppDbContext.cs, Migrations/
+  Data/                      Entities.cs (User, UserSession, Document, DocumentMember, DocumentVisit, DocumentVersion, HostClient (+ ConsumerId, ManagedBy of its binding), HostSession,
+                             SystemSetting), AppDbContext.cs, Migrations/
   Services/Documents/        THE business layer, static classes (permission check in every function):
                              DocumentAccess (Actor = person and/or link token -> DocumentRole; null = "not found"; administrators have NO access to the documents of others),
                              DocumentService (lists with scope/kind/search/sort, create from template, import, open, save with revision -> Saved/Conflict/Invalid/Denied,
@@ -47,18 +49,24 @@ src/MatOffice
                              the state before, thinning after 30 days), ShareService (members, link Off/View/Edit), DocumentEndpoints (/live/documents: JSON for the editors)
   Services/Formats/          IKindHandler + Kinds (registry by kind/slug/extension, NativeFile = .matdoc/.matsheet/.matslides/.matbase JSON) and one folder per app
                              (Docs/, Sheets/, Slides/, Base/): Normalize (the server never trusts the browser), templates, Import/Export (docx, xlsx, csv, pptx …)
-  Services/Hosts/            HostAdmin (connected apps + API keys, hash only, admins), HostSessionService (open a file of a host: read via its contentUrl with its bearer token,
-                             convert, write back on every save with If-Match; 412 = changed at the host), HostEndpoints (/api/v1/host/formats|new|sessions with
-                             Authorization: Bearer mo_…; /live/host/{token} for the editor)
+  Services/Hosts/            HostBindings (the hosts as the bindings of office.edit: bind = find by ConsumerId or make, a key when new or renewed; list, also the hosts from
+                             before as host-<Id>; unbind by managedBy; no person check: MatPlatform decides who calls), HostAdmin (the keys: mo_ format, hash only,
+                             AuthenticateAsync, remove a host with its sessions), HostSessionService (open a file of a host: read via its contentUrl with its bearer token,
+                             convert, write back on every save with If-Match; 412 = changed at the host), HostEndpoints (/api/provides/office.edit/formats|new|sessions and
+                             the same under the old /api/v1/host, with Authorization: Bearer mo_…, mapped outside MatPlatform's /api group; /live/host/{token} for the editor)
   Services/Accounts/         static too: Profiles (own account, paper size), UserAdmin (administrators only; the last administrator stays)
   Services/Mail/MailService  MatSMTP through MailKit, queued in the background; off unless MATSMTP_HOST is set
   Services/Auth/             CurrentUser, PasswordService, SessionService (sessions in the DB), AccountService, ExternalSignInService (MatIdentity), AccountDataService (GDPR export/erase)
   Services/                  Ui (icons, logo, bytes), MenuService, InstanceService (numbers, settings, housekeeping), ListModels (toolbar, pager), Dates, Assets (sprites, per editor icons-<slug>.svg)
-  MatPlatform/               copy of the shared package (MatDesign): platform contract, MatIdentity sign-in, back-channel logout, MatSmtpSettings. Never edit here.
-  Platform/                  MatOfficePlatform (tiles, settings, actions for Mattiverse), MatOfficeIdentityUsers
+  MatPlatform/               copy of the shared package MatPlatform 2.2 (MatDesign, `node <MatDesign>/tools/matplatform-copy.js src/MatOffice`): platform contract 2, bindings
+                             (/api/bindings, IMatBindingHandler), the Connections area (<mat-connections />, its form at /api/connections/form, data in <DataDirectory>/matplatform),
+                             MatIdentity sign-in, back-channel logout, MAT_FRAME_ANCESTORS, MatSmtpSettings. Never edit here.
+  Platform/                  MatOfficePlatform (tiles, settings, actions, provides office.edit, consumes identity.oidc + mail.smtp, launchers Docs/Sheets/Slides/Base with
+                             "New …", admin widgets), MatOfficeHostBindings (IMatBindingHandler of office.edit over HostBindings), MatOfficeIdentityUsers
   Controls/                  ONE code base per control: <mo-field>, <mo-buttons>, <mo-table>, <mo-tabs>/<mo-tab>
   Pages/                     Documents/ (Index = /home and /<app>: start row + gallery/table, New = template or upload, Edit/Members/Share/Versions = the tabs of a document,
-                             Version), Editor (/<app>/{id}), Host (/h/{token}), Public/Link (/s/{token}), Admin/ (Users, Hosts, System), Account/, About,
+                             Version), Editor (/<app>/{id}), Host (/h/{token}), Public/Link (/s/{token}), Admin/ (Users, Connections = <mat-connections />, System;
+                             /Admin/Hosts redirects to Connections), Account/, About,
                              Shared/ (_Layout, _LayoutEditor = the frame of the editors, _DocumentTabs)
   Resources/Texts/           the text catalog (en + de), one file per area; Js*.json = texts of the scripts (key Js.*)
   wwwroot/js/editor/         the shared frame of the editors: frame.js (title bar, ribbon builder, backstage, status bar, popovers, palette), session.js (load, autosave,
@@ -66,7 +74,7 @@ src/MatOffice
   wwwroot/js/<app>/          the editors (app.js = entry): docs, sheets, slides, base
   wwwroot/css/               app.css (accent, start row, gallery; prefix mo-), editor.css (the frame), <app>.css (the work area of each editor)
   wwwroot/sw.js              service worker: static cache, network-first for editor pages and /live/documents/{id} (copies for offline), offline.html
-tests/MatOffice.Tests         unit + database tests (AccountTests, TextCatalogTests, per app <Kind>*Tests)
+tests/MatOffice.Tests         unit + database tests (AccountTests, TextCatalogTests, PlatformTests (definition, bindings, the app in memory), per app <Kind>*Tests)
 docs/EDITORS.md              the contract between the frame and the four editors (ribbon items, ctx, content check)
 ```
 

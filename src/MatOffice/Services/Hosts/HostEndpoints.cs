@@ -8,17 +8,31 @@ using MatOffice.Services.Formats;
 namespace MatOffice.Services.Hosts;
 
 /// <summary>
-/// The integration of hosts (MatDrive and others): the API the host calls with its key (<c>Authorization: Bearer mo_...</c>, under <c>/api/v1/host</c>) and the
+/// The integration of hosts (MatDrive and others): the API the host calls with its key (<c>Authorization: Bearer mo_...</c>), under
+/// <see cref="ProvidesPath"/> (the endpoints of the capability <c>office.edit</c>, MatPlatform 2.0) and, the same, under the old <see cref="LegacyPath"/>; and the
 /// addresses the editor of a host file talks to (<c>/live/host/{token}</c>, the secret of the session is the right; the anti-forgery token of the page for changes).
 /// </summary>
 public static class HostEndpoints
 {
+    /// <summary>The endpoints of <c>office.edit</c>: <c>formats</c>, <c>new</c>, <c>sessions</c>.</summary>
+    public const string ProvidesPath = "/api/provides/office.edit";
+
+    /// <summary>The same endpoints at their address before MatPlatform 2.0 (kept for the hosts that use it).</summary>
+    public const string LegacyPath = "/api/v1/host";
+
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public static void MapHostEndpoints(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api/v1/host").AllowAnonymous();
+        // Mapped on the app, not on the /api group of MatPlatform: that group lets only MAT_API_KEY or a token of MatIdentity in, a host comes with its own key.
+        MapHostApi(app.MapGroup(ProvidesPath).AllowAnonymous());
+        MapHostApi(app.MapGroup(LegacyPath).AllowAnonymous());
+        MapLive(app);
+    }
 
+    /// <summary>The API of a host: every call needs the key of an active host (<see cref="HostAdmin.AuthenticateAsync"/>).</summary>
+    private static void MapHostApi(RouteGroupBuilder api)
+    {
         // what MatOffice can open and write: the host shows "Open with MatOffice" and "New" from it
         api.MapGet("/formats", async (HttpContext http, AppDbContext db) =>
         {
@@ -77,11 +91,15 @@ public static class HostEndpoints
             }
 
             var s = started.Value!;
-            var settings = await http.RequestServices.GetRequiredService<AccountService>().SettingsAsync();
-            var origin = InstanceService.NormalizePublicUrl(settings.PublicUrl) ?? $"{http.Request.Scheme}://{http.Request.Host}";
+            var (_, publicUrl) = await http.RequestServices.GetRequiredService<InstanceService>().SettingsAsync();
+            var origin = publicUrl ?? $"{http.Request.Scheme}://{http.Request.Host}";
             return Results.Json(new { token = s.Token.ToString("N"), path = s.Path, url = origin + s.Path, kind = s.Kind, readOnly = s.ReadOnly, expires = s.Expires }, Json);
         });
+    }
 
+    /// <summary>The addresses of the editor of a host file.</summary>
+    private static void MapLive(IEndpointRouteBuilder app)
+    {
         var live = app.MapGroup("/live/host/{token:guid}").AllowAnonymous();
 
         live.MapGet("", async (Guid token, bool? reload, HttpContext http, AppDbContext db, IHttpClientFactory clients) =>

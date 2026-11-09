@@ -26,6 +26,7 @@
   "System.RegistrationOpen.Hint": { "en": "Off: only administrators create new accounts.", "de": "Aus: nur Administratoren legen neue Konten an." },
   "System.PublicUrl": { "en": "Public address", "de": "Öffentliche Adresse" },
   "System.PublicUrl.Hint": { "en": "For the webhook addresses MatOffice shows. Empty: the address the page is opened at.", "de": "Für die Webhook-Adressen, die MatOffice anzeigt. Leer: die Adresse, unter der die Seite gerade aufgerufen wird." },
+  "System.PublicUrl.Fixed": { "en": "Set by MAT_PUBLIC_URL (Mattiverse): it cannot be changed here.", "de": "Festgelegt durch MAT_PUBLIC_URL (Mattiverse): hier lässt sie sich nicht ändern." },
   "System.PublicUrl.Invalid": { "en": "Please enter a full address like https://office.example.com, or leave it empty.", "de": "Bitte eine vollständige Adresse wie https://office.example.com eingeben oder das Feld leer lassen." },
   "System.About": { "en": "About this installation", "de": "Über diese Installation" },
   "System.Version": { "en": "Version", "de": "Version" },
@@ -34,5 +35,8 @@
   "System.Mail": { "en": "Mail", "de": "E-Mail" },
   "System.Mail.Off": { "en": "Off (no MatSMTP)", "de": "Aus (kein MatSMTP)" },
   "System.SharedDocuments": { "en": "Shared documents", "de": "Geteilte Dokumente" },
-  "System.LinkedDocuments": { "en": "Documents with a link", "de": "Dokumente mit Link" }
+  "System.LinkedDocuments": { "en": "Documents with a link", "de": "Dokumente mit Link" },
+  "System.Hosts": { "en": "Connected apps", "de": "Verbundene Apps" },
+  "Connections.Title": { "en": "Connections", "de": "Verbindungen" },
+  "Connections.Sub": { "en": "What MatOffice uses of other apps and offers them, such as MatDrive, whose office files open here", "de": "Was MatOffice von anderen Apps nutzt und ihnen anbietet, etwa MatDrive, dessen Office-Dateien sich hier öffnen" }
 }

@@ -55,9 +55,20 @@ builder.Services.AddSingleton<MailService>();
 builder.Services.AddHttpClient("host", c => c.Timeout = TimeSpan.FromSeconds(90));
 builder.Services.AddHostedService(sp => sp.GetRequiredService<MailService>());
 
-// The Mat platform contract (MatDesign docs/PLATFORM.md): /api, /api/health, /api/state, /api/configure, /api/actions with MAT_API_KEY or a token of MatIdentity.
+// The Mat platform contract (MatDesign docs/PLATFORM.md): /api, /api/health, /api/state, /api/configure, /api/actions with MAT_API_KEY or a token of MatIdentity,
+// and (2.0) /api/bindings for a broker, /api/connections and the Connections area of the administrators (/Admin/Connections).
 // The package MatPlatform (a copy in MatPlatform/) serves the endpoints; MatOfficePlatform describes MatOffice and supplies the values through the services.
-var platform = builder.AddMatPlatform<MatOfficePlatform>(MatOfficePlatform.Describe, o => o.DefaultLanguage = Languages.Default);
+// MAT_PUBLIC_URL (a broker) fixes the public address.
+var publicUrl = MatPlatformSettings.From(builder.Configuration, MatOfficePlatform.AppId).AppPublicUrl;
+var platform = builder.AddMatPlatform<MatOfficePlatform>(o => MatOfficePlatform.Describe(o, publicUrl), o =>
+{
+    o.DefaultLanguage = Languages.Default;
+    o.DataDirectory = dataDir;
+    o.ConnectionsAccess = http => Task.FromResult(http.User.IsInRole(nameof(UserRole.Admin)));
+});
+
+// office.edit: a binding is a host (HostClient with its key and its open files), not the generic key store of MatPlatform.
+builder.Services.AddScoped<IMatBindingHandler, MatOfficeHostBindings>();
 
 // The interface speaks English and German (MatOffice.Localization); every localizer reads the one catalog of JSON texts.
 builder.Services.AddSingleton<Microsoft.Extensions.Localization.IStringLocalizerFactory, CatalogLocalizerFactory>();
@@ -207,6 +218,10 @@ app.MapGet("/health", async (AppDbContext db) => await db.Database.CanConnectAsy
 app.MapDocumentEndpoints();
 app.MapHostEndpoints();
 app.MapMatPlatform();
+
+// "Connected apps" became the Connections area: the old addresses lead there (which asks for an administrator itself).
+app.MapGet("/Admin/Hosts/{**rest}", () => Results.LocalRedirect("/Admin/Connections", permanent: true)).AllowAnonymous();
+
 app.MapRazorPages();
 
 app.Run();

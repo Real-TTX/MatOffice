@@ -236,11 +236,18 @@ public sealed class DocumentVersion : Entity
 
 /// <summary>
 /// An app that may open its files in MatOffice (a <em>host</em>, e.g. MatDrive): it signs its calls with an API key. Only a hash of the key is stored; the key is
-/// shown once when it is made.
+/// shown once when it is made. A host is the binding of the capability <c>office.edit</c> (MatPlatform 2.0): made by a broker such as Mattiverse or by hand in the
+/// Connections area (<see cref="Services.Hosts.HostBindings"/>).
 /// </summary>
 public sealed class HostClient : SoftEntity
 {
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>The id of the consumer of the binding (<c>matdrive</c>); null for a host made by hand before the bindings (it is listed as <c>host-&lt;Id&gt;</c>).</summary>
+    public string? ConsumerId { get; set; }
+
+    /// <summary>Who made the binding: <c>mattiverse</c> (a broker) or <c>manual</c>; null = by hand before the bindings.</summary>
+    public string? ManagedBy { get; set; }
 
     /// <summary>SHA-256 of the key (hex).</summary>
     public string KeyHash { get; set; } = string.Empty;

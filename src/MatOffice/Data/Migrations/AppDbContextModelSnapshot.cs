@@ -238,6 +238,10 @@ namespace MatOffice.Data.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
+                    b.Property<string>("ConsumerId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -260,6 +264,10 @@ namespace MatOffice.Data.Migrations
                     b.Property<DateTime?>("LastUsedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ManagedBy")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -279,6 +287,10 @@ namespace MatOffice.Data.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ConsumerId")
+                        .IsUnique()
+                        .HasFilter("\"ConsumerId\" IS NOT NULL AND \"UpdateState\" <> 0");
 
                     b.HasIndex("KeyHash")
                         .IsUnique();

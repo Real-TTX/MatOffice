@@ -1,5 +1,6 @@
 using MatOffice.Data;
 using MatOffice.Localization;
+using MatPlatform;
 using Microsoft.EntityFrameworkCore;
 
 namespace MatOffice.Services;
@@ -28,7 +29,7 @@ public sealed record CleanUpResult(int Sessions, int Documents, int Versions, in
 /// The installation as a whole: its numbers, the few settings of the system (registration, public address), the state of the database and the housekeeping.
 /// The admin page System, the platform contract (<c>Platform/MatOfficePlatform</c>) and the background housekeeping go through it, so none of them needs the database itself.
 /// </summary>
-public sealed class InstanceService(AppDbContext db, AccountService accounts)
+public sealed class InstanceService(AppDbContext db, AccountService accounts, MatPlatformSettings platform)
 {
     /// <summary>Can the database be reached (the health check)?</summary>
     public async Task<bool> CanConnectAsync(CancellationToken ct = default)
@@ -77,12 +78,15 @@ public sealed class InstanceService(AppDbContext db, AccountService accounts)
         return $"PostgreSQL {cs.Host}:{cs.Port}/{cs.Database}";
     }
 
-    /// <summary>The settings of the system.</summary>
+    /// <summary>The settings of the system. The public address is <c>MAT_PUBLIC_URL</c> while a broker (Mattiverse) sets it (<see cref="PublicUrlFixed"/>), else the stored one.</summary>
     public async Task<(bool RegistrationOpen, string? PublicUrl)> SettingsAsync()
     {
         var s = await accounts.SettingsAsync();
-        return (s.RegistrationOpen, s.PublicUrl);
+        return (s.RegistrationOpen, platform.AppPublicUrl ?? NormalizePublicUrl(s.PublicUrl));
     }
+
+    /// <summary>True while <c>MAT_PUBLIC_URL</c> sets the public address: it is shown, never changed here.</summary>
+    public bool PublicUrlFixed => platform.AppPublicUrl is not null;
 
     /// <summary>
     /// Saves the settings of the system; a <c>null</c> leaves a value as it is, an empty address clears it. Answers the message for a public address that is not
@@ -91,6 +95,13 @@ public sealed class InstanceService(AppDbContext db, AccountService accounts)
     public async Task<string?> SaveSettingsAsync(bool? registrationOpen, string? publicUrl)
     {
         string? url = null;
+
+        // Set by MAT_PUBLIC_URL: what is stored stays, and comes back when the variable goes.
+        if (PublicUrlFixed)
+        {
+            publicUrl = null;
+        }
+
         if (publicUrl is not null)
         {
             url = NormalizePublicUrl(publicUrl);
